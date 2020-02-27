@@ -1,0 +1,43 @@
+---
+title: "Analyzing Title-Fit"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+
+# convert blanks to NA 
+schema <- read.csv("Data/schema.csv",na.strings="")
+mc_responses <- read.csv("Data/multipleChoiceResponses.csv",na.strings="")
+free_responses <- read.csv("Data/freeformResponses.csv",na.strings="")
+rates <- read.csv("Data/conversionRates.csv")
+```
+
+```{r}
+# the graveyard of question 3 code 
+keep_fr <- c('')
+keep_mc <- c('') 
+
+# issue arises: two rows from different sets could correspond to same interviewee
+# filtered_fr <- free_responses[keep_fr]
+# filtered_mc <- mc_responses[keep_mc]
+
+# remove rows where all columns NA 
+# fr <- filtered_fr[rowSums(is.na(filtered_fr)) != ncol(filtered_fr),]
+# mc <- filtered_mc[rowSums(is.na(filtered_mc)) != ncol(filtered_mc),]
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
