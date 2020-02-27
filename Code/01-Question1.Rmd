@@ -1,0 +1,19 @@
+---
+title: "Question 1"
+date: "2/26/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## **Question 1: Does typical compensation for Data Science professionals differ among densely populated and sparsely populated areas? (‘Dense’ definition >12,000 per square mile; ‘sparse’ definition <6,000 per square mile). **
+
+### *Define density by following metrics country population, number of entries per country, number of entries per title (i.e 7000 Data Scientist vs 3000 Data Engineer)*
+
+### *Use ANOVA to test possible differences in multiple groups and Linear Regression to test if there is a linear relationship between compensation and the density of groups. *
+
+### *Test level of power data set allows for our research given the n number of responses.*
+
+

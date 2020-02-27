@@ -1,0 +1,12 @@
+---
+title: "Question 2"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## **Question 2: Do similar data science jobs that involve different programming languages see comparable salaries (i.e. Data Analyst/Data Scientist, Machine Learning Engineer/Machine Learning Scientist)?**
+
+### *Group by primary programming language (python, R, SQL..) and test for significant difference among groups through Welch t-test and ANOVA tests. *

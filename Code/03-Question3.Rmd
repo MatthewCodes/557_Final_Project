@@ -1,0 +1,16 @@
+---
+title: "Question 3"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## **Question 3: Among professionals in the data science industry, does compensation differ significantly based on level of education?**
+
+### *Identify the power of Welch t test, ANOVA, and possibly Linear regression.*
+
+### *Test for significant difference between the different education groups (Bachelor, Masters’, PhD)*
+
+### *Test for linear relationship in compensation as an increase in education level*
