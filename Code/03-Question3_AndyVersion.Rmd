@@ -37,7 +37,7 @@ The highest value is 28 Billion and mean is 6 Million, so there is definitely so
 Below is data capped at 1 million USD.
 ```{r}
 d <- d[d$d0.CompensationYearUSD < 1000000,]
-d <- d[d$d0.CompensationYearUSD > 0,]
+d <- d[d$d0.CompensationYearUSD > 10000,]
 hist(d$d0.CompensationYearUSD)
 ```
 
@@ -90,16 +90,16 @@ The sample sizes lower dramatically beyond the three major categories of bachelo
 
 Power of multiple Welch t test
 ```{r}
-set.seed(5)
-n = 5
+set.seed(3)
+n = 1000
 
-m1 = 66000
-m2 = 76000
-m3 = 56000
+m1 = 55000
+m2 = 64000
+m3 = 87000
 
-s1 = 60000
-s2 = 50000
-s3 = 30000
+s1 = 57000
+s2 = 56000
+s3 = 65000
 
 reps=1000
 pvalues=data.frame(p12=rep(NA,reps),p13=rep(NA,reps),p23=rep(NA,reps))
@@ -111,6 +111,15 @@ for(i in 1:reps){
   pvalues$p13[i]=t.test(x1,x3,var.equal=F)$p.value
   pvalues$p23[i]=t.test(x2,x3,var.equal=F)$p.value
 }
+
+# This creates a dataframe with a TRUE or FALSE value for each pairwise test indicating if it rejected
+# as well as a column indicating if any one test rejected
+reject = data.frame(pvalues < 0.05, any.rejection=apply(pvalues<0.05, 1, any))
+
+# This calculates the mean TRUE entries in each column (proportion of rejections) and shows a given number of decimal places for the results
+results = apply(reject,2,mean)
+dec = 5
+format(round(results, dec), nsmall=dec)
 
 ```
 
