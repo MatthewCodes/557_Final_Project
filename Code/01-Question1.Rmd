@@ -16,4 +16,38 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### *Test level of power data set allows for our research given the n number of responses.*
 
+```{r}
+# Why did you choose a split of 500 for the density?
+data <- read.csv("../Data/Data_Science_Density.csv")
+high_density <- data[data$Density > 500,]
+low_density <- data[data$Density < 500,]
+```
 
+# Interesting fact: We have significantly more datapoints for low density locations than high density locations.
+
+```{r}
+# Random data facts (mean, sd, variance)
+high_sd   <- sd(high_density$Density)
+high_mean <- mean(high_density$Density)
+high_var <-high_sd**2
+
+low_sd   <- sd(low_density$Density)
+low_mean <- mean(low_density$Density)
+low_var <-low_sd**2
+```
+
+```{r}
+# Sample size estimation for question
+delta <- high_mean - low_mean
+n1 <- dim(high_density)[1]
+n2 <- dim(low_density)[1]
+denom <- sqrt(high_var/n1 + low_var/n2)
+Z = delta/denom
+n = ((low_var + high_var)*(1.96 + Z))/(delta**2)
+```
+
+
+
+# Type 1 error probability 
+# Power estimation
+# Actual Anova Test (Assuming qual variances)
