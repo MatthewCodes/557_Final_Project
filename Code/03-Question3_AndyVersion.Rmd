@@ -1,0 +1,119 @@
+---
+title: "Question 3"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Thoughts about the Data
+
+There are issues with the data concering compensation beyond the abundance of NA values (which can be removed for our purposes).
+
+There are many entries that are 0 or a very low value (a couple thousand). There is no obvious way to interpret this, particularly the 0's. The appearance of really low values might suggest that some of the respondents are not in full time employment as data scientists. Perhaps some respondents are consultants, contractors, work part time / remotely, or even do it as a side gig. If this is the case, it could seriously interfere with any analysis of differences in compensation.
+
+It might be worthwhile to look into dichotomizing the compensation data, in other words find somewhere to split it so that we can look at just the compensations which could be for full time employment, and perhaps separately look at the lower compensations.
+
+## Preliminary Findings
+```{r}
+d0 <- read.csv("../Data/DataScienceData.csv")
+```
+These are all the present responses for level of education.
+```{r}
+d <- data.frame(d0$FormalEducation, d0$CompensationYearUSD)
+d <- na.omit(d)
+unique(d$d0.FormalEducation)
+```
+
+Here is plot of compensation in USD overall
+```{r}
+hist(d$d0.CompensationYearUSD)
+max(d$d0.CompensationYearUSD)
+mean(d$d0.CompensationYearUSD)
+mean(d$d0.CompensationYearUSD[d$d0.FormalEducation=="Bachelor's degree"])
+```
+The highest value is 28 Billion and mean is 6 Million, so there is definitely some entry error or plain out junk data. It seems reasonable to remove outliers.
+
+Below is data capped at 1 million USD.
+```{r}
+d <- d[d$d0.CompensationYearUSD < 1000000,]
+d <- d[d$d0.CompensationYearUSD > 0,]
+hist(d$d0.CompensationYearUSD)
+```
+
+```{r}
+mean(d$d0.CompensationYearUSD)
+sd(d$d0.CompensationYearUSD)
+mean(d$d0.CompensationYearUSD[d$d0.FormalEducation=="Bachelor's degree"])
+```
+These numbers seem much more familiar and reasonable, except the standard deviation is almost equal to the mean, which is unusual. This is also being affected by the really low values that don't seem to correspond to full time employment. 
+
+```{r}
+unique(d$d0.FormalEducation)
+
+"bachelor's"
+bach = d[d$d0.FormalEducation=="Bachelor's degree",]
+nrow(bach)
+mean(bach$d0.CompensationYearUSD)
+sd(bach$d0.CompensationYearUSD)
+
+"master's"
+mas = d[d$d0.FormalEducation=="Master's degree",]
+nrow(mas)
+mean(mas$d0.CompensationYearUSD)
+sd(mas$d0.CompensationYearUSD)
+
+"doctorate"
+doc = d[d$d0.FormalEducation=="Doctoral degree",]
+nrow(doc)
+mean(doc$d0.CompensationYearUSD)
+sd(doc$d0.CompensationYearUSD)
+
+"professional"
+prof = d[d$d0.FormalEducation=="Professional degree",]
+nrow(prof)
+mean(prof$d0.CompensationYearUSD)
+sd(prof$d0.CompensationYearUSD)
+
+"some college"
+sc = d[d$d0.FormalEducation=="Some college/university study without earning a bachelor's degree",]
+nrow(sc)
+mean(sc$d0.CompensationYearUSD)
+sd(sc$d0.CompensationYearUSD)
+```
+The sample sizes lower dramatically beyond the three major categories of bachelor's, master's, and doctorate degrees. Might it be reasonable to only look at those three?
+
+
+## **Question 3: Among professionals in the data science industry, does compensation differ significantly based on level of education?**
+
+### *Identify the power of Welch t test, ANOVA, and possibly Linear regression.*
+
+Power of multiple Welch t test
+```{r}
+set.seed(5)
+n = 5
+
+m1 = 66000
+m2 = 76000
+m3 = 56000
+
+s1 = 60000
+s2 = 50000
+s3 = 30000
+
+reps=1000
+pvalues=data.frame(p12=rep(NA,reps),p13=rep(NA,reps),p23=rep(NA,reps))
+for(i in 1:reps){
+  x1=rnorm(n,m1,s1)
+  x2=rnorm(n,m2,s2)
+  x3=rnorm(n,m3,s3)
+  pvalues$p12[i]=t.test(x1,x2,var.equal=F)$p.value
+  pvalues$p13[i]=t.test(x1,x3,var.equal=F)$p.value
+  pvalues$p23[i]=t.test(x2,x3,var.equal=F)$p.value
+}
+
+```
+
+### *Test for significant difference between the different education groups (Bachelor, Masters’, PhD)*
+
+### *Test for linear relationship in compensation as an increase in education level*
