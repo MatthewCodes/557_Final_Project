@@ -5,8 +5,55 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(ggpubr)
+library(gridExtra)
 ```
 
 ## **Question 2: Do similar data science jobs that involve different programming languages see comparable salaries (i.e. Data Analyst/Data Scientist, Machine Learning Engineer/Machine Learning Scientist)?**
+
+We needed to create groups for the 17 different entries to the Current Job Title descriptions. For this we decided upon grouping titles into 'Scientist' (people probably utilizing higher level math/statistics), 'ResearchAnalyst' (those focused with general data analysis and manipulation), 'Engineer' (titles focused in the data engineering or software), and 'Other' (description unknown).
+
+```{r, Jobtitlegroups}
+
+Scientists <- c("Statistician", "Data Scientist", "Machine Learning Engineer", "Predictive Modeler", "Scientist/Researcher")
+ResearchAnalyst <- c("Data Analyst", "Business Analyst", "Data Miner", "Researcher")
+Engineer <- c("Software Developer/Software Engineer", "Programmer", "Computer Scientist", "Operations Research Practitioner", "Engineer", "DBA/Database Engineer")
+
+DSdata1 <- DSdata[,] 
+DSdata1$JobTitleGroup <- if_else(DSdata1$CurrentJobTitleSelect %in% Scientists, "Scientist", if_else(DSdata1$CurrentJobTitleSelect %in% ResearchAnalyst,'ResearchAnalyst',if_else(DSdata1$CurrentJobTitleSelect %in% Engineer, 'Engineer', 'Other'))) 
+
+```
+
+```{r, setup-dfs}
+
+pythondf <- DSdata1 %>%
+  filter(!is.na(CompensationYearUSD), LanguageRecommendationSelect == 'Python')
+
+Rdf <- DSdata1 %>%
+  filter(!is.na(CompensationYearUSD), LanguageRecommendationSelect == 'R')
+
+sqldf <- DSdata1 %>%
+  filter(!is.na(CompensationYearUSD), LanguageRecommendationSelect == 'SQL')
+
+```
+
+```{r, eda-figures}
+
+rden <- Rdf %>%
+  ggplot(aes(x=CompensationYearUSD, fill = JobTitleGroup, color = JobTitleGroup))+ geom_density(alpha = .3) + scale_x_log10() + ggtitle('R') 
+
+qden <-sqldf %>%
+  ggplot(aes(x=CompensationYearUSD, fill = JobTitleGroup, color = JobTitleGroup))+ geom_density(alpha = .3) + scale_x_log10() + ggtitle('SQL') 
+
+pden <- pythondf %>%
+  ggplot(aes(x=CompensationYearUSD, fill = JobTitleGroup, color = JobTitleGroup))+ geom_density(alpha = .3) + scale_x_log10() + ggtitle("Python")
+
+ggarrange(pden, rden, qden,
+          ncol = 1, nrow = 3)
+```
+
+From the density chart, we can see that there is a general similarity to the distribution of annual compensation in USD for all the groups within a given language.
 
 ### *Group by primary programming language (python, R, SQL..) and test for significant difference among groups through Welch t-test and ANOVA tests. *
