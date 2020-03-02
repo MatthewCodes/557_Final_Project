@@ -7,9 +7,36 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r, load-data-libraries, warning=FALSE, message=FALSE}
+library(tidyverse)
+
+DSdata <- read_csv('../Data/DataScienceData.csv')
+
+```
+
 ## **Question 3: Among professionals in the data science industry, does compensation differ significantly based on level of education?**
 
+```{r, eda-figures}
+p <- DSdata %>%
+  filter(!is.na(CompensationYearUSD), FormalEducation == c("Professional degree","Bachelor's degree","Doctoral degree","Master's degree")) %>%
+  ggplot(aes(x=FormalEducation, y = CompensationYearUSD))
+
+p + geom_boxplot() + scale_y_log10() + geom_jitter(shape=16, position=position_jitter(0.2), alpha = .3)
+
+q <- DSdata %>%
+  filter(!is.na(CompensationYearUSD), FormalEducation == c("Professional degree","Bachelor's degree","Doctoral degree","Master's degree")) %>%
+  ggplot(aes(x = CompensationYearUSD, fill = FormalEducation))
+
+q + geom_density(alpha = .2) + scale_x_log10()
+```
+
+The data needed a log transformation on the USD year compensation for the distribution of the "Advance degrees" categories. This is due to some of the participants being consultants or having project base compensation, instead of a salary. We can see this outliers especially in the Master's and Doctoral categories.
+
 ### *Identify the power of Welch t test, ANOVA, and possibly Linear regression.*
+
+
+
+
 
 ### *Test for significant difference between the different education groups (Bachelor, Masters’, PhD)*
 
