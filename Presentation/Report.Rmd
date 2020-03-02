@@ -1,0 +1,21 @@
+---
+title: "Report"
+author: "Anmol Srivastava, Juan Solorio, Matthew Rhodes, and Andy De La Fuente"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Title
+
+## Abstract
+## Introduction
+## Data Set Description
+## Statistical Methods
+## Results 
+## Discussion
+## References
+## Tables & Figures
+## Appendices 
