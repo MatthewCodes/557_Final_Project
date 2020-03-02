@@ -91,7 +91,7 @@ The sample sizes lower dramatically beyond the three major categories of bachelo
 Power of multiple Welch t test
 ```{r}
 set.seed(3)
-n = 1000
+n = 100
 
 m1 = 55000
 m2 = 64000
@@ -122,6 +122,7 @@ dec = 5
 format(round(results, dec), nsmall=dec)
 
 ```
+These results seem extreme; two of the pairwise tests appear to have perfect power given this sample size (a sample size of 100 in contrast gives more reasonable looking powers).
 
 ### *Test for significant difference between the different education groups (Bachelor, Masters’, PhD)*
 
