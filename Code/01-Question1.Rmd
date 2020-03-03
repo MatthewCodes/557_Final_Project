@@ -20,7 +20,11 @@ knitr::opts_chunk$set(echo = TRUE)
 # Why did you choose a split of 500 for the density?
 data <- read.csv("../Data/Data_Science_Density.csv")
 high_density <- data[data$Density > 500,]
+high_density <- na.omit(high_density, cols= "CompensationAmount")
 low_density <- data[data$Density < 500,]
+
+low_density <- na.omit(low_density, cols= "CompensationAmount")
+#low_density <- low_density[1:1394,]
 ```
 
 # Interesting fact: We have significantly more datapoints for low density locations than high density locations.
@@ -43,11 +47,32 @@ n1 <- dim(high_density)[1]
 n2 <- dim(low_density)[1]
 denom <- sqrt(high_var/n1 + low_var/n2)
 Z = delta/denom
-n = ((low_var + high_var)*(1.96 + Z))/(delta**2)
+n = ((low_var + high_var)*  ((qnorm(1- 0.025) + qnorm(.9))**2)   )/(delta**2)
+```
+
+```{r}
+# Power estimation
+power <- pnorm(-1.96 + Z)
+
+```
+
+```{r}
+# Type 1 error probability 
+high_sample <- high_density[sample(nrow(high_density), n, replace = FALSE),]
+summary(aov(high_sample$CompensationAmount ~ high_sample$Density))
+hc <- high_sample["CompensationAmount"]
+hd <- high_sample["Density"]
+summary(lm(hc,hd ))
+# In order to do this properly I need to label all the high as 1 and all the low as 0 then combine them
 ```
 
 
+```{r}
+# Actual Anova Test (Assuming equal variances) of Compensation ~ high_density, Compensation ~ low_density
 
-# Type 1 error probability 
-# Power estimation
-# Actual Anova Test (Assuming qual variances)
+
+
+```
+
+
+# Conclusion from Anova Testing
