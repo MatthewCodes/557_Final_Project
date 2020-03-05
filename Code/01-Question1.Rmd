@@ -20,24 +20,28 @@ knitr::opts_chunk$set(echo = TRUE)
 # Why did you choose a split of 500 for the density?
 data <- read.csv("../Data/Data_Science_Density.csv")
 high_density <- data[data$Density > 500,]
-high_density <- na.omit(high_density, cols= "CompensationAmount")
+high_density <- na.omit(high_density, cols= "CompensationYearUSD")
 low_density <- data[data$Density < 500,]
 
-low_density <- na.omit(low_density, cols= "CompensationAmount")
+low_density <- na.omit(low_density, cols= "CompensationYearUSD")
 #low_density <- low_density[1:1394,]
+x <- high_density$CompensationYearUSD
+data.frame(sort.list(x, decreasing = TRUE, na.last = TRUE))
 ```
 
 # Interesting fact: We have significantly more datapoints for low density locations than high density locations.
 
 ```{r}
 # Random data facts (mean, sd, variance)
-high_sd   <- sd(high_density$Density)
-high_mean <- mean(high_density$Density)
+high_sd   <- sd(high_density$CompensationYearUSD)
+high_mean <- mean(high_density$CompensationYearUSD)
 high_var <-high_sd**2
 
-low_sd   <- sd(low_density$Density)
-low_mean <- mean(low_density$Density)
+low_sd   <- sd(low_density$CompensationYearUSD)
+low_mean <- mean(low_density$CompensationYearUSD)
 low_var <-low_sd**2
+high_density$CompensationYearUSD[high_density$CompensationYearUSD>250000] <- 250000
+boxplot(high_density$CompensationYearUSD)
 ```
 
 ```{r}
@@ -74,5 +78,96 @@ summary(lm(hc,hd ))
 
 ```
 
+```{r}
+# All the actual code
+# Why did you choose a split of 500 for the density?
+library(naniar)
+data <- read.csv("C://Users//Matth//OneDrive//Documents//Data Science//DATA 557//557_Final_Project//Data//Data_Science_Density.csv")
+high_density <- data[data$Density > 500,]
+high_density <- na.omit(high_density, cols= "CompensationYearUSD")
+high_density$CompensationYearUSD[high_density$CompensationYearUSD>500000] <- 0
+salary <- high_density[high_density$CompensationYearUSD > 30000,]
+commision <- high_density[high_density$CompensationYearUSD < 30000,]
 
+#commision[, 20] <- log(commision[20])
+commision <- commision %>% replace_with_na(replace = list(CompensationYearUSD = c(-Inf, Inf)))
+commision <- na.omit(commision, cols= "CompensationYearUSD")
+high_commision_mean <- mean(commision$CompensationYearUSD)
+#high_commision_mean <- exp(commision_mean)
+high_commision_sd   <- sd(commision$CompensationYearUSD)
+high_commision_var  <- high_commision_sd**2
+
+#salary[, 20] <- log(salary[20])
+salary <- salary %>% replace_with_na(replace = list(CompensationYearUSD = c(-Inf, Inf)))
+salary <- na.omit(salary, cols= "CompensationYearUSD")
+high_salary_mean <- mean(salary$CompensationYearUSD)
+#high_salary_mean <- exp(salary_mean)
+high_salary_sd   <- sd(salary$CompensationYearUSD)
+high_salary_var  <- high_salary_sd**2
+
+##########################################################
+
+
+low_density <- data[data$Density < 500,]
+low_density <- na.omit(low_density, cols= "CompensationYearUSD")
+low_density$CompensationYearUSD[low_density$CompensationYearUSD>500000] <- 0
+salary2 <- low_density[low_density$CompensationYearUSD > 20000,]
+commision2 <- low_density[low_density$CompensationYearUSD < 20000,]
+
+
+#commision2[, 20] <- log(commision2[20])
+commision2 <- commision2 %>% replace_with_na(replace = list(CompensationYearUSD = c(-Inf, Inf)))
+commision2 <- na.omit(commision2, cols= "CompensationYearUSD")
+low_commision2_mean <- mean(commision2$CompensationYearUSD)
+#low_commision2_mean <- exp(commision2_mean)
+low_commision2_sd   <- sd(commision2$CompensationYearUSD)
+low_commision2_var  <- low_commision2_sd**2
+
+
+#salary2[, 20] <- log(salary2[20])
+salary2 <- salary2 %>% replace_with_na(replace = list(CompensationYearUSD = c(-Inf, Inf)))
+salary2 <- na.omit(salary2, cols= "CompensationYearUSD")
+low_salary2_mean <- mean(salary2$CompensationYearUSD)
+#low_salary2_mean <- exp(salary2_mean)
+low_salary2_sd   <- sd(salary2$CompensationYearUSD)
+low_salary2_var  <- low_salary2_sd**2
+
+
+
+delta <-  low_salary2_mean - high_salary_mean
+n1 <- dim(salary)[1]
+n2 <- dim(salary2)[1]
+denom <- sqrt(high_salary_var/n1 + low_salary2_var/n2)
+Z = delta/denom
+power <- pnorm(-1.96 + Z)
+
+delta <-   high_commision_mean - low_commision2_mean 
+n1 <- dim(commision)[1]
+n2 <- dim(commision2)[1]
+denom <- sqrt(high_commision_var/n1 + low_commision2_var/n2)
+Z = delta/denom
+power2 <- pnorm(-1.96 + Z)
+
+
+salary <- cbind(high = 1, salary)
+salary2 <- cbind(high = 0, salary2)
+total_salary <- rbind(salary, salary2)
+summary(aov(total_salary$CompensationYearUSD ~ total_salary$high))
+summary(lm(total_salary$CompensationYearUSD ~ total_salary$high))
+plot(total_salary$high, total_salary$CompensationYearUSD)
+abline(lm(total_salary$CompensationYearUSD ~ total_salary$high))
+
+commision <- cbind(high = 1, commision)
+commision2 <- cbind(high = 0, commision2)
+total_commision <- rbind(commision, commision2)
+summary(aov(total_commision$CompensationYearUSD ~ total_commision$high))
+summary(lm(total_commision$CompensationYearUSD ~ total_commision$high))
+plot(total_commision$high, total_commision$CompensationYearUSD)
+
+hist(total_commision$CompensationYearUSD)
+hist(total_salary$CompensationYearUSD)
+
+
+
+```
 # Conclusion from Anova Testing
