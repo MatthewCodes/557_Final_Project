@@ -31,11 +31,15 @@ data.frame(sort.list(x, decreasing = TRUE, na.last = TRUE))
 
 # Interesting fact: We have significantly more datapoints for low density locations than high density locations.
 
+#Juan: there seems to be some rows missing. I checked the number of NAs in 'data$CompensationAmount' (high at about 69%), but after omiting them, the remaining values still dont add up to the original length amount of 5217. 
+
 ```{r}
 # Random data facts (mean, sd, variance)
 high_sd   <- sd(high_density$CompensationYearUSD)
 high_mean <- mean(high_density$CompensationYearUSD)
 high_var <-high_sd**2
+summary(high_density$Density)
+
 
 low_sd   <- sd(low_density$CompensationYearUSD)
 low_mean <- mean(low_density$CompensationYearUSD)
