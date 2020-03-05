@@ -175,3 +175,4 @@ hist(total_salary$CompensationYearUSD)
 
 ```
 # Conclusion from Anova Testing
+# There is evidence to reject the null hypothesis
