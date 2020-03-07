@@ -8,14 +8,30 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Title
+# Title NUMBER UR PAGES PDF 
 
 ## Abstract
+
+
 ## Introduction
+aims + questions, background material/research briefly 
+
 ## Data Set Description
+source, collection methods, study design (randomized exp, obs, survey, etc)
+
 ## Statistical Methods
+methods, discussion of assumptions, explanation for why methods appropriate 
+
 ## Results 
+graphs, tables, descriptive info about data and results of analysis 
+
 ## Discussion
+summarize results and conclusions 
+limits of analyses 
+limits of data too 
+
 ## References
-## Tables & Figures
+brief 
+
 ## Appendices 
+more technical aspects of analyses, any other tidbits 
