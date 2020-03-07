@@ -6,6 +6,7 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+knitr::read_chunk("../Code/01-Question1.Rmd")
 ```
 
 # Title NUMBER UR PAGES PDF 
@@ -21,9 +22,14 @@ source, collection methods, study design (randomized exp, obs, survey, etc)
 
 ## Statistical Methods
 methods, discussion of assumptions, explanation for why methods appropriate 
+Anova, Welch T-test, linear regression
 
 ## Results 
 graphs, tables, descriptive info about data and results of analysis 
+# Results from Question 1
+```{r, Q1, child="../Code/01-Question1.Rmd"}
+```
+
 
 ## Discussion
 summarize results and conclusions 
