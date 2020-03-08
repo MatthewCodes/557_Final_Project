@@ -140,19 +140,53 @@ t.test(total_commision$CompensationYearUSD ~ total_commision$high)
 
 ```
 
+```{r}
+#Plots for the high density salary & commission
+
+png(filename = "High Density Commission Histogram.png")
+hist(commision$CompensationYearUSD)
+dev.off()
+
+png(filename = "High Density Salary Histogram.png")
+hist(salary$CompensationYearUSD)
+dev.off()
+
+#Plots for the low density salary & commission
+
+png(filename = "Low Density Commission Histogram.png")
+hist(commision2$CompensationYearUSD)
+dev.off()
+
+png(filename = "Low Density Salary Histogram.png")
+hist(salary2$CompensationYearUSD)
+dev.off()
+```
+
+
+
+
 ```{r, Question_1_plots, dependson= "Q1_data", eval=TRUE}
 # Interesting plots for salary
+png(filename = "Salary Linear regression.png")
 plot(total_salary$high, total_salary$CompensationYearUSD)
 abline(lm(total_salary$CompensationYearUSD ~ total_salary$high))
-#png(filename = "Salary Linear regression.png")
+
+dev.off()
+png(filename = "Salary histogram.png" )
 hist(total_salary$CompensationYearUSD)
-#png(filename = "Salary histogram.png" )
+
+dev.off()
+
 # Interesting plots for commmision
+png(filename = "Commission Linear regression.png")
 plot(total_commision$high, total_commision$CompensationYearUSD)
 abline(lm(total_commision$CompensationYearUSD ~ total_commision$high))
-#png(filename = "Commission Linear regression.png")
+
+dev.off()
+png(filename = "Commission Histogram.png")
 hist(total_commision$CompensationYearUSD)
-#png(filename = "Commission Histogram.png")
+
+dev.off()
 
 ```
 # Conclusion from initial statistics, is that we should not use Anova or linear regression because the variances are not the same, and 
