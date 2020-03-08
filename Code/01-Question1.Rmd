@@ -107,12 +107,6 @@ Z = delta/denom
 power2 <- pnorm(-1.96 + Z)
 ```
 
-```{r}
-# Type 1 error probability 
-
-
-```
-
 
 ```{r, testing, eval= TRUE, echo=FALSE}
 # Actual Anova Test and linear regression of Compensation ~ High_Low_Density for salary
@@ -191,6 +185,7 @@ dev.off()
 ```
 # Conclusion from initial statistics, is that we should not use Anova or linear regression because the variances are not the same, and 
 
-# we know that equal variances are a problem no matter how large the sample size thus we should use Welch.
+# we know that equal variances are a problem no matter how large the sample size thus we should use Welch. However, we also know that there
+# is a certain thershold that counts as equal variance so we ran the tests anyway.
 # When looking at the p-value for salary and commision they are 2.592e-12 and 7.519e-11 respectively so there is evidence to reject the null hypothesis
 # meaning that density has an effect on compensation for salary and commision.

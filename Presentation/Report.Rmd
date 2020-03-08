@@ -16,9 +16,18 @@ knitr::read_chunk("../Code/01-Question1.Rmd")
 
 ## Introduction
 aims + questions, background material/research briefly 
-
+After analysis of the data during the initial exploration, we noticed that the
+data should be split into two initial groups (people who are working from commission and those on salary).
+This split was made because the data contained a large amount of answers that were less than an assumed salary 
+would be (40k+). There were also data points that were obvious outliers (people who earn 1,000,000 or more) the
+maximum salary was 28,000,000,000 so
+we decided to cap those values because we conluded that nobody is making more than 500,000 salary. Another thing
+that should be noted is that we are only considering people that are employed.
 ## Data Set Description
 source, collection methods, study design (randomized exp, obs, survey, etc)
+
+
+
 
 ## Statistical Methods
 methods, discussion of assumptions, explanation for why methods appropriate 
