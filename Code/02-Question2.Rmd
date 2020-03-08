@@ -3,12 +3,14 @@ title: "Question 2"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse)
 library(ggpubr)
 library(gridExtra)
+
+DSdata <- read_csv("C:/Users/Juan Solorio/Desktop/DataScience/Grad School/Classes/Data 557/557_Final_Project/Data/DataScienceData.csv")
 ```
 
 ## **Question 2: Do similar data science jobs that involve different programming languages see comparable salaries (i.e. Data Analyst/Data Scientist, Machine Learning Engineer/Machine Learning Scientist)?**
@@ -22,6 +24,7 @@ ResearchAnalyst <- c("Data Analyst", "Business Analyst", "Data Miner", "Research
 Engineer <- c("Software Developer/Software Engineer", "Programmer", "Computer Scientist", "Operations Research Practitioner", "Engineer", "DBA/Database Engineer")
 
 DSdata1 <- DSdata[,] 
+DSdata1$CapSalary <- if_else(DSdata1$CompensationYearUSD > 500000, 500000, DSdata1$CompensationYearUSD)
 DSdata1$JobTitleGroup <- if_else(DSdata1$CurrentJobTitleSelect %in% Scientists, "Scientist", if_else(DSdata1$CurrentJobTitleSelect %in% ResearchAnalyst,'ResearchAnalyst',if_else(DSdata1$CurrentJobTitleSelect %in% Engineer, 'Engineer', 'Other'))) 
 
 ```
@@ -29,13 +32,25 @@ DSdata1$JobTitleGroup <- if_else(DSdata1$CurrentJobTitleSelect %in% Scientists, 
 ```{r, setup-dfs}
 
 pythondf <- DSdata1 %>%
-  filter(!is.na(CompensationYearUSD), LanguageRecommendationSelect == 'Python')
+  filter(!is.na(CompensationYearUSD), LanguageRecommendationSelect == 'Python', CompensationYearUSD >= 20000)
 
 Rdf <- DSdata1 %>%
-  filter(!is.na(CompensationYearUSD), LanguageRecommendationSelect == 'R')
+  filter(!is.na(CompensationYearUSD), LanguageRecommendationSelect == 'R', CompensationYearUSD >= 20000)
 
 sqldf <- DSdata1 %>%
-  filter(!is.na(CompensationYearUSD), LanguageRecommendationSelect == 'SQL')
+  filter(!is.na(CompensationYearUSD), LanguageRecommendationSelect == 'SQL', CompensationYearUSD >= 20000)
+
+scidf <- DSdata1 %>%
+  filter(!is.na(CompensationYearUSD), CompensationYearUSD >= 20000, JobTitleGroup == 'Scientist', LanguageRecommendationSelect == c('SQL', 'Python', 'R'))
+
+engdf <- DSdata1 %>%
+  filter(!is.na(CompensationYearUSD), CompensationYearUSD >= 20000, JobTitleGroup == 'Engineer', LanguageRecommendationSelect == c('SQL', 'Python', 'R'))
+
+resanldf <- DSdata1 %>%
+  filter(!is.na(CompensationYearUSD), CompensationYearUSD >= 20000, JobTitleGroup == 'ResearchAnalyst' , LanguageRecommendationSelect == c('SQL', 'Python', 'R'))
+
+otherdf <- DSdata1 %>%
+  filter(!is.na(CompensationYearUSD), CompensationYearUSD >= 20000, JobTitleGroup == 'Other', LanguageRecommendationSelect == c('SQL', 'Python', 'R'))
 
 ```
 
@@ -54,6 +69,43 @@ ggarrange(pden, rden, qden,
           ncol = 1, nrow = 3)
 ```
 
-From the density chart, we can see that there is a general similarity to the distribution of annual compensation in USD for all the groups within a given language.
+From the density chart, we can see that there is a general similarity to the distribution of annual compensation in USD for all the groups within a given analytics language.
 
 ### *Group by primary programming language (python, R, SQL..) and test for significant difference among groups through Welch t-test and ANOVA tests. *
+
+```{r, tests-with-language}
+
+anova.groups.python <- aov(CapSalary ~ JobTitleGroup, data = pythondf)
+
+lm.groups.python <- lm(CapSalary ~ JobTitleGroup, data = pythondf)
+
+anova.groups.r <- aov(CapSalary ~ JobTitleGroup, data = Rdf)
+
+lm.groups.r <- lm(CapSalary ~ JobTitleGroup, data = Rdf)
+
+anova.groups.sql <- aov(CapSalary ~ JobTitleGroup, data = sqldf)
+
+lm.groups.sql <- lm(CapSalary ~ JobTitleGroup, data = sqldf)
+
+```
+
+```{r, test-with-titles}
+
+anova.scientist <- aov(CapSalary ~ LanguageRecommendationSelect,  data = scidf)
+
+lm.scientist <- lm(CapSalary ~ factor(LanguageRecommendationSelect),  data = scidf)
+
+anova.eng <- aov(CapSalary ~ LanguageRecommendationSelect,  data = engdf)
+
+lm.eng <- lm(CapSalary ~ LanguageRecommendationSelect,  data = engdf)
+
+anova.research <- aov(CapSalary ~ LanguageRecommendationSelect,  data = resanldf)
+
+lm.research <- lm(CapSalary ~ LanguageRecommendationSelect,  data = resanldf)
+
+anova.other <- aov(CapSalary ~ LanguageRecommendationSelect,  data = otherdf)
+
+lm.other <- lm(CapSalary ~ LanguageRecommendationSelect,  data = otherdf)
+
+```
+
