@@ -144,13 +144,15 @@ t.test(total_commision$CompensationYearUSD ~ total_commision$high)
 # Interesting plots for salary
 plot(total_salary$high, total_salary$CompensationYearUSD)
 abline(lm(total_salary$CompensationYearUSD ~ total_salary$high))
+#png(filename = "Salary Linear regression.png")
 hist(total_salary$CompensationYearUSD)
-
+#png(filename = "Salary histogram.png" )
 # Interesting plots for commmision
 plot(total_commision$high, total_commision$CompensationYearUSD)
 abline(lm(total_commision$CompensationYearUSD ~ total_commision$high))
+#png(filename = "Commission Linear regression.png")
 hist(total_commision$CompensationYearUSD)
-
+#png(filename = "Commission Histogram.png")
 
 ```
 # Conclusion from initial statistics, is that we should not use Anova or linear regression because the variances are not the same, and 
