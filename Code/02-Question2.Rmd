@@ -55,7 +55,7 @@ otherdf <- DSdata1 %>%
 
 ```
 
-```{r, eda-figures}
+```{r, density-fig-Lang}
 
 rden <- Rdf %>%
   ggplot(aes(x=CompensationYearUSD, fill = JobTitleGroup, color = JobTitleGroup))+ geom_density(alpha = .3) + scale_x_log10() + ggtitle('R') + theme(axis.title.x=element_blank(), axis.title.y = element_blank())
@@ -78,6 +78,55 @@ annotate_figure(density.lang,
 ```
 
 From the density chart, we can see that there is a general similarity to the distribution of annual compensation in USD for all the groups within a given analytics language.
+
+```{r, boxplot-fig-Lang}
+pbox <- pythondf %>%
+  ggplot(aes(y=CapSalary, x=JobTitleGroup)) + geom_boxplot() + theme(axis.title.x=element_blank(), axis.title.y = element_blank()) + scale_y_log10()
+
+rbox <- Rdf %>%
+  ggplot(aes(y=CapSalary, x=JobTitleGroup)) + geom_boxplot() + theme(axis.title.x=element_blank(), axis.title.y = element_blank()) + scale_y_log10()
+
+sqlbox <- sqldf %>%
+  ggplot(aes(y=CapSalary, x=JobTitleGroup)) + geom_boxplot()+ theme(axis.title.x=element_blank(), axis.title.y = element_blank()) + scale_y_log10()
+
+boxplot.lang <- ggarrange(pbox, rbox, sqlbox,
+          ncol = 1, nrow = 3) 
+
+annotate_figure(boxplot.lang, 
+                top = text_grob("Boxplot log(Salary) Compensation", color = "black", face = "bold", size = 14),
+                bottom = text_grob("Job Title Group", color = "black"),
+                left = text_grob("Log Transform Salary in USD", 
+                                 color ="black", rot = 90))
+
+```
+
+The Boxplots show that there is not a substantial difference in the variance of Job Title groups of the Language Preference Datasets. 
+
+```{r, density-fig-Job}
+
+sciden <- scidf %>%
+  ggplot(aes(x=CompensationYearUSD, fill = LanguageRecommendationSelect, color = LanguageRecommendationSelect))+ geom_density(alpha = .3) + scale_x_log10() + ggtitle('Scientist Title') + theme(axis.title.x=element_blank(), axis.title.y = element_blank(), legend.position = "none")
+
+engden <- engdf %>%
+  ggplot(aes(x=CompensationYearUSD, fill = LanguageRecommendationSelect, color = LanguageRecommendationSelect))+ geom_density(alpha = .3) + scale_x_log10() + ggtitle('Engineer Title') + theme(axis.title.x=element_blank(), axis.title.y = element_blank(), legend.position = "none")
+
+resden <- resanldf %>%
+  ggplot(aes(x=CompensationYearUSD, fill = LanguageRecommendationSelect, color = LanguageRecommendationSelect))+ geom_density(alpha = .3) + scale_x_log10() + ggtitle('Research Analyst Title') + theme(axis.title.x=element_blank(), axis.title.y = element_blank(), legend.position = "none")
+
+othden <- otherdf %>%
+  ggplot(aes(x=CompensationYearUSD, fill = LanguageRecommendationSelect, color = LanguageRecommendationSelect))+ geom_density(alpha = .3) + scale_x_log10() + ggtitle('Other Title') + theme(axis.title.x=element_blank(), axis.title.y = element_blank(), legend.position = "none")
+
+density.jobs <- ggarrange(sciden, engden, resden, othden,
+          ncol = 2, nrow = 2, common.legend = T, legend = 'top') 
+
+annotate_figure(density.jobs, 
+                top = text_grob("Distribution of Salary Compensation", color = "black", face = "bold", size = 14),
+                bottom = text_grob("Compensation in USD", color = "black"),
+                left = text_grob("Log Transform of Frequency", 
+                                 color ="black", rot = 90))
+
+```
+
 
 ### *Group by primary programming language (python, R, SQL..) and test for significant difference among groups through Welch t-test and ANOVA tests. *
 
@@ -106,27 +155,8 @@ row.names(dfLangLM) <- NULL
 
 dfLangAnova <- data.frame(Groups=c("Python","R","SQL"),P.Value=c(agp.summary[[1]][["Pr(>F)"]][[1]],agr.summary[[1]][["Pr(>F)"]][[1]],ags.summary[[1]][["Pr(>F)"]][[1]]))
 
-pbox <- pythondf %>%
-  ggplot(aes(y=CapSalary, x=JobTitleGroup)) + geom_boxplot() + theme(axis.title.x=element_blank(), axis.title.y = element_blank()) + scale_y_log10()
-
-rbox <- Rdf %>%
-  ggplot(aes(y=CapSalary, x=JobTitleGroup)) + geom_boxplot() + theme(axis.title.x=element_blank(), axis.title.y = element_blank()) + scale_y_log10()
-
-sqlbox <- sqldf %>%
-  ggplot(aes(y=CapSalary, x=JobTitleGroup)) + geom_boxplot()+ theme(axis.title.x=element_blank(), axis.title.y = element_blank()) + scale_y_log10()
-
-boxplot.lang <- ggarrange(pbox, rbox, sqlbox,
-          ncol = 1, nrow = 3) 
-
-annotate_figure(boxplot.lang, 
-                top = text_grob("Boxplot log(Salary) Compensation", color = "black", face = "bold", size = 14),
-                bottom = text_grob("Job Title Group", color = "black"),
-                left = text_grob("Log Transform Salary in USD", 
-                                 color ="black", rot = 90))
-
 ```
 
-The 
 
 ```{r, test-with-titles}
 # Scientist title ANOVA and LM models
@@ -184,3 +214,5 @@ grid.table(dfLangLM)
     # For the Python language preference group, only the Job Title groups of Other and Research Analyst show statistical signigicance in the effect of Job title to the mean salary for python language preference. In the R group, only Job title Other shows statistical significance for the effect of Job title on the mean salary for R language preference. For SQL, the is no statistical significance for the effect of effect of Job title on the mean salary of the language preference.
 
 ```
+
+```{r}
