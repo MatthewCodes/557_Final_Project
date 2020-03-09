@@ -128,6 +128,32 @@ annotate_figure(density.jobs,
 ```
 
 
+```{r, boxplot-Title}
+
+scibox <- scidf %>%
+  ggplot(aes(y=CapSalary, x=LanguageRecommendationSelect)) + geom_boxplot()+ theme(axis.title.x=element_blank(), axis.title.y = element_blank()) + scale_y_log10() + ggtitle('Scientist')
+
+engbox <- engdf %>%
+  ggplot(aes(y=CapSalary, x=LanguageRecommendationSelect)) + geom_boxplot()+ theme(axis.title.x=element_blank(), axis.title.y = element_blank()) + scale_y_log10() + ggtitle('Engineer')
+
+resbox <- resanldf %>%
+  ggplot(aes(y=CapSalary, x=LanguageRecommendationSelect)) + geom_boxplot()+ theme(axis.title.x=element_blank(), axis.title.y = element_blank()) + scale_y_log10() + ggtitle('Research Analyst')
+
+othbox <- otherdf %>%
+  ggplot(aes(y=CapSalary, x=LanguageRecommendationSelect)) + geom_boxplot()+ theme(axis.title.x=element_blank(), axis.title.y = element_blank()) + scale_y_log10() + ggtitle('Other')
+
+
+boxplot.job <- ggarrange(scibox, engbox, resbox, othbox,
+          ncol = 2, nrow = 2) 
+
+annotate_figure(boxplot.job, 
+                top = text_grob("Boxplot Salary Compensation", color = "black", face = "bold", size = 14),
+                bottom = text_grob("Language Preference", color = "black"),
+                left = text_grob("Log Transform Salary in USD", 
+                                 color ="black", rot = 90))
+
+```
+
 ### *Group by primary programming language (python, R, SQL..) and test for significant difference among groups through Welch t-test and ANOVA tests. *
 
 ```{r, tests-with-language, message=F, warning=F}
@@ -214,5 +240,3 @@ grid.table(dfLangLM)
     # For the Python language preference group, only the Job Title groups of Other and Research Analyst show statistical signigicance in the effect of Job title to the mean salary for python language preference. In the R group, only Job title Other shows statistical significance for the effect of Job title on the mean salary for R language preference. For SQL, the is no statistical significance for the effect of effect of Job title on the mean salary of the language preference.
 
 ```
-
-```{r}
