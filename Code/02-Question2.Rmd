@@ -69,7 +69,7 @@ pden <- pythondf %>%
 density.lang <- ggarrange(pden, rden, qden,
           ncol = 1, nrow = 3, common.legend = T, legend = 'right')
 
-annotate_figure(density.lang, 
+density.final.lang <- annotate_figure(density.lang, 
                 top = text_grob("Distribution of Salary Compensation", color = "black", face = "bold", size = 14),
                 bottom = text_grob("Compensation in USD", color = "black"),
                 left = text_grob("Log Transform of Frequency", 
@@ -92,7 +92,7 @@ sqlbox <- sqldf %>%
 boxplot.lang <- ggarrange(pbox, rbox, sqlbox,
           ncol = 1, nrow = 3) 
 
-annotate_figure(boxplot.lang, 
+boxplot.final.lang <- annotate_figure(boxplot.lang, 
                 top = text_grob("Boxplot log(Salary) Compensation", color = "black", face = "bold", size = 14),
                 bottom = text_grob("Job Title Group", color = "black"),
                 left = text_grob("Log Transform Salary in USD", 
@@ -119,7 +119,7 @@ othden <- otherdf %>%
 density.jobs <- ggarrange(sciden, engden, resden, othden,
           ncol = 2, nrow = 2, common.legend = T, legend = 'top') 
 
-annotate_figure(density.jobs, 
+density.final.job <- annotate_figure(density.jobs, 
                 top = text_grob("Distribution of Salary Compensation", color = "black", face = "bold", size = 14),
                 bottom = text_grob("Compensation in USD", color = "black"),
                 left = text_grob("Log Transform of Frequency", 
@@ -146,7 +146,7 @@ othbox <- otherdf %>%
 boxplot.job <- ggarrange(scibox, engbox, resbox, othbox,
           ncol = 2, nrow = 2) 
 
-annotate_figure(boxplot.job, 
+boxplot.final.job <- annotate_figure(boxplot.job, 
                 top = text_grob("Boxplot Salary Compensation", color = "black", face = "bold", size = 14),
                 bottom = text_grob("Language Preference", color = "black"),
                 left = text_grob("Log Transform Salary in USD", 
