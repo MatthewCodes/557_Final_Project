@@ -198,7 +198,7 @@ ggplot(d, aes(x=d0.FormalEducation, y=d0.CompensationYearUSD)) +
   xlab("Education Level") +
   ylab("Salary in USD") +
   geom_point() +
-  geom_abline(intercept=47806.58, slope = 16827) +
+  geom_abline(intercept=47806.58, slope = 17939) +
   scale_y_continuous(labels=dollar)
 ```
 P-Value result from linear regression: 1.786e-15
