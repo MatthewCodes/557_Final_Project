@@ -163,7 +163,8 @@ ggplot(d) +
   ggtitle("Distributions of Salary per Education Group") +
   xlab("Salary in USD") +
   labs(fill= "Salary in USD", color="Salary in USD") +
-  geom_density(aes(x=d$d0.CompensationYearUSD, fill=d$d0.FormalEducation, color=d$d0.FormalEducation), alpha=0.4)
+  geom_density(aes(x=d$d0.CompensationYearUSD, fill=d$d0.FormalEducation, color=d$d0.FormalEducation), alpha=0.3) +
+  scale_x_continuous(labels=dollar) 
 ```
 Interestingly, it appears that besides PhD's, the difference in means for the other groups has more to do with the tail of the distribution than with a major difference between the bulk.
 ### *Test for linear relationship in compensation as an increase in education level*
@@ -176,7 +177,8 @@ ggplot(d, aes(x=d0.FormalEducation, y=d0.CompensationYearUSD)) +
   xlab("Education Level") +
   ylab("Salary in USD") +
   geom_point() +
-  geom_abline(intercept=47806.58, slope = 16827)
+  geom_abline(intercept=47806.58, slope = 16827) +
+  scale_y_continuous(labels=dollar)
 ```
 P-Value result from linear regression: 1.786e-15
 Coefficient: 16827
