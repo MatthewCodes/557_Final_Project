@@ -79,6 +79,12 @@ sd(prof$d0.CompensationYearUSD)
 groupmeans = c(m_bachelor, m_master, m_doctor, m_professional)
 groupmeans
 ```
+```{r}
+d <- d[d$d0.FormalEducation != "I did not complete any formal education past high school",]
+d <- d[d$d0.FormalEducation != "Some college/university study without earning a bachelor's degree",]
+d <- d[d$d0.FormalEducation != "I prefer not to answer",]
+
+```
 The sample sizes lower dramatically beyond the three major categories of bachelor's, master's, and doctorate degrees. Might it be reasonable to only look at those three?
 
 
@@ -129,12 +135,12 @@ The large sample sizes allow us to overlook the assumption of normal distributio
 groupmeans
 anovaP <- power.anova.test(groups = 4, 
 between.var = var(groupmeans), within.var = 50000^2, 
-power=NULL,sig.level=0.05,n=c(700, 1500, 800, 94))
+power=NULL,sig.level=0.05,n=c(700, 1500, 800, 100))
 
 anovaP
 ```
 
-Like the multiple t - test, ANOVA would have a power of 1 given our sample size and the variances present in the data.
+Like the multiple t - test, ANOVA would have a power of 1 given our sample size and the variances present in the data. Power for a sample size of 100 (the samller groups) is about 88.6%, but with the sample sizes of the three biggest groups it is 100%.
 ### *Analyzing the power of linear regression*
 
 
@@ -150,9 +156,19 @@ summary(aov(d$d0.CompensationYearUSD ~ d$d0.FormalEducation, data = d))
 P-Value result from ANOVA: 1.79e-15
 
 The null hypothesis is rejected, there is a significant difference between education level groups.
+
+### *Visualizing the Distributions*
+```{r}
+ggplot(d) +
+  ggtitle("Distributions of Salary per Education Group") +
+  xlab("Salary in USD") +
+  labs(fill= "Salary in USD", color="Salary in USD") +
+  geom_density(aes(x=d$d0.CompensationYearUSD, fill=d$d0.FormalEducation, color=d$d0.FormalEducation), alpha=0.4)
+```
+Interestingly, it appears that besides PhD's, the difference in means for the other groups has more to do with the tail of the distribution than with a major difference between the bulk.
 ### *Test for linear relationship in compensation as an increase in education level*
 ```{r}
-summary(lm(d$d0.CompensationYearUSD ~ d$d0.FormalEducation, data=d))
+summary(lm(d$d0.CompensationYearUSD ~ factor(d$d0.FormalEducation), data=d))
 ```
 P-Value result from linear regression: 1.786e-15
 Coefficient: 16827
