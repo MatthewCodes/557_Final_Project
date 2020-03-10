@@ -5,8 +5,9 @@ output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 knitr::read_chunk("../Code/01-Question1.Rmd")
+
 ```
 
 # Title NUMBER UR PAGES PDF 
@@ -16,10 +17,13 @@ knitr::read_chunk("../Code/01-Question1.Rmd")
 
 ## Introduction
 aims + questions, background material/research briefly 
+For our project we decided to go with the theme of Data Science and Pay. To help us answer this question we found a 
+dataset from Kaggle listed here: https://www.kaggle.com/ikleiman/data-scientists-salaries-around-the-world/data.
+See the next section for our description of the data.
 After analysis of the data during the initial exploration, we noticed that the
 data should be split into two initial groups (people who are working from commission and those on salary).
 This split was made because the data contained a large amount of answers that were less than an assumed salary 
-would be (40k+). There were also data points that were obvious outliers (people who earn 1,000,000 or more) the
+would be (40k+). There were also data points that were obvious `outliers` (people who earn 1,000,000 or more) the
 maximum salary was 28,000,000,000 so
 we decided to cap those values because we conluded that nobody is making more than 500,000 salary. Another thing
 that should be noted is that we are only considering people that are employed.
@@ -36,9 +40,26 @@ Anova, Welch T-test, linear regression
 ## Results 
 graphs, tables, descriptive info about data and results of analysis 
 # Results from Question 1
-```{r, Q1, child="../Code/01-Question1.Rmd"}
+```{r, echo =FALSE}
+invisible(knitr::purl("../Code/01-Question1.Rmd", output="temp", quiet=TRUE))
+knitr::read_chunk("temp")
 ```
 
+```{r ref.label='Q1_data'}
+```
+
+```{r ref.label='testing'}
+```
+
+```{r ref.label='pre_plots'}
+```
+
+```{r ref.label='Question_1_plots'}
+```
+
+```{r echo=FALSE}
+unlink("temp")
+```
 
 ## Discussion
 summarize results and conclusions 

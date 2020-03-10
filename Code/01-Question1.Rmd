@@ -22,20 +22,19 @@ library(naniar)
 data <- read.csv("C://Users//Matth//OneDrive//Documents//Data Science//DATA 557//557_Final_Project//Data//Data_Science_Density.csv")
 high_density <- data[data$Density > 500,]
 high_density$CompensationYearUSD[high_density$CompensationYearUSD>500000] <- NA # 4 removed
+high_density$CompensationYearUSD[high_density$CompensationYearUSD< 0] <- NA
 high_density <- na.omit(high_density, cols= "CompensationYearUSD")
 salary <- high_density[high_density$CompensationYearUSD > 30000,]
 commision <- high_density[high_density$CompensationYearUSD < 30000,]
 
 low_density <- data[data$Density < 500,]
 low_density$CompensationYearUSD[low_density$CompensationYearUSD>500000] <- NA # 11 removed
+low_density$CompensationYearUSD[low_density$CompensationYearUSD< 0] <- NA
 low_density <- na.omit(low_density, cols= "CompensationYearUSD")
 salary2 <- low_density[low_density$CompensationYearUSD > 30000,]
 commision2 <- low_density[low_density$CompensationYearUSD < 30000,]
 ```
 
-# Interesting fact: We have significantly more datapoints for low density locations than high density locations. We initially thought that this would be a problem.
-# Also we are not including those people that have shared that they are unemployed in the commision calculations, we found that doing this did not drastically 
-# change our data since the people that reported that they make 0$ was very low. It also made sense to only include those people that are working in the calculation.
 
 
 ```{r, facts-chunk, eval =FALSE, echo= FALSE}
@@ -76,9 +75,7 @@ low_salary2_mean <- mean(salary2$CompensationYearUSD)
 low_salary2_sd   <- sd(salary2$CompensationYearUSD)
 low_salary2_var  <- low_salary2_sd**2
 ```
-# Note that there is a high amount of varaince in the data. This occurs because there are people who are reporting that they make one dollar and people that they are 
-# making the upper limit we have capped the data at for commision. Similarly for salary we have people that have reported that they make close to half a million and 
-# people that report that they make the minumum we have set of $30,000.
+
 ```{r, sample_size, eval=FALSE}
 # Sample size estimation for question
 delta1 <-  low_salary2_mean - high_salary_mean
@@ -86,8 +83,7 @@ delta2 <-   high_commision_mean - low_commision2_mean
 salary_n = ((low_salary2_var + high_salary_var)*  ((qnorm(1- 0.025) + qnorm(.9))**2)   )/(delta1**2)
 commision_n = ((low_commision2_var + high_commision_var)*  ((qnorm(1- 0.025) + qnorm(.9))**2)   )/(delta2**2)
 ```
-# Note that we only need a sample size of 138 for commision to achieve a power of .9 and a sample size of 290 for salary to achieve the same power. This is why 
-# achieve the power that we have calculated from our experiment.
+
 ```{r, power_est, eval=FALSE, echo=FALSE}
 # Power estimation for salary
 delta1 <-  low_salary2_mean - high_salary_mean
@@ -113,79 +109,77 @@ power2 <- pnorm(-1.96 + Z)
 salary <- cbind(high = 1, salary)
 salary2 <- cbind(high = 0, salary2)
 total_salary <- rbind(salary, salary2)
-paste("Anova")
-"
-summary(aov(total_salary$CompensationYearUSD ~ total_salary$high))
-summary(lm(total_salary$CompensationYearUSD ~ total_salary$high))
-t.test(total_salary$CompensationYearUSD ~ total_salary$high)
-"
+
+#paste("Anova")
+#summary(aov(total_salary$CompensationYearUSD ~ total_salary$high))
+#paste("Linear Regression")
+#summary(lm(total_salary$CompensationYearUSD ~ total_salary$high))
+#t.test(total_salary$CompensationYearUSD ~ total_salary$high)
+
 # Actual Anova Test and linear regression of Compensation ~ High_Low_Density for commision
 commision <- cbind(high = 1, commision)
 commision2 <- cbind(high = 0, commision2)
 total_commision <- rbind(commision, commision2)
-"
 
-summary(aov(total_commision$CompensationYearUSD ~ total_commision$high))
-summary(lm(total_commision$CompensationYearUSD ~ total_commision$high))
-t.test(total_commision$CompensationYearUSD ~ total_commision$high)
-"
+#paste("Anova")
+#summary(aov(total_commision$CompensationYearUSD ~ total_commision$high))
+#paste("Linear Regression")
+#summary(lm(total_commision$CompensationYearUSD ~ total_commision$high))
+#t.test(total_commision$CompensationYearUSD ~ total_commision$high)
+
 # These are commented out so it looks clean on the Paper
 
 
 ```
 
-```{r}
+```{r, pre_plots, eval=TRUE}
 #Plots for the high density salary & commission
 
-png(filename = "High Density Commission Histogram.png")
+#png(filename = "High Density Commission Histogram.png")
 hist(commision$CompensationYearUSD)
-dev.off()
+#dev.off()
 
-png(filename = "High Density Salary Histogram.png")
+#png(filename = "High Density Salary Histogram.png")
 hist(salary$CompensationYearUSD)
-dev.off()
+#dev.off()
 
 #Plots for the low density salary & commission
 
-png(filename = "Low Density Commission Histogram.png")
+#png(filename = "Low Density Commission Histogram.png")
 hist(commision2$CompensationYearUSD)
-dev.off()
+#dev.off()
 
-png(filename = "Low Density Salary Histogram.png")
+#png(filename = "Low Density Salary Histogram.png")
 hist(salary2$CompensationYearUSD)
-dev.off()
+#dev.off()
 ```
 
 
 
 
-```{r, Question_1_plots, dependson= "Q1_data", eval=TRUE}
+```{r, Question_1_plots, dependson= "testing", eval=TRUE}
 # Interesting plots for salary
-png(filename = "Salary Linear regression.png")
+#png(filename = "Salary Linear regression.png")
+
+
 plot(total_salary$high, total_salary$CompensationYearUSD)
 abline(lm(total_salary$CompensationYearUSD ~ total_salary$high))
 
-dev.off()
-png(filename = "Salary histogram.png" )
+#dev.off()
+#png(filename = "Salary histogram.png" )
 hist(total_salary$CompensationYearUSD)
 
-dev.off()
+#dev.off()
 
 # Interesting plots for commmision
-png(filename = "Commission Linear regression.png")
+#png(filename = "Commission Linear regression.png")
 plot(total_commision$high, total_commision$CompensationYearUSD)
 abline(lm(total_commision$CompensationYearUSD ~ total_commision$high))
 
-dev.off()
-png(filename = "Commission Histogram.png")
+#dev.off()
+#png(filename = "Commission Histogram.png")
 hist(total_commision$CompensationYearUSD)
 
-dev.off()
+#dev.off()
 
 ```
-# Conclusion from initial statistics, is that we should not use Anova or linear regression because the variances are not the same, and 
-
-# we know that equal variances are a problem no matter how large the sample size thus we should use Welch. However, we also know that there
-# is a certain thershold that counts as equal variance so we ran the tests anyway.
-# When looking at the p-value for salary and commision they are 2.592e-12 and 7.519e-11 respectively so there is evidence to reject the null hypothesis
-# meaning that density has an effect on compensation for salary and commision.
