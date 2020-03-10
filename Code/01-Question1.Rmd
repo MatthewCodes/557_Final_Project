@@ -37,7 +37,7 @@ commision2 <- low_density[low_density$CompensationYearUSD < 30000,]
 
 
 
-```{r, facts-chunk, eval =FALSE, echo= FALSE}
+```{r, facts-chunk, eval =TRUE, echo= FALSE}
 # Random data facts (mean, sd, variance) for high
 #commision[, 20] <- log(commision[20])
 commision <- commision %>% replace_with_na(replace = list(CompensationYearUSD = 0))
@@ -132,59 +132,68 @@ total_commision <- rbind(commision, commision2)
 
 ```
 
-```{r, pre_plots, eval=TRUE}
+```{r, pre_plots, eval=TRUE,message=FALSE, warning=FALSE}
 #Plots for the high density salary & commission
 library(ggplot2)
-png(filename = "High Density Commission Histogram.png")
-ggplot(aes(x=CompensationYearUSD), data= commision)+ geom_histogram() + labs(title="Histogram of High Density Commission",
-        x ="Compensation", y = "Count") +stat_bin(bins = 25) + scale_x_continuous(labels = dollar) + annotate("text", label = "Mu: $11,187",x = 10000, y=15, color= "white")
-dev.off()
-
-png(filename = "High Density Salary Histogram.png")
 library(scales)
+#png(filename = "High Density Commission Histogram.png")
+ggplot(aes(x=CompensationYearUSD), data= commision)+ geom_histogram() + labs(title="Histogram of High Density Commission",
+        x ="Compensation", y = "Count") +stat_bin(bins = 25) +ylim(0, 100) + scale_x_continuous(labels = dollar) + annotate("text", label = "Mu: $11,187",x = 10000, y=15, color= "white")
+#dev.off()
+
+#png(filename = "High Density Salary Histogram.png")
+
 
 ggplot(aes(x=CompensationYearUSD), data= salary)+ geom_histogram()+ labs(title="Histogram of High Density Salary",
         x ="Compensation", y = "Count") + stat_bin(bins = 25)+ ylim(0, 400) + scale_x_continuous(labels = dollar) + annotate("text", label = "Mu: $77,107",x = 50000, y=15, color= "white")
-dev.off()
+#dev.off()
 
 #Plots for the low density salary & commission
 
-png(filename = "Low Density Commission Histogram.png")
+#png(filename = "Low Density Commission Histogram.png")
 ggplot(aes(x=CompensationYearUSD), data= commision2)+ geom_histogram()+ labs(title="Histogram of Low Density Commission",
-        x ="Compensation", y = "Count") + stat_bin(bins = 25) + scale_x_continuous(labels = dollar) + annotate("text", label = "Mu: $13,171",x = 10000, y=15, color= "white")
-dev.off()
+        x ="Compensation", y = "Count") + stat_bin(bins = 25) + ylim(0, 100) + scale_x_continuous(labels = dollar) + annotate("text", label = "Mu: $13,171",x = 10000, y=15, color= "white")
+#dev.off()
 
-png(filename = "Low Density Salary Histogram.png")
+#png(filename = "Low Density Salary Histogram.png")
 ggplot(aes(x=CompensationYearUSD), data= salary2)+ geom_histogram()+ labs(title="Histogram of Low Density Salary",
         x ="Compensation", y = "Count") + stat_bin(bins = 25)+ ylim(0, 400) + scale_x_continuous(labels = dollar) + annotate("text", label = "Mu: $98,795",x = 100000, y=15, color= "white")
-dev.off()
+#dev.off()
 ```
 
 
 
 
-```{r, Question_1_plots, dependson= "testing", eval=TRUE}
+```{r, Question_1_plot_salary, dependson= "testing", eval=TRUE}
 # Interesting plots for salary
 #png(filename = "Salary Linear regression.png")
 
 
-plot(total_salary$high, total_salary$CompensationYearUSD)
-abline(lm(total_salary$CompensationYearUSD ~ total_salary$high))
-
+ggplot(aes(x=high,y= CompensationYearUSD), data =total_salary) + geom_point() + stat_smooth(method="lm")
 #dev.off()
 #png(filename = "Salary histogram.png" )
-hist(total_salary$CompensationYearUSD)
+
+ggplot(aes(x=CompensationYearUSD), data= total_salary)+ geom_histogram()+ labs(title="Histogram of Salary",
+        x ="Compensation", y = "Count") + stat_bin(bins = 25) + scale_x_continuous(labels = dollar) + annotate("text", label = paste("Mu: ", toString(mean(total_salary$CompensationYearUSD))),x = 100000, y=15, color= "white")
+
+```
+
+```{r, Question_1_plot_commission, dependson= "testing", eval=TRUE}
+#hist(total_salary$CompensationYearUSD)
 
 #dev.off()
 
 # Interesting plots for commmision
 #png(filename = "Commission Linear regression.png")
-plot(total_commision$high, total_commision$CompensationYearUSD)
-abline(lm(total_commision$CompensationYearUSD ~ total_commision$high))
+ggplot(aes(x=high,y= CompensationYearUSD), data =total_commision) + geom_point() + stat_smooth(method="lm")
 
 #dev.off()
 #png(filename = "Commission Histogram.png")
-hist(total_commision$CompensationYearUSD)
+
+ggplot(aes(x=CompensationYearUSD), data= total_commision)+ geom_histogram()+ labs(title="Histogram of Commission",
+        x ="Compensation", y = "Count") + stat_bin(bins = 25) + scale_x_continuous(labels = dollar) + annotate("text", label = paste("Mu: ", toString(mean(total_commision$CompensationYearUSD))),x = 10000, y=15, color= "white")
+
+#hist(total_commision$CompensationYearUSD)
 
 #dev.off()
 
