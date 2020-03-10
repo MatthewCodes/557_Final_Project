@@ -36,8 +36,8 @@ The highest value is 28 Billion and mean is 6 Million, so there is definitely so
 
 Below is data capped at 1 million USD.
 ```{r}
-d <- d[d$d0.CompensationYearUSD < 1000000,]
-d <- d[d$d0.CompensationYearUSD > 10000,]
+d <- d[d$d0.CompensationYearUSD < 500000,]
+d <- d[d$d0.CompensationYearUSD > 20000,]
 hist(d$d0.CompensationYearUSD)
 ```
 
@@ -54,59 +54,59 @@ unique(d$d0.FormalEducation)
 "bachelor's"
 bach = d[d$d0.FormalEducation=="Bachelor's degree",]
 nrow(bach)
-mean(bach$d0.CompensationYearUSD)
+m_bachelor <- mean(bach$d0.CompensationYearUSD)
 sd(bach$d0.CompensationYearUSD)
 
 "master's"
 mas = d[d$d0.FormalEducation=="Master's degree",]
 nrow(mas)
-mean(mas$d0.CompensationYearUSD)
+m_master <- mean(mas$d0.CompensationYearUSD)
 sd(mas$d0.CompensationYearUSD)
 
 "doctorate"
 doc = d[d$d0.FormalEducation=="Doctoral degree",]
 nrow(doc)
-mean(doc$d0.CompensationYearUSD)
+m_doctor <- mean(doc$d0.CompensationYearUSD)
 sd(doc$d0.CompensationYearUSD)
 
 "professional"
 prof = d[d$d0.FormalEducation=="Professional degree",]
 nrow(prof)
-mean(prof$d0.CompensationYearUSD)
+m_professional <- mean(prof$d0.CompensationYearUSD)
 sd(prof$d0.CompensationYearUSD)
 
-"some college"
-sc = d[d$d0.FormalEducation=="Some college/university study without earning a bachelor's degree",]
-nrow(sc)
-mean(sc$d0.CompensationYearUSD)
-sd(sc$d0.CompensationYearUSD)
+
+groupmeans = c(m_bachelor, m_master, m_doctor, m_professional)
+groupmeans
 ```
 The sample sizes lower dramatically beyond the three major categories of bachelor's, master's, and doctorate degrees. Might it be reasonable to only look at those three?
 
 
 ## **Question 3: Among professionals in the data science industry, does compensation differ significantly based on level of education?**
 
-### *Identify the power of Welch t test, ANOVA, and possibly Linear regression.*
+### *Analyzing the power of Welch t test,*
 
-Power of multiple Welch t test
+Power of multiple Welch t test to detect a difference of $10,000 in salary between any of three educational groups.
 ```{r}
 set.seed(3)
-n = 100
+n = 700
+n2 = 1530
+n3 = 800
 
-m1 = 55000
-m2 = 64000
-m3 = 87000
+m1 = 50000
+m2 = 60000
+m3 = 70000
 
-s1 = 57000
-s2 = 56000
-s3 = 65000
+s1 = 50000
+s2 = 55000
+s3 = 60000
 
 reps=1000
 pvalues=data.frame(p12=rep(NA,reps),p13=rep(NA,reps),p23=rep(NA,reps))
 for(i in 1:reps){
   x1=rnorm(n,m1,s1)
-  x2=rnorm(n,m2,s2)
-  x3=rnorm(n,m3,s3)
+  x2=rnorm(n2,m2,s2)
+  x3=rnorm(n3,m3,s3)
   pvalues$p12[i]=t.test(x1,x2,var.equal=F)$p.value
   pvalues$p13[i]=t.test(x1,x3,var.equal=F)$p.value
   pvalues$p23[i]=t.test(x2,x3,var.equal=F)$p.value
@@ -120,10 +120,42 @@ reject = data.frame(pvalues < 0.05, any.rejection=apply(pvalues<0.05, 1, any))
 results = apply(reject,2,mean)
 dec = 5
 format(round(results, dec), nsmall=dec)
-
 ```
-These results seem extreme; two of the pairwise tests appear to have perfect power given this sample size (a sample size of 100 in contrast gives more reasonable looking powers).
+When simulating for the alternative hyothesis (difference of $10,000 between each of 3 groups), the test between the simulated groups with lowest and highest means will logically have the highest power. In the simulation, this test had a power of 1, meaning that the overall power for detecting a difference when each group is separated by 10,000 is 1. This is not too hard to believe given the very large sample sizes and properties of the available data.
+
+### *Analyzing the power of ANOVA*
+The large sample sizes allow us to overlook the assumption of normal distributions within the groups for ANOVA. The assumption of equal variances is not as clearly met, so with the acknowledgement that the present differences may be enough to invalidate the use of ANOVA, we report the results of the power analysis regardless.
+```{r}
+groupmeans
+anovaP <- power.anova.test(groups = 4, 
+between.var = var(groupmeans), within.var = 50000^2, 
+power=NULL,sig.level=0.05,n=c(700, 1500, 800, 94))
+
+anovaP
+```
+
+Like the multiple t - test, ANOVA would have a power of 1 given our sample size and the variances present in the data.
+### *Analyzing the power of linear regression*
+
+
 
 ### *Test for significant difference between the different education groups (Bachelor, Masters’, PhD)*
+```{r}
+d$d0.FormalEducation <- ordered(d$d0.FormalEducation,
+                         levels = c("Professional degree", "Bachelor's degree", "Master's degree", "Doctoral degree"))
+```
+```{r}
+summary(aov(d$d0.CompensationYearUSD ~ d$d0.FormalEducation, data = d))
+```
+P-Value result from ANOVA: 1.79e-15
 
+The null hypothesis is rejected, there is a significant difference between education level groups.
 ### *Test for linear relationship in compensation as an increase in education level*
+```{r}
+summary(lm(d$d0.CompensationYearUSD ~ d$d0.FormalEducation, data=d))
+```
+P-Value result from linear regression: 1.786e-15
+Coefficient: 16827
+Each level of increase in education corresponds to about a $16,827 increase in salary. 
+
+The relation between education level and salary is 
