@@ -109,48 +109,48 @@ power2 <- pnorm(-1.96 + Z)
 salary <- cbind(high = 1, salary)
 salary2 <- cbind(high = 0, salary2)
 total_salary <- rbind(salary, salary2)
-paste("Anova")
 
-summary(aov(total_salary$CompensationYearUSD ~ total_salary$high))
-paste("Linear Regression")
-summary(lm(total_salary$CompensationYearUSD ~ total_salary$high))
-t.test(total_salary$CompensationYearUSD ~ total_salary$high)
+#paste("Anova")
+#summary(aov(total_salary$CompensationYearUSD ~ total_salary$high))
+#paste("Linear Regression")
+#summary(lm(total_salary$CompensationYearUSD ~ total_salary$high))
+#t.test(total_salary$CompensationYearUSD ~ total_salary$high)
 
 # Actual Anova Test and linear regression of Compensation ~ High_Low_Density for commision
 commision <- cbind(high = 1, commision)
 commision2 <- cbind(high = 0, commision2)
 total_commision <- rbind(commision, commision2)
 
-paste("Anova")
-summary(aov(total_commision$CompensationYearUSD ~ total_commision$high))
-paste("Linear Regression")
-summary(lm(total_commision$CompensationYearUSD ~ total_commision$high))
-t.test(total_commision$CompensationYearUSD ~ total_commision$high)
+#paste("Anova")
+#summary(aov(total_commision$CompensationYearUSD ~ total_commision$high))
+#paste("Linear Regression")
+#summary(lm(total_commision$CompensationYearUSD ~ total_commision$high))
+#t.test(total_commision$CompensationYearUSD ~ total_commision$high)
 
 # These are commented out so it looks clean on the Paper
 
 
 ```
 
-```{r}
+```{r, pre_plots, eval=TRUE}
 #Plots for the high density salary & commission
 
 #png(filename = "High Density Commission Histogram.png")
-#hist(commision$CompensationYearUSD)
+hist(commision$CompensationYearUSD)
 #dev.off()
 
 #png(filename = "High Density Salary Histogram.png")
-#hist(salary$CompensationYearUSD)
+hist(salary$CompensationYearUSD)
 #dev.off()
 
 #Plots for the low density salary & commission
 
 #png(filename = "Low Density Commission Histogram.png")
-#hist(commision2$CompensationYearUSD)
+hist(commision2$CompensationYearUSD)
 #dev.off()
 
 #png(filename = "Low Density Salary Histogram.png")
-#hist(salary2$CompensationYearUSD)
+hist(salary2$CompensationYearUSD)
 #dev.off()
 ```
 
@@ -159,25 +159,27 @@ t.test(total_commision$CompensationYearUSD ~ total_commision$high)
 
 ```{r, Question_1_plots, dependson= "testing", eval=TRUE}
 # Interesting plots for salary
-png(filename = "Salary Linear regression.png")
+#png(filename = "Salary Linear regression.png")
+
+
 plot(total_salary$high, total_salary$CompensationYearUSD)
 abline(lm(total_salary$CompensationYearUSD ~ total_salary$high))
 
-dev.off()
-png(filename = "Salary histogram.png" )
+#dev.off()
+#png(filename = "Salary histogram.png" )
 hist(total_salary$CompensationYearUSD)
 
-dev.off()
+#dev.off()
 
 # Interesting plots for commmision
-png(filename = "Commission Linear regression.png")
+#png(filename = "Commission Linear regression.png")
 plot(total_commision$high, total_commision$CompensationYearUSD)
 abline(lm(total_commision$CompensationYearUSD ~ total_commision$high))
 
-dev.off()
-png(filename = "Commission Histogram.png")
+#dev.off()
+#png(filename = "Commission Histogram.png")
 hist(total_commision$CompensationYearUSD)
 
-dev.off()
+#dev.off()
 
 ```
