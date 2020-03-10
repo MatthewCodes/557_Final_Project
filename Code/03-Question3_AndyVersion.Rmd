@@ -20,7 +20,7 @@ d0 <- read.csv("../Data/DataScienceData.csv")
 ```
 These are all the present responses for level of education.
 ```{r}
-d <- data.frame(d0$FormalEducation, d0$CompensationYearUSD)
+d <- data.frame(d0$FormalEducation, d0$CompensationYearUSD, d0$Tenure)
 d <- na.omit(d)
 unique(d$d0.FormalEducation)
 ```
@@ -127,6 +127,27 @@ results = apply(reject,2,mean)
 dec = 5
 format(round(results, dec), nsmall=dec)
 ```
+
+```{r}
+prof = prof$d0.CompensationYearUSD
+bach = bach$d0.CompensationYearUSD
+mas = mas$d0.CompensationYearUSD
+doc = doc$d0.CompensationYearUSD
+```
+
+```{r}
+
+
+pvalues=data.frame(Prof_v_BS=NA, BS_v_MS=NA, BS_v_PhD=NA, MS_v_PhD=NA, MS_v_Prof=NA, Prof_v_PhD=NA)
+pvalues$Prof_v_BS=t.test(prof, bach, var.equal=F)$p.value
+pvalues$BS_v_MS=t.test(bach,mas,var.equal=F)$p.value
+pvalues$BS_v_PhD=t.test(bach,doc,var.equal=F)$p.value
+pvalues$MS_v_PhD=t.test(mas, doc, var.equal=F)$p.value
+pvalues$MS_v_Prof=t.test(mas, prof, var.equal=F)$p.value
+pvalues$Prof_v_PhD=t.test(prof, doc, var.equal=F)$p.value
+
+grid.table(pvalues)
+```
 When simulating for the alternative hyothesis (difference of $10,000 between each of 3 groups), the test between the simulated groups with lowest and highest means will logically have the highest power. In the simulation, this test had a power of 1, meaning that the overall power for detecting a difference when each group is separated by 10,000 is 1. This is not too hard to believe given the very large sample sizes and properties of the available data.
 
 ### *Analyzing the power of ANOVA*
@@ -134,7 +155,7 @@ The large sample sizes allow us to overlook the assumption of normal distributio
 ```{r}
 groupmeans
 anovaP <- power.anova.test(groups = 4, 
-between.var = var(groupmeans), within.var = 50000^2, 
+between.var = var(c(50000, 60000, 55000, 70000)), within.var = 50000^2, 
 power=NULL,sig.level=0.05,n=c(700, 1500, 800, 100))
 
 anovaP
