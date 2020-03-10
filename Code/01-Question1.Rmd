@@ -132,7 +132,7 @@ total_commision <- rbind(commision, commision2)
 
 ```
 
-```{r, pre_plots, eval=TRUE,message=FALSE, warning=FALSE}
+```{r, pre_plots, eval=TRUE,message=FALSE, warning=FALSE, include=FALSE, echo=FALSE}
 #Plots for the high density salary & commission
 library(ggplot2)
 library(scales)
@@ -164,7 +164,7 @@ ggplot(aes(x=CompensationYearUSD), data= salary2)+ geom_histogram()+ labs(title=
 
 
 
-```{r, Question_1_plot_salary, dependson= "testing", eval=TRUE}
+```{r, Question_1_plot_salary, dependson= "testing", eval=TRUE, include= FALSE}
 # Interesting plots for salary
 #png(filename = "Salary Linear regression.png")
 
@@ -178,7 +178,7 @@ ggplot(aes(x=CompensationYearUSD), data= total_salary)+ geom_histogram()+ labs(t
 
 ```
 
-```{r, Question_1_plot_commission, dependson= "testing", eval=TRUE}
+```{r, Question_1_plot_commission, dependson= "testing", eval=TRUE, include=FALSE}
 #hist(total_salary$CompensationYearUSD)
 
 #dev.off()
