@@ -77,8 +77,8 @@ knitr::read_chunk("temp")
 
 ```{r ref.label='testing'}
 ```
-Here are the distributions for commission and salary for high and low density
-```{r ref.label='pre_plots',message=FALSE, warning=FALSE, include=FALSE, echo=FALSE}
+Here are the distributions for commission and salary for high denstiy and low density.
+```{r ref.label='pre_plots'}
 ```
 
 This is the linear regression plot and the distribution of the total salary (including high and low density)

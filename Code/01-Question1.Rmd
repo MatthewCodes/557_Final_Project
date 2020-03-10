@@ -132,7 +132,7 @@ total_commision <- rbind(commision, commision2)
 
 ```
 
-```{r, pre_plots, eval=TRUE,message=FALSE, warning=FALSE, include=FALSE, echo=FALSE}
+```{r, pre_plots, eval=TRUE,message=FALSE, warning=FALSE, include=FALSE}
 #Plots for the high density salary & commission
 library(ggplot2)
 library(scales)
