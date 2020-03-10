@@ -170,6 +170,14 @@ Interestingly, it appears that besides PhD's, the difference in means for the ot
 ```{r}
 summary(lm(d$d0.CompensationYearUSD ~ factor(d$d0.FormalEducation), data=d))
 ```
+```{r}
+ggplot(d, aes(x=d0.FormalEducation, y=d0.CompensationYearUSD)) + 
+  ggtitle("Salary by Education Level") +
+  xlab("Education Level") +
+  ylab("Salary in USD") +
+  geom_point() +
+  geom_abline(intercept=47806.58, slope = 16827)
+```
 P-Value result from linear regression: 1.786e-15
 Coefficient: 16827
 Each level of increase in education corresponds to about a $16,827 increase in salary. 
