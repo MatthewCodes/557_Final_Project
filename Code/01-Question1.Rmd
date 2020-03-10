@@ -134,24 +134,30 @@ total_commision <- rbind(commision, commision2)
 
 ```{r, pre_plots, eval=TRUE}
 #Plots for the high density salary & commission
+library(ggplot2)
+png(filename = "High Density Commission Histogram.png")
+ggplot(aes(x=CompensationYearUSD), data= commision)+ geom_histogram() + labs(title="Histogram of High Density Commission",
+        x ="Compensation", y = "Count") +stat_bin(bins = 25) + scale_x_continuous(labels = dollar) + annotate("text", label = "Mu: $11,187",x = 10000, y=15, color= "white")
+dev.off()
 
-#png(filename = "High Density Commission Histogram.png")
-hist(commision$CompensationYearUSD)
-#dev.off()
+png(filename = "High Density Salary Histogram.png")
+library(scales)
 
-#png(filename = "High Density Salary Histogram.png")
-hist(salary$CompensationYearUSD)
-#dev.off()
+ggplot(aes(x=CompensationYearUSD), data= salary)+ geom_histogram()+ labs(title="Histogram of High Density Salary",
+        x ="Compensation", y = "Count") + stat_bin(bins = 25)+ ylim(0, 400) + scale_x_continuous(labels = dollar) + annotate("text", label = "Mu: $77,107",x = 50000, y=15, color= "white")
+dev.off()
 
 #Plots for the low density salary & commission
 
-#png(filename = "Low Density Commission Histogram.png")
-hist(commision2$CompensationYearUSD)
-#dev.off()
+png(filename = "Low Density Commission Histogram.png")
+ggplot(aes(x=CompensationYearUSD), data= commision2)+ geom_histogram()+ labs(title="Histogram of Low Density Commission",
+        x ="Compensation", y = "Count") + stat_bin(bins = 25) + scale_x_continuous(labels = dollar) + annotate("text", label = "Mu: $13,171",x = 10000, y=15, color= "white")
+dev.off()
 
-#png(filename = "Low Density Salary Histogram.png")
-hist(salary2$CompensationYearUSD)
-#dev.off()
+png(filename = "Low Density Salary Histogram.png")
+ggplot(aes(x=CompensationYearUSD), data= salary2)+ geom_histogram()+ labs(title="Histogram of Low Density Salary",
+        x ="Compensation", y = "Count") + stat_bin(bins = 25)+ ylim(0, 400) + scale_x_continuous(labels = dollar) + annotate("text", label = "Mu: $98,795",x = 100000, y=15, color= "white")
+dev.off()
 ```
 
 
