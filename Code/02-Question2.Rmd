@@ -10,13 +10,16 @@ library(tidyverse)
 library(ggpubr)
 library(gridExtra)
 library(grid)
+library(scales)
 
 DSdata <- read_csv("C:/Users/Juan Solorio/Desktop/DataScience/Grad School/Classes/Data 557/557_Final_Project/Data/DataScienceData.csv")
 ```
 
-## **Question 2: Do similar data science jobs that involve different programming languages see comparable salaries (i.e. Data Analyst/Data Scientist, Machine Learning Engineer/Machine Learning Scientist)?**
+### **Question 2: Are Data Scientist salaries affected by the Job Title Group (i.e. Data Analyst/Data Scientist, Engineer, Researcher) or by the type of Programming Language they employ most?**
 
-We needed to create groups for the 17 different entries to the Current Job Title descriptions. For this we decided upon grouping titles into 'Scientist' (people probably utilizing higher level math/statistics), 'ResearchAnalyst' (those focused with general data analysis and manipulation), 'Engineer' (titles focused in the data engineering or software), and 'Other' (description unknown).
+Within the original data, the participants were provided with 17 different Job Titles as options for title that best suit their current position. To answer the first question we needed to create groups for the 17 different entries to the Current Job Title descriptions. For this we decided upon grouping titles into 'Scientist' (people probably utilizing higher level math/statistics), 'ResearchAnalyst' (those focused with general data analysis and manipulation), 'Engineer' (titles focused in the data engineering or software), and 'Other' (description unknown).
+
+For the second part of the question, while there is no entry for "Programming Language Participant most employs", they were given the free hand option of Language Recommendation they would give to people wanting to enter their field, which we used as a proxy. There were 14 languages (ex: Java, Python, R, Scale, etc), of which we were only interested in Python, R, and SQL as these were the top 3 recommendations. 
 
 ```{r, Jobtitlegroups}
 
@@ -26,103 +29,90 @@ Engineer <- c("Software Developer/Software Engineer", "Programmer", "Computer Sc
 
 DSdata1 <- DSdata[,] 
 DSdata1$CapSalary <- if_else(DSdata1$CompensationYearUSD > 500000, 500000, DSdata1$CompensationYearUSD)
+DSdata2 <- DSdata1[DSdata1$CompensationYearUSD >= 20000,]
+DSdata2 <- DSdata2 %>% filter(LanguageRecommendationSelect %in% c('SQL', 'Python', 'R'))
+DSdata2$JobTitleGroup <- if_else(DSdata2$CurrentJobTitleSelect %in% Scientists, "Scientist", if_else(DSdata2$CurrentJobTitleSelect %in% ResearchAnalyst,'ResearchAnalyst',if_else(DSdata2$CurrentJobTitleSelect %in% Engineer, 'Engineer', 'Other'))) 
 DSdata1$JobTitleGroup <- if_else(DSdata1$CurrentJobTitleSelect %in% Scientists, "Scientist", if_else(DSdata1$CurrentJobTitleSelect %in% ResearchAnalyst,'ResearchAnalyst',if_else(DSdata1$CurrentJobTitleSelect %in% Engineer, 'Engineer', 'Other'))) 
+```
+
+
+```{r, den-bp-figures-general}
+
+density.gen.jobs <- DSdata2%>%
+  ggplot(aes(x=CapSalary, fill = JobTitleGroup, color = JobTitleGroup))+ geom_density(alpha = .3)+ labs(x ='Annual Salary in USD') + scale_x_log10(labels = dollar) + theme(axis.title.y = element_blank())
+
+boxplot.gen.jobs <- DSdata2 %>%
+  ggplot(aes(y=CapSalary, x=JobTitleGroup)) + geom_boxplot() + labs(y = "Annual Salary in USD") + theme(axis.title.x=element_blank(),plot.title = element_text(size=8)) + scale_y_log10(labels = dollar)
+
+plot.jobs <- ggarrange(boxplot.gen.jobs, density.gen.jobs,
+          ncol = 1, nrow = 2)
+
+
+density.gen.lang <- DSdata2%>%
+  ggplot(aes(x=CapSalary, fill = LanguageRecommendationSelect, color = LanguageRecommendationSelect))+ geom_density(alpha = .3)+ labs(x ='Annual Salary in USD') + scale_x_log10(labels=dollar) + theme(axis.title.y = element_blank()) 
+
+boxplot.gen.lang <- DSdata2 %>%
+  ggplot(aes(y=CapSalary, x=LanguageRecommendationSelect)) + geom_boxplot() + labs(y = "Annual Salary in USD") + theme(axis.title.x=element_blank(),plot.title = element_text(size=8)) + scale_y_log10(labels = dollar) 
+
+plot.lang <- ggarrange(boxplot.gen.lang, density.gen.lang,
+          ncol = 1, nrow = 2)
+
 
 ```
 
+From the figures, we can see that the groups for Job Titles and for Language Recommendations seem to have close enough variances. We'll proceed under the assumption of equal variances to use ANOVA and test the null hypothesis of equality of the means of the groups (for each Job Title and separately each Language).
+
+```{r, test-general}
+anova.gen.jobs <- summary(aov(CapSalary ~ JobTitleGroup, data= DSdata2))
+
+anova.gen.lang <- summary(aov(CapSalary ~ LanguageRecommendationSelect, data= DSdata2))
+```
+
+From the anova test, we optained a `p-value = ``r anova.gen.lang[[1]][["Pr(>F)"]][[1]]`, which implies that we fail to reject the null hypothesis at our alpha level of 0.05.
+
+For the Job Title anova test, we got the `p-value = ``r anova.gen.jobs[[1]][["Pr(>F)"]][[1]]`, showing strong evidence to reject the null hypothesis.
+
+
+### **Do similar data science jobs that involve different programming languages see comparable salaries (i.e. Data Analyst/Data Scientist, Machine Learning Engineer/Machine Learning Scientist)?**
+
 ```{r, setup-dfs, message=F, warning=F}
-
-pythondf <- DSdata1 %>%
-  filter(!is.na(CompensationYearUSD), LanguageRecommendationSelect == 'Python', CompensationYearUSD >= 20000)
-
-Rdf <- DSdata1 %>%
-  filter(!is.na(CompensationYearUSD), LanguageRecommendationSelect == 'R', CompensationYearUSD >= 20000)
-
-sqldf <- DSdata1 %>%
-  filter(!is.na(CompensationYearUSD), LanguageRecommendationSelect == 'SQL', CompensationYearUSD >= 20000)
-
-scidf <- DSdata1 %>%
+# setting up individual datasets for each job title group
+scidf <- DSdata2 %>%
   filter(!is.na(CompensationYearUSD), CompensationYearUSD >= 20000, JobTitleGroup == 'Scientist', LanguageRecommendationSelect == c('SQL', 'Python', 'R'))
 
-engdf <- DSdata1 %>%
+engdf <- DSdata2 %>%
   filter(!is.na(CompensationYearUSD), CompensationYearUSD >= 20000, JobTitleGroup == 'Engineer', LanguageRecommendationSelect == c('SQL', 'Python', 'R'))
 
-resanldf <- DSdata1 %>%
+resanldf <- DSdata2 %>%
   filter(!is.na(CompensationYearUSD), CompensationYearUSD >= 20000, JobTitleGroup == 'ResearchAnalyst' , LanguageRecommendationSelect == c('SQL', 'Python', 'R'))
 
-otherdf <- DSdata1 %>%
+otherdf <- DSdata2 %>%
   filter(!is.na(CompensationYearUSD), CompensationYearUSD >= 20000, JobTitleGroup == 'Other', LanguageRecommendationSelect == c('SQL', 'Python', 'R'))
 
 ```
 
-```{r, density-fig-Lang}
-
-rden <- Rdf %>%
-  ggplot(aes(x=CompensationYearUSD, fill = JobTitleGroup, color = JobTitleGroup))+ geom_density(alpha = .3) + scale_x_log10() + ggtitle('R') + theme(axis.title.x=element_blank(), axis.title.y = element_blank())
-
-qden <-sqldf %>%
-  ggplot(aes(x=CompensationYearUSD, fill = JobTitleGroup, color = JobTitleGroup))+ geom_density(alpha = .3) + scale_x_log10() + ggtitle('SQL') + theme(axis.title.x=element_blank(), axis.title.y = element_blank())
-
-pden <- pythondf %>%
-  ggplot(aes(x=CompensationYearUSD, fill = JobTitleGroup, color = JobTitleGroup))+ geom_density(alpha = .3) + scale_x_log10() + ggtitle("Python") +theme(axis.title.x=element_blank(), axis.title.y = element_blank())
-
-density.lang <- ggarrange(pden, rden, qden,
-          ncol = 1, nrow = 3, common.legend = T, legend = 'right')
-
-density.final.lang <- annotate_figure(density.lang, 
-                top = text_grob("Distribution of Salary Compensation", color = "black", face = "bold", size = 14),
-                bottom = text_grob("Compensation in USD", color = "black"),
-                left = text_grob("Log Transform of Frequency", 
-                                 color ="black", rot = 90))
-
-```
-
-From the density chart, we can see that there is a general similarity to the distribution of annual compensation in USD for all the groups within a given analytics language.
-
-```{r, boxplot-fig-Lang}
-pbox <- pythondf %>%
-  ggplot(aes(y=CapSalary, x=JobTitleGroup)) + geom_boxplot() + theme(axis.title.x=element_blank(), axis.title.y = element_blank()) + scale_y_log10()
-
-rbox <- Rdf %>%
-  ggplot(aes(y=CapSalary, x=JobTitleGroup)) + geom_boxplot() + theme(axis.title.x=element_blank(), axis.title.y = element_blank()) + scale_y_log10()
-
-sqlbox <- sqldf %>%
-  ggplot(aes(y=CapSalary, x=JobTitleGroup)) + geom_boxplot()+ theme(axis.title.x=element_blank(), axis.title.y = element_blank()) + scale_y_log10()
-
-boxplot.lang <- ggarrange(pbox, rbox, sqlbox,
-          ncol = 1, nrow = 3) 
-
-boxplot.final.lang <- annotate_figure(boxplot.lang, 
-                top = text_grob("Boxplot log(Salary) Compensation", color = "black", face = "bold", size = 14),
-                bottom = text_grob("Job Title Group", color = "black"),
-                left = text_grob("Log Transform Salary in USD", 
-                                 color ="black", rot = 90))
-
-```
-
-The Boxplots show that there is not a substantial difference in the variance of Job Title groups of the Language Preference Datasets. 
 
 ```{r, density-fig-Job}
 
 sciden <- scidf %>%
-  ggplot(aes(x=CompensationYearUSD, fill = LanguageRecommendationSelect, color = LanguageRecommendationSelect))+ geom_density(alpha = .3) + scale_x_log10() + ggtitle('Scientist Title') + theme(axis.title.x=element_blank(), axis.title.y = element_blank(), legend.position = "none")
+  ggplot(aes(x=CapSalary, fill = LanguageRecommendationSelect, color = LanguageRecommendationSelect))+ geom_density(alpha = .3) + scale_x_log10(labels=dollar) + ggtitle('Scientist Title') + theme(axis.title.x=element_blank(), axis.title.y = element_blank(), legend.position = "none")
 
 engden <- engdf %>%
-  ggplot(aes(x=CompensationYearUSD, fill = LanguageRecommendationSelect, color = LanguageRecommendationSelect))+ geom_density(alpha = .3) + scale_x_log10() + ggtitle('Engineer Title') + theme(axis.title.x=element_blank(), axis.title.y = element_blank(), legend.position = "none")
+  ggplot(aes(x=CapSalary, fill = LanguageRecommendationSelect, color = LanguageRecommendationSelect))+ geom_density(alpha = .3) + scale_x_log10(labels=dollar) + ggtitle('Engineer Title') + theme(axis.title.x=element_blank(), axis.title.y = element_blank(), legend.position = "none")
 
 resden <- resanldf %>%
-  ggplot(aes(x=CompensationYearUSD, fill = LanguageRecommendationSelect, color = LanguageRecommendationSelect))+ geom_density(alpha = .3) + scale_x_log10() + ggtitle('Research Analyst Title') + theme(axis.title.x=element_blank(), axis.title.y = element_blank(), legend.position = "none")
+  ggplot(aes(x=CapSalary, fill = LanguageRecommendationSelect, color = LanguageRecommendationSelect))+ geom_density(alpha = .3) + scale_x_log10(labels=dollar) + ggtitle('Research Analyst Title') + theme(axis.title.x=element_blank(), axis.title.y = element_blank(), legend.position = "none")
 
 othden <- otherdf %>%
-  ggplot(aes(x=CompensationYearUSD, fill = LanguageRecommendationSelect, color = LanguageRecommendationSelect))+ geom_density(alpha = .3) + scale_x_log10() + ggtitle('Other Title') + theme(axis.title.x=element_blank(), axis.title.y = element_blank(), legend.position = "none")
+  ggplot(aes(x=CapSalary, fill = LanguageRecommendationSelect, color = LanguageRecommendationSelect))+ geom_density(alpha = .3) + scale_x_log10(labels=dollar) + ggtitle('Other Title') + theme(axis.title.x=element_blank(), axis.title.y = element_blank(), legend.position = "none")
 
 density.jobs <- ggarrange(sciden, engden, resden, othden,
           ncol = 2, nrow = 2, common.legend = T, legend = 'top') 
 
 density.final.job <- annotate_figure(density.jobs, 
-                top = text_grob("Distribution of Salary Compensation", color = "black", face = "bold", size = 14),
-                bottom = text_grob("Compensation in USD", color = "black"),
-                left = text_grob("Log Transform of Frequency", 
+                top = text_grob("Distribution of Annual Salary USD", color = "black", face = "bold", size = 14),
+                bottom = text_grob("Annual Salary in USD", color = "black"),
+                left = text_grob("Density", 
                                  color ="black", rot = 90))
 
 ```
@@ -131,16 +121,16 @@ density.final.job <- annotate_figure(density.jobs,
 ```{r, boxplot-Title}
 
 scibox <- scidf %>%
-  ggplot(aes(y=CapSalary, x=LanguageRecommendationSelect)) + geom_boxplot()+ theme(axis.title.x=element_blank(), axis.title.y = element_blank()) + scale_y_log10() + ggtitle('Scientist')
+  ggplot(aes(y=CapSalary, x=LanguageRecommendationSelect)) + geom_boxplot()+ theme(axis.title.x=element_blank(), axis.title.y = element_blank()) + scale_y_log10(labels=dollar) + ggtitle('Scientist')
 
 engbox <- engdf %>%
-  ggplot(aes(y=CapSalary, x=LanguageRecommendationSelect)) + geom_boxplot()+ theme(axis.title.x=element_blank(), axis.title.y = element_blank()) + scale_y_log10() + ggtitle('Engineer')
+  ggplot(aes(y=CapSalary, x=LanguageRecommendationSelect)) + geom_boxplot()+ theme(axis.title.x=element_blank(), axis.title.y = element_blank()) + scale_y_log10(labels=dollar) + ggtitle('Engineer')
 
 resbox <- resanldf %>%
-  ggplot(aes(y=CapSalary, x=LanguageRecommendationSelect)) + geom_boxplot()+ theme(axis.title.x=element_blank(), axis.title.y = element_blank()) + scale_y_log10() + ggtitle('Research Analyst')
+  ggplot(aes(y=CapSalary, x=LanguageRecommendationSelect)) + geom_boxplot()+ theme(axis.title.x=element_blank(), axis.title.y = element_blank()) + scale_y_log10(labels=dollar) + ggtitle('Research Analyst')
 
 othbox <- otherdf %>%
-  ggplot(aes(y=CapSalary, x=LanguageRecommendationSelect)) + geom_boxplot()+ theme(axis.title.x=element_blank(), axis.title.y = element_blank()) + scale_y_log10() + ggtitle('Other')
+  ggplot(aes(y=CapSalary, x=LanguageRecommendationSelect)) + geom_boxplot()+ theme(axis.title.x=element_blank(), axis.title.y = element_blank()) + scale_y_log10(labels=dollar) + ggtitle('Other')
 
 
 boxplot.job <- ggarrange(scibox, engbox, resbox, othbox,
@@ -149,94 +139,89 @@ boxplot.job <- ggarrange(scibox, engbox, resbox, othbox,
 boxplot.final.job <- annotate_figure(boxplot.job, 
                 top = text_grob("Boxplot Salary Compensation", color = "black", face = "bold", size = 14),
                 bottom = text_grob("Language Preference", color = "black"),
-                left = text_grob("Log Transform Salary in USD", 
+                left = text_grob("Salary in USD", 
                                  color ="black", rot = 90))
 
 ```
 
-### *Group by primary programming language (python, R, SQL..) and test for significant difference among groups through Welch t-test and ANOVA tests. *
 
-```{r, tests-with-language, message=F, warning=F}
+The Boxplots show that there is some difference in the variance of Job Title groups of the Language Preference Datasets for the Engineer and Research Analyst groups, so we will use a Weltch t-test to test the null hypothesis of equality of means in the salary of Language recommendation groups. Given that we are testing for difference in multiple groups, we will have to apply a Bonferroni correction, making out `alpha =` `r 0.05/3`.
 
-anova.groups.python <- aov(CapSalary ~ JobTitleGroup, data = pythondf)
-agp.summary <- summary(anova.groups.python)
+```{r, sorted-salary-plots}
 
-lm.groups.python <- lm(CapSalary ~ JobTitleGroup, data = pythondf)
-lgp.summary <- summary(lm.groups.python)
+scidf %>%
++     ggplot(aes(x=1:length(CapSalary),y=sort(CapSalary), color=LanguageRecommendationSelect)) + geom_point(position=position_jitter(h=0.1, w=0.1),alpha = 0.5)
 
-anova.groups.r <- aov(CapSalary ~ JobTitleGroup, data = Rdf)
-agr.summary <- summary(anova.groups.r)
+engdf %>%
++     ggplot(aes(x=1:length(CapSalary),y=sort(CapSalary), color=LanguageRecommendationSelect)) + geom_point(position=position_jitter(h=0.1, w=0.1),alpha = 0.5)
 
-lm.groups.r <- lm(CapSalary ~ JobTitleGroup, data = Rdf)
-lgr.summary <- summary(lm.groups.r)
+resanldf %>%
++     ggplot(aes(x=1:length(CapSalary),y=sort(CapSalary), color=LanguageRecommendationSelect)) + geom_point(position=position_jitter(h=0.1, w=0.1),alpha = 0.5)
 
-anova.groups.sql <- aov(CapSalary ~ JobTitleGroup, data = sqldf)
-ags.summary <- summary(anova.groups.sql)
+otherdf %>%
++     ggplot(aes(x=1:length(CapSalary),y=sort(CapSalary), color=LanguageRecommendationSelect)) + geom_point(position=position_jitter(h=0.1, w=0.1),alpha = 0.5)
+```
 
-lm.groups.sql <- lm(CapSalary ~ JobTitleGroup, data = sqldf)
-lgs.summary <- summary(lm.groups.sql)
+```{r, tests-for, message=F, warning=F}
 
-dfLangLM <- data.frame(Groups=c("Other","Research Analyst","Scientist"),Python=lgp.summary$coefficients[c(2:4),c(4)],R=lgr.summary$coefficients[c(2:4),c(4)], SQL=lgs.summary$coefficients[c(2:4),c(4)])
-row.names(dfLangLM) <- NULL
+# Bonferroni correction
+bonferCorr <- 0.05/3
 
-dfLangAnova <- data.frame(Groups=c("Python","R","SQL"),P.Value=c(agp.summary[[1]][["Pr(>F)"]][[1]],agr.summary[[1]][["Pr(>F)"]][[1]],ags.summary[[1]][["Pr(>F)"]][[1]]))
+# Scientist datasets to test with Welch t-test
+test.sci.pr <- t.test(scidf$CapSalary[scidf$LanguageRecommendationSelect=='Python'],scidf$CapSalary[scidf$LanguageRecommendationSelect=='R'],conf.level = 1 - bonferCorr)
+
+test.sci.ps <- t.test(scidf$CapSalary[scidf$LanguageRecommendationSelect=='Python'],scidf$CapSalary[scidf$LanguageRecommendationSelect=='SQL'],conf.level = 1 - bonferCorr)
+
+test.sci.rs<- t.test(scidf$CapSalary[scidf$LanguageRecommendationSelect=='SQL'],scidf$CapSalary[scidf$LanguageRecommendationSelect=='R'],conf.level = 1 - bonferCorr)
+
+Adjusted.P.Value=c(test.sci.pr$p.value,test.sci.ps$p.value, test.sci.rs$p.value)
+Reject.Null <- Adjusted.P.Value < bonferCorr
+sciresult <- data.frame(Groups=c("Python - R","Python - SQL","R - SQL"),Adjusted.P.Value, Reject.Null)
+
+grid.table(sciresult)
+
+# Engineer datasets to test with Welch t-test
+test.eng.pr <- t.test(engdf$CapSalary[engdf$LanguageRecommendationSelect=='Python'],engdf$CapSalary[engdf$LanguageRecommendationSelect=='R'],conf.level = 1 - bonferCorr)
+
+test.eng.ps <- t.test(engdf$CapSalary[engdf$LanguageRecommendationSelect=='Python'],engdf$CapSalary[engdf$LanguageRecommendationSelect=='SQL'],conf.level = 1 - bonferCorr)
+
+test.eng.rs <- t.test(engdf$CapSalary[engdf$LanguageRecommendationSelect=='SQL'],engdf$CapSalary[engdf$LanguageRecommendationSelect=='R'],conf.level = 1 - bonferCorr)
+
+Adjusted.P.Value=c(test.eng.pr$p.value,test.eng.ps$p.value, test.eng.rs$p.value)
+Reject.Null <- Adjusted.P.Value < bonferCorr
+engresult <- data.frame(Groups=c("Python - R","Python - SQL","R - SQL"),Adjusted.P.Value, Reject.Null)
+
+grid.table(engresult)
+
+# Research Analyst datasets to test with Welch t-test
+test.res.pr <- t.test(resanldf$CapSalary[resanldf$LanguageRecommendationSelect=='Python'],resanldf$CapSalary[resanldf$LanguageRecommendationSelect=='R'],conf.level = 1 - bonferCorr)
+
+test.res.ps <- t.test(resanldf$CapSalary[resanldf$LanguageRecommendationSelect=='Python'],resanldf$CapSalary[resanldf$LanguageRecommendationSelect=='SQL'],conf.level = 1 - bonferCorr)
+
+test.res.rs <- t.test(resanldf$CapSalary[resanldf$LanguageRecommendationSelect=='SQL'],resanldf$CapSalary[resanldf$LanguageRecommendationSelect=='R'],conf.level = 1 - bonferCorr)
+
+Adjusted.P.Value=c(test.res.pr$p.value,test.res.ps$p.value, test.res.rs$p.value)
+Reject.Null <- Adjusted.P.Value < bonferCorr
+resresult <- data.frame(Groups=c("Python - R","Python - SQL","R - SQL"),Adjusted.P.Value, Reject.Null)
+
+grid.table(resresult)
+
+
+# Other datasets to test with Welch t-test
+test.other.pr <- t.test(otherdf$CapSalary[otherdf$LanguageRecommendationSelect=='Python'],otherdf$CapSalary[otherdf$LanguageRecommendationSelect=='R'],conf.level = 1 - bonferCorr)
+
+test.other.ps <- t.test(otherdf$CapSalary[otherdf$LanguageRecommendationSelect=='Python'],otherdf$CapSalary[otherdf$LanguageRecommendationSelect=='SQL'],conf.level = 1 - bonferCorr)
+
+test.other.rs <- t.test(otherdf$CapSalary[otherdf$LanguageRecommendationSelect=='SQL'],otherdf$CapSalary[otherdf$LanguageRecommendationSelect=='R'],conf.level = 1 - bonferCorr)
+
+Adjusted.P.Value=c(test.other.pr$p.value,test.other.ps$p.value, test.other.rs$p.value)
+Reject.Null <- Adjusted.P.Value < bonferCorr
+otherresult <- data.frame(Groups=c("Python - R","Python - SQL","R - SQL"),Adjusted.P.Value, Reject.Null)
+
+grid.table(otherresult)
 
 ```
 
 
-```{r, test-with-titles}
-# Scientist title ANOVA and LM models
-anova.scientist <- aov(CapSalary ~ LanguageRecommendationSelect,  data = scidf)
-asci.summary <- summary(anova.scientist)
 
-lm.scientist <- lm(CapSalary ~ factor(LanguageRecommendationSelect),  data = scidf)
-lsci.summary <- summary(lm.scientist)
 
-# Engineer title ANOVA and LM models
-anova.eng <- aov(CapSalary ~ LanguageRecommendationSelect,  data = engdf)
-aeng.summary <- summary(anova.eng)
-
-lm.eng <- lm(CapSalary ~ LanguageRecommendationSelect,  data = engdf)
-leng.summary <- summary(lm.eng)
-
-# Research Analyst ANOVA and LM models
-anova.research <- aov(CapSalary ~ LanguageRecommendationSelect,  data = resanldf)
-ares.summary <- summary(anova.research)
-
-lm.research <- lm(CapSalary ~ LanguageRecommendationSelect,  data = resanldf)
-lres.summary <- summary(lm.research)
-
-# Other title ANOVA and LM models
-anova.other <- aov(CapSalary ~ LanguageRecommendationSelect,  data = otherdf)
-aother.summary <- summary(anova.other)
-
-lm.other <- lm(CapSalary ~ LanguageRecommendationSelect,  data = otherdf)
-lother.summary <- summary(lm.other)
-
-# Data frame to better display p-values for the ANOVA tests
-dfGroupAnova <- data.frame(Groups=c("Engineer","Other","Research Analyst","Scientist"),P.Value=c(aeng.summary[[1]][["Pr(>F)"]][[1]],aother.summary[[1]][["Pr(>F)"]][[1]],ares.summary[[1]][["Pr(>F)"]][[1]],asci.summary[[1]][["Pr(>F)"]][[1]]))
-
-# Data frame to better display p-values for the LM models
-dfGroupLM <- data.frame(Language=c("R", "SQL"),Scientists=lsci.summary$coefficients[c(2:3),c(4)],Engineer=leng.summary$coefficients[c(2:3),c(4)],Research.Analyst=lres.summary$coefficients[c(2:3),c(4)],Other=lother.summary$coefficients[c(2:3),c(4)])
-row.names(dfGroupLM) <- NULL
-
-```
-
-```{r, tables-fig}
-# P-value for the significance in difference of mean salary for programming language
-grid.table(dfGroupAnova)
-    # For the ANOVA test, it suggest that for each individual Job Title, only the Scientist title had enough evidence to reject the null hypothesis of equal mean salary for each language of choise.
-
-# P-value for the linear relation of Job Title on the mean salary within same language users
-grid.table(dfGroupLM)
-    # From the p-value for the assossiation of language preference to salary of Job title, only R shows enough statistical significance on for the association of Language preference to mean salary among the Scientist Job Title group.
-
-# P-value for the significance of Job Title in the difference of mean salary for a programming language
-grid.table(dfLangAnova)
-    # For the ANOVA test, the p-values for languages Python and R suggest there is strong evidence to reject the null hypothesis of no difference in the mean salary for a language between Job Title groups.
-
-# P-value for the linear relation of Programming Language on the mean salary within Job Title Groups 
-grid.table(dfLangLM)
-    # For the Python language preference group, only the Job Title groups of Other and Research Analyst show statistical signigicance in the effect of Job title to the mean salary for python language preference. In the R group, only Job title Other shows statistical significance for the effect of Job title on the mean salary for R language preference. For SQL, the is no statistical significance for the effect of effect of Job title on the mean salary of the language preference.
-
-```
