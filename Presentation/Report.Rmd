@@ -62,7 +62,7 @@ From lecture we know that linear regression is equal to Anova when the variances
 After some exploratoy analysis of the data we found that the variances we not quite equal which lead us to conduct a Welch T-Test for each of the questions as well.
 
 For question 1, we wanted to 
-use ANOVA to test possible differences in multiple groups (groups being high and low density) and Linear Regression to test if there is a linear relationship between compensation and the density of groups. 
+use ANOVA to test possible differences in multiple groups (groups being 1 for high and 0 for low density) and Linear Regression to test if there is a linear relationship between compensation and the density of groups.
 
 Assumptions:
 For question 1,
@@ -99,11 +99,11 @@ Here are the distributions for commission and salary for high denstiy and low de
 ```
 
 From Linear Regression, there is a slight negative linear relationship between density and compensation (for salary and commission).
-As density goes up on average Salary goes down by $21,652.
+X axis is 1 for high and 0 for low density, so we can see that as density goes from low to high on average Salary goes down by $21,652.
 ```{r ref.label='Question_1_plot_salary'}
 ```
 
-This is the linear regression plot and the distribution of the total commission (including high and low density), similarly as density goes up on average commission goes down by $2,106.
+This is the linear regression plot and the distribution of the total commission (including high and low density), similarly as density goes from low to high on average commission goes down by $2,106.
 ```{r ref.label='Question_1_plot_commission'}
 ```
 ```{r echo=FALSE}
