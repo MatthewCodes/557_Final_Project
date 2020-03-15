@@ -14,6 +14,8 @@ knitr::read_chunk("../Code/01-Question1.Rmd")
 
 ## Abstract
 
+In this project, we researched the effects that inputs such as physical location, Job Title, Programming Language, and Education can have in the salary outcome of a Data Scientist by applying techniques such as Welch t-test, ANOVA and Regression. Using the dataset provided by Kaggle's 2017 ML and DS Survey (https://www.kaggle.com/kaggle/kaggle-survey-2017). For the study we discovered that there is evidence (insert p-value) that physical location has an effect in the Salary of Data Scientist. We also found that there is not strong evidence that Programming Language (Python R, SQL) has an effect on industry salary or on individual Job Titles. Moreover, we discovered that there is strong evidence for the influence of Job Titles on Salaries. Further, we found that Job Titles such as Scientist tend to have higher average mean salary than other groups. Finally, we discovered that level of education has an effect on salary and that it tends to lead to higher mean salary by increase  level of education.
+
 
 ## Introduction
 aims + questions, background material/research briefly 
