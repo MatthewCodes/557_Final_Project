@@ -98,29 +98,36 @@ set.seed(3)
 n = 700
 n2 = 1530
 n3 = 800
+n4 = 100
 
-m1 = 50000
+m1 = 55000
 m2 = 60000
 m3 = 70000
+m4 = 50000
 
 s1 = 50000
 s2 = 55000
 s3 = 60000
+s4 = 45000
 
 reps=1000
-pvalues=data.frame(p12=rep(NA,reps),p13=rep(NA,reps),p23=rep(NA,reps))
+pvalues=data.frame(p12=rep(NA,reps),p13=rep(NA,reps), p14=rep(NA, reps), p23=rep(NA,reps), p24=rep(NA,reps), p34=rep(NA, reps))
 for(i in 1:reps){
   x1=rnorm(n,m1,s1)
   x2=rnorm(n2,m2,s2)
   x3=rnorm(n3,m3,s3)
+  x4=rnorm(n4,m4,s4)
   pvalues$p12[i]=t.test(x1,x2,var.equal=F)$p.value
   pvalues$p13[i]=t.test(x1,x3,var.equal=F)$p.value
+  pvalues$p14[i]=t.test(x1,x4,var.equal=F)$p.value
   pvalues$p23[i]=t.test(x2,x3,var.equal=F)$p.value
+  pvalues$p24[i]=t.test(x2,x4,var.equal=F)$p.value
+  pvalues$p34[i]=t.test(x3,x4,var.equal=F)$p.value
 }
 
 # This creates a dataframe with a TRUE or FALSE value for each pairwise test indicating if it rejected
 # as well as a column indicating if any one test rejected
-reject = data.frame(pvalues < 0.05, any.rejection=apply(pvalues<0.05, 1, any))
+reject = data.frame(pvalues < (0.05/6), any.rejection=apply(pvalues<(0.05/6), 1, any))
 
 # This calculates the mean TRUE entries in each column (proportion of rejections) and shows a given number of decimal places for the results
 results = apply(reject,2,mean)
