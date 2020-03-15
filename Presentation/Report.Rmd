@@ -21,13 +21,15 @@ In this project, we researched the effects that inputs such as physical location
 aims + questions, background material/research briefly 
 For our project we decided to go with the theme of Data Science and Pay. As incoming Data Scientists, we know this career
 is in high demand but we want to know what features affect the pay of current Data Scientists. 
-To help us gain insight to the relation we found a dataset from Kaggle listed here: https://www.kaggle.com/ikleiman/data-scientists-salaries-around-the-world/data.
-See the next section for our description of the data. After some exploratory analysis we came up with three questions.
+To help us gain insight to the relation we found a dataset from Kaggle listed here: https://www.kaggle.com/kaggle/kaggle-survey-2017.
+See the next section for our description of the data. After some exploratory analysis we came up with three questions focus around the premise "What affects the Salary of a Data Scientist?".
 
 Question 1: Does typical compensation for Data Science professionals differ among densely populated and sparsely populated areas? (‘Dense’ definition >500 per square mile; ‘sparse’ definition <500 per square mile). 
 Define density by the number of people that live in an area per square mile.
 
-Question 2:
+Question 2: Do Data Science Salaries differ by type of professional Job Title (Scientist vs Engineers vs Researchers vs etc)? and are salaries impacted by the type of tools (recommended programming language) most used by professionals?
+
+Question 3: 
 
 
 
