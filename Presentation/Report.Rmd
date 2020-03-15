@@ -32,7 +32,9 @@ Question 2: Do Data Science Salaries differ by type of professional Job Title (S
 Question 3: 
 
 
+## Data 
 
+We decided to work with the dataset provided by Kaggle's ML and DS Survey for the year 2017. This was the first year Kaggle conducted this industry-wide survey, which received over 16,000 responses on the state of the industry from Data Science and Machine Learning practicioners. The original dataset contained a mixture of multiple choise to questions ranging from "Gender", "Age", "Country", and "CurrentJobTitle" along with free form responses questions such as "Language Recommendation to learn first?" and "Best description of undergraduate major?". 
 After analysis of the data during the initial exploration, we noticed that the
 data should be split into two initial groups (people who are working from commission and those on salary).
 This split was made because the data contained a large amount of answers that were less than an assumed low salary 
