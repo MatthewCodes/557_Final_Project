@@ -1,61 +1,87 @@
 ---
-title: "Report"
-author: "Anmol Srivastava, Juan Solorio, Matthew Rhodes, and Andy De La Fuente"
-output: pdf_document
+title: "Analyzing Compensation for Data Scientists"
+author: "Anmol Srivastava, Juan Solorio, Matthew Rhodes, and Andres De La Fuente"
+output: 
+  pdf_document: 
+classoption: twocolumn
+#header-includes:
+#  - \setlength{\parindent}{4em}
+geometry: "left=2cm,right=2cm,top=2cm,bottom=2cm"
+
 ---
 
 ```{r setup, eval=TRUE,message=FALSE, warning=FALSE, include=FALSE, echo=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
-knitr::read_chunk("../Code/01-Question1.Rmd")
-
+knitr::opts_chunk$set(echo = FALSE, warning=FALSE, message=FALSE)
+library(ggplot2)
+```
+```{r, echo =FALSE}
+invisible(knitr::purl("../Code/01-Question1.Rmd", output="temp", quiet=TRUE))
+```
+```{r, echo =FALSE}
+invisible(knitr::purl("../Code/03-Question3_AndyVersion.Rmd", output="temp3", quiet=TRUE))
+```
+```{r, echo =FALSE}
+invisible(knitr::purl("../Code/02-Question2.Rmd", output="temp2", quiet=TRUE))
 ```
 
-# Title NUMBER UR PAGES PDF 
-
 ## Abstract
-
-In this project, we researched the effects that inputs such as physical location, Job Title, Programming Language, and Education can have in the salary outcome of a Data Scientist by applying techniques such as Welch t-test, ANOVA and Regression. Using the dataset provided by Kaggle's 2017 ML and DS Survey (https://www.kaggle.com/kaggle/kaggle-survey-2017). For the study we discovered that there is evidence (insert p-value) that physical location has an effect in the Salary of Data Scientist. We also found that there is not strong evidence that Programming Language (Python R, SQL) has an effect on industry salary or on individual Job Titles. Moreover, we discovered that there is strong evidence for the influence of Job Titles on Salaries. Further, we found that Job Titles such as Scientist tend to have higher average mean salary than other groups. Finally, we discovered that level of education has an effect on salary and that it tends to lead to higher mean salary by increase  level of education.
+The goal of this project is to evaluate the relevance of certain factors (such as job title and education) towards observing differences in salary for working Data Scientists. The analysis employs techniques such as Welch t-tests, ANOVA and Regression, and is based on the dataset provided by Kaggle's 2017 'ML and DS Survey' (https://www.kaggle.com/kaggle/kaggle-survey-2017). The factors explored in this project are physical location (specifically whether the respondent is in a 'high density' or 'low density' area), job title, suggested programming language, and education. We found evidence (insert p-value) that physical location indicates a difference in the salary of a Data Scientist. We did not find strong evidence that programming language indicates a difference, even within individual job titles. However, we did find strong evidence for a difference in salaries between job titles. We also found evidence for a positive relation between education and salary.
 
 
 ## Introduction
-aims + questions, background material/research briefly 
-For our project we decided to go with the theme of Data Science and Pay. As incoming Data Scientists, we know this career
-is in high demand but we want to know what features affect the pay of current Data Scientists. 
-To help us gain insight to the relation we found a dataset from Kaggle listed here: https://www.kaggle.com/kaggle/kaggle-survey-2017.
-See the next section for our description of the data. After some exploratory analysis we came up with three questions focus around the premise "What affects the Salary of a Data Scientist?".
 
-Question 1: Does typical compensation for Data Science professionals differ among densely populated and sparsely populated areas? (‘Dense’ definition >500 per square mile; ‘sparse’ definition <500 per square mile). 
-Define density by the number of people that live in an area per square mile.
+The focus of this project is compensation within the industry of Data Science. As future employees in the field, we have an interest in which factors might relate to current Data Scientists' pay. 
+To base our analysis of this topic, we decided on a dataset from Kaggle, which is the result of a wide survey conducted on people working in the field (https://www.kaggle.com/kaggle/kaggle-survey-2017). See the next section for our description of the data.
 
-Question 2: Do Data Science Salaries differ by type of professional Job Title (Scientist vs Engineers vs Researchers vs etc)? and are salaries impacted by the type of tools (recommended programming language) most used by professionals?
+After some exploratory analysis, we came up with three questions to focus our efforts on.
 
-Question 3: 
+**Question 1**: Do Data Scientists' salaries differ between densely populated and sparsely populated areas?
+
+**Question 2**: Do Data Scientists' salaries differ based on their job title? Do salaries differ based on the programming languages an individual recommends?
+
+**Question 3**: Do Data Scientists' salaries differ based on the level of education they have attained?
+
+For each of these questions, we aimed to test for both the presence of differences between groups, and for certain relationships by using regression.
 
 
-## Data 
+## Data Set Description 
 
-We decided to work with the dataset provided by Kaggle's ML and DS Survey for the year 2017. This was the first year Kaggle conducted this industry-wide survey, which received over 16,000 responses on the state of the industry from Data Science and Machine Learning practicioners. The original dataset contained a mixture of multiple choise to questions ranging from "Gender", "Age", "Country", and "CurrentJobTitle" along with free form responses questions such as "Language Recommendation to learn first?" and "Best description of undergraduate major?". 
-After analysis of the data during the initial exploration, we noticed that the
-data should be split into two initial groups (people who are working from commission and those on salary).
-This split was made because the data contained a large amount of answers that were less than an assumed low salary 
-would be (between 20-40k+). There were also data points that were obvious `outliers` (people who earn 1,000,000 or more) the
-maximum salary was 28,000,000,000 so
-we decided to cap those values because we conluded that nobody is making more than 500,000 salary. Another thing
-that should be noted is that we are only considering people that are employed. The removal of all the participants that reported
-that earn $0 did not drastically change our results or our final conclusions.
-## Data Set Description
-We had two datasets, the first and primary dataset was from a kaggle project as mentioned above and the other from https://population.un.org/wpp/Download/Standard/Population/.
-The first dataset is a collection of answers from a global survey given to data scientists and people who have data science related careers.
-Here is a statement  about the dataset "For the first time, Kaggle conducted an industry-wide survey to establish a comprehensive view of the state of data science and machine learning. The survey received over 16,000 responses and we learned a ton about who is working with data, what’s happening at the cutting edge of machine learning across industries, and how new data scientists can best break into the field."
-The project content included schema.csv: a CSV file with survey schema. This schema includes the questions that correspond to each column name in both the multipleChoiceResponses.csv and freeformResponses.csv. multipleChoiceResponses.csv: Respondents' answers to multiple choice and ranking questions. These are non-randomized and thus a single row does correspond to all of a single user's answers. -freeformResponses.csv: Respondents' freeform answers to Kaggle's survey questions. These responses are randomized within a column, so that reading across a single row does not give a single user's answers.
-conversionRates.csv: Currency conversion rates (to USD) as accessed from the R package "quantmod" on September 14, 2017
-RespondentTypeREADME.txt: This is a schema for decoding the responses in the "Asked" column of the schema.csv file. For the purposes of this analyis the dataset we used was
-the multipleChoiceReponses.csv.
+As referenced above, the dataset we utilized to draw our conclusions is Kaggle's 'ML and DS Survey' for the year 2017. Kaggle's description of the dataset reads as follows: "For the first time, Kaggle conducted an industry-wide survey to establish a comprehensive view of the state of data science and machine learning. The survey received over 16,000 responses and we learned a ton about who is working with data, what’s happening at the cutting edge of machine learning across industries, and how new data scientists can best break into the field." The survey asked an extremely broad scope of questions, which resulted in a dataset with a mixture of multiple choice responses (e.g. "Education Level") and free form responses (e.g. "Best description of undergraduate major?").
 
-The second was introduced to answer the first question of density. All of the countries that were included in the multipleChoiceReponses dataset
-were also included in the population dataset so we appended the appropriate densities to their respective rows in the multipleChoiceReponses Dataset as
-a final step before we started our analysis.
-source, collection methods, study design (randomized exp, obs, survey, etc)
+The dataset contains the following:
+
+*schema.csv*: a CSV file with the survey schema. This schema includes the questions that correspond to each column name in both the multipleChoiceResponses.csv and freeformResponses.csv.
+
+*multipleChoiceResponses.csv*: Respondents' answers to multiple choice and ranking questions. These are non-randomized and thus a single row corresponds to all of a single user's answers.
+
+*freeformResponses.csv*: Respondents' freeform answers to Kaggle's survey questions. These responses are randomized within a column, so that reading across a single row does not give a single user's answers.
+
+*conversionRates.csv*: Currency conversion rates (to USD) as accessed from the R package "quantmod" on September 14, 2017.
+
+*RespondentTypeREADME.txt*: This is a schema for decoding the contents of the schema.csv file. 
+
+We used the values in the dataset's conversion rates file to generate compensation values in USD for all respondents. For the purposes of our analyses, we limited our focus to multipleChoiceReponses.csv.
+
+Below is a simple histogram of our generated compensation data in USD from the survey before any kind of manipulation.
+```{r, echo =FALSE}
+knitr::read_chunk("temp3")
+```
+```{r ref.label='Q3_data'}
+```
+```{r ref.label='Q3_overall_hist'}
+```
+The mean for this unlceaned data is `r mn` with a maximum value of `r mx`. Further exploration of this revealed that the dataset also contains a large quantity of zeros and values that seem too low to be someone's full time pay. Based on our domain knowledge of the subject at hand, we judged that these results were unrealistic and therefore manipulated the data in a few important ways before applying our analyses to it.
+
+First, we removed all entries with a zero for compensation, as this would either imply unemployment, entry error, or plain junk data, none of which were wanted for our analyses.
+
+Second, we dichotomized compensation into two groups: 'salaries', and 'commissions' (the values which we decided are too low to be salaries).
+We decided to split the values at 20K; anything below this is considered commission.
+
+Third, we decided that some values on the high end were either entry error or extreme outliers (there were values ranging from millions to billions of dollars), and should be capped. The capping value was set to $500,000 based on our real world experience.
+
+A secondary dataset was employed to help answer Question 1 (https://population.un.org/wpp/Download/Standard/Population/).
+
+This was introduced to allow a determination of high-density and low-denisty countries. All of the countries that were included in the multipleChoiceReponses dataset were also included in the population dataset so we appended the appropriate densities to their respective rows in the multipleChoiceReponses Dataset as a final step before we started our analysis.
 
 
 
@@ -88,10 +114,10 @@ Explanation for why methods appropriate
 
 
 ## Results 
-graphs, tables, descriptive info about data and results of analysis 
-## Results from Question 1
+This section contains summarized results of the analyses conducted on each of our questions.
+
+### Question 1: Pay and Location
 ```{r, echo =FALSE}
-invisible(knitr::purl("../Code/01-Question1.Rmd", output="temp", quiet=TRUE))
 knitr::read_chunk("temp")
 ```
 
@@ -100,7 +126,7 @@ knitr::read_chunk("temp")
 
 ```{r ref.label='testing'}
 ```
-Here are the distributions for commission and salary for high denstiy and low density.
+Below are histograms for commission and salary broken down into high denstiy and low density areas.
 ```{r ref.label='pre_plots'}
 ```
 
@@ -117,10 +143,10 @@ unlink("temp")
 ```
 
 
-## Results from question 2:
+### Question 2: Pay and Job Title / Programming Language
 
 
-## Results from question 3:
+### Question 3: Pay and Education
 
 
 ## Discussion

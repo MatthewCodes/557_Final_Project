@@ -1,0 +1,166 @@
+## ---- Q3_data, eval=TRUE, echo=FALSE------------------------------------------
+d0 <- read.csv("../Data/DataScienceData.csv")
+d <- data.frame(d0$FormalEducation, d0$CompensationYearUSD, d0$Tenure)
+d <- na.omit(d)
+
+
+## ---- Q3_overall_hist, eval=TRUE, echo=FALSE, results='hide', fig.keep='all'----
+ggplot(d, aes(x=d0.CompensationYearUSD)) +
+  geom_histogram() +
+  ggtitle("Histogram of Compensation") +
+  xlab("Compensation in USD")
+mx = max(d$d0.CompensationYearUSD)
+mn = mean(d$d0.CompensationYearUSD)
+
+
+## -----------------------------------------------------------------------------
+d <- d[d$d0.CompensationYearUSD < 500000,]
+d <- d[d$d0.CompensationYearUSD > 20000,]
+hist(d$d0.CompensationYearUSD)
+
+
+## -----------------------------------------------------------------------------
+mean(d$d0.CompensationYearUSD)
+sd(d$d0.CompensationYearUSD)
+mean(d$d0.CompensationYearUSD[d$d0.FormalEducation=="Bachelor's degree"])
+
+
+## -----------------------------------------------------------------------------
+unique(d$d0.FormalEducation)
+
+"bachelor's"
+bach = d[d$d0.FormalEducation=="Bachelor's degree",]
+nrow(bach)
+m_bachelor <- mean(bach$d0.CompensationYearUSD)
+sd(bach$d0.CompensationYearUSD)
+
+"master's"
+mas = d[d$d0.FormalEducation=="Master's degree",]
+nrow(mas)
+m_master <- mean(mas$d0.CompensationYearUSD)
+sd(mas$d0.CompensationYearUSD)
+
+"doctorate"
+doc = d[d$d0.FormalEducation=="Doctoral degree",]
+nrow(doc)
+m_doctor <- mean(doc$d0.CompensationYearUSD)
+sd(doc$d0.CompensationYearUSD)
+
+"professional"
+prof = d[d$d0.FormalEducation=="Professional degree",]
+nrow(prof)
+m_professional <- mean(prof$d0.CompensationYearUSD)
+sd(prof$d0.CompensationYearUSD)
+
+
+groupmeans = c(m_bachelor, m_master, m_doctor, m_professional)
+groupmeans
+
+## -----------------------------------------------------------------------------
+d <- d[d$d0.FormalEducation != "I did not complete any formal education past high school",]
+d <- d[d$d0.FormalEducation != "Some college/university study without earning a bachelor's degree",]
+d <- d[d$d0.FormalEducation != "I prefer not to answer",]
+
+
+
+## -----------------------------------------------------------------------------
+set.seed(3)
+n = 700
+n2 = 1530
+n3 = 800
+n4 = 100
+
+m1 = 55000
+m2 = 60000
+m3 = 70000
+m4 = 50000
+
+s1 = 50000
+s2 = 55000
+s3 = 60000
+s4 = 45000
+
+reps=1000
+pvalues=data.frame(p12=rep(NA,reps),p13=rep(NA,reps), p14=rep(NA, reps), p23=rep(NA,reps), p24=rep(NA,reps), p34=rep(NA, reps))
+for(i in 1:reps){
+  x1=rnorm(n,m1,s1)
+  x2=rnorm(n2,m2,s2)
+  x3=rnorm(n3,m3,s3)
+  x4=rnorm(n4,m4,s4)
+  pvalues$p12[i]=t.test(x1,x2,var.equal=F)$p.value
+  pvalues$p13[i]=t.test(x1,x3,var.equal=F)$p.value
+  pvalues$p14[i]=t.test(x1,x4,var.equal=F)$p.value
+  pvalues$p23[i]=t.test(x2,x3,var.equal=F)$p.value
+  pvalues$p24[i]=t.test(x2,x4,var.equal=F)$p.value
+  pvalues$p34[i]=t.test(x3,x4,var.equal=F)$p.value
+}
+
+# This creates a dataframe with a TRUE or FALSE value for each pairwise test indicating if it rejected
+# as well as a column indicating if any one test rejected
+reject = data.frame(pvalues < (0.05/6), any.rejection=apply(pvalues<(0.05/6), 1, any))
+
+# This calculates the mean TRUE entries in each column (proportion of rejections) and shows a given number of decimal places for the results
+results = apply(reject,2,mean)
+dec = 5
+format(round(results, dec), nsmall=dec)
+
+
+## -----------------------------------------------------------------------------
+prof = prof$d0.CompensationYearUSD
+bach = bach$d0.CompensationYearUSD
+mas = mas$d0.CompensationYearUSD
+doc = doc$d0.CompensationYearUSD
+
+
+## -----------------------------------------------------------------------------
+
+
+pvalues=data.frame(Prof_v_BS=NA, BS_v_MS=NA, BS_v_PhD=NA, MS_v_PhD=NA, MS_v_Prof=NA, Prof_v_PhD=NA)
+pvalues$Prof_v_BS=t.test(prof, bach, var.equal=F)$p.value
+pvalues$BS_v_MS=t.test(bach,mas,var.equal=F)$p.value
+pvalues$BS_v_PhD=t.test(bach,doc,var.equal=F)$p.value
+pvalues$MS_v_PhD=t.test(mas, doc, var.equal=F)$p.value
+pvalues$MS_v_Prof=t.test(mas, prof, var.equal=F)$p.value
+pvalues$Prof_v_PhD=t.test(prof, doc, var.equal=F)$p.value
+
+grid.table(pvalues)
+
+
+## -----------------------------------------------------------------------------
+groupmeans
+anovaP <- power.anova.test(groups = 4, 
+between.var = var(c(50000, 60000, 55000, 70000)), within.var = 50000^2, 
+power=NULL,sig.level=0.05,n=c(700, 1500, 800, 100))
+
+anovaP
+
+
+## -----------------------------------------------------------------------------
+d$d0.FormalEducation <- ordered(d$d0.FormalEducation,
+                         levels = c("Professional degree", "Bachelor's degree", "Master's degree", "Doctoral degree"))
+
+## -----------------------------------------------------------------------------
+summary(aov(d$d0.CompensationYearUSD ~ d$d0.FormalEducation, data = d))
+
+
+## -----------------------------------------------------------------------------
+ggplot(d) +
+  ggtitle("Distributions of Salary per Education Group") +
+  xlab("Salary in USD") +
+  labs(fill= "Salary in USD", color="Salary in USD") +
+  geom_density(aes(x=d$d0.CompensationYearUSD, fill=d$d0.FormalEducation, color=d$d0.FormalEducation), alpha=0.3) +
+  scale_x_continuous(labels=dollar) 
+
+
+## -----------------------------------------------------------------------------
+summary(lm(d$d0.CompensationYearUSD ~ factor(d$d0.FormalEducation), data=d))
+
+## -----------------------------------------------------------------------------
+ggplot(d, aes(x=d0.FormalEducation, y=d0.CompensationYearUSD)) + 
+  ggtitle("Salary by Education Level") +
+  xlab("Education Level") +
+  ylab("Salary in USD") +
+  geom_point() +
+  geom_abline(intercept=47806.58, slope = 17939) +
+  scale_y_continuous(labels=dollar)
+

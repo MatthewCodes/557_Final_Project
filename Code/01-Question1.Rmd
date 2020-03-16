@@ -19,7 +19,7 @@ output: html_document
 ```{r, Q1_data, eval =TRUE, echo=FALSE}
 # Why did you choose a split of 500 for the density?
 library(naniar)
-data <- read.csv("C://Users//Matth//OneDrive//Documents//Data Science//DATA 557//557_Final_Project//Data//Data_Science_Density.csv")
+data <- read.csv("../Data/Data_Science_Density.csv")
 high_density <- data[data$Density > 500,]
 high_density$CompensationYearUSD[high_density$CompensationYearUSD>500000] <- NA # 4 removed
 high_density$CompensationYearUSD[high_density$CompensationYearUSD< 0] <- NA

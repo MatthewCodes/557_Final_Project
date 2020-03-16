@@ -3,9 +3,10 @@ title: "Question 3"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+#```{r setup, include=FALSE}
+#knitr::opts_chunk$set(echo = TRUE)
+#```
+
 ## Thoughts about the Data
 
 There are issues with the data concering compensation beyond the abundance of NA values (which can be removed for our purposes).
@@ -15,40 +16,32 @@ There are many entries that are 0 or a very low value (a couple thousand). There
 It might be worthwhile to look into dichotomizing the compensation data, in other words find somewhere to split it so that we can look at just the compensations which could be for full time employment, and perhaps separately look at the lower compensations.
 
 ## Preliminary Findings
-```{r}
+```{r, Q3_data, eval=TRUE, echo=FALSE}
 d0 <- read.csv("../Data/DataScienceData.csv")
-```
-These are all the present responses for level of education.
-```{r}
 d <- data.frame(d0$FormalEducation, d0$CompensationYearUSD, d0$Tenure)
 d <- na.omit(d)
-unique(d$d0.FormalEducation)
 ```
 
 Here is plot of compensation in USD overall
-```{r}
-hist(d$d0.CompensationYearUSD)
-max(d$d0.CompensationYearUSD)
-mean(d$d0.CompensationYearUSD)
-mean(d$d0.CompensationYearUSD[d$d0.FormalEducation=="Bachelor's degree"])
+```{r, Q3_overall_hist, eval=TRUE, echo=FALSE, results='hide', fig.keep='all'}
+ggplot(d, aes(x=d0.CompensationYearUSD)) +
+  geom_histogram() +
+  ggtitle("Histogram of Compensation") +
+  xlab("Compensation in USD")
+mx = max(d$d0.CompensationYearUSD)
+mn = mean(d$d0.CompensationYearUSD)
 ```
 The highest value is 28 Billion and mean is 6 Million, so there is definitely some entry error or plain out junk data. It seems reasonable to remove outliers.
 
 Below is data capped at 1 million USD.
-```{r}
+```{r, Q3_capping, eval=TRUE, echo=FALSE}
 d <- d[d$d0.CompensationYearUSD < 500000,]
 d <- d[d$d0.CompensationYearUSD > 20000,]
-hist(d$d0.CompensationYearUSD)
 ```
 
-```{r}
-mean(d$d0.CompensationYearUSD)
-sd(d$d0.CompensationYearUSD)
-mean(d$d0.CompensationYearUSD[d$d0.FormalEducation=="Bachelor's degree"])
-```
 These numbers seem much more familiar and reasonable, except the standard deviation is almost equal to the mean, which is unusual. This is also being affected by the really low values that don't seem to correspond to full time employment. 
 
-```{r}
+```{r, Q3_education_values, eval=TRUE, echo=FALSE}
 unique(d$d0.FormalEducation)
 
 "bachelor's"
@@ -78,8 +71,14 @@ sd(prof$d0.CompensationYearUSD)
 
 groupmeans = c(m_bachelor, m_master, m_doctor, m_professional)
 groupmeans
+
+prof = prof$d0.CompensationYearUSD
+bach = bach$d0.CompensationYearUSD
+mas = mas$d0.CompensationYearUSD
+doc = doc$d0.CompensationYearUSD
 ```
-```{r}
+
+```{r, Q3_remove_education_levels, echo=FALSE, eval=TRUE}
 d <- d[d$d0.FormalEducation != "I did not complete any formal education past high school",]
 d <- d[d$d0.FormalEducation != "Some college/university study without earning a bachelor's degree",]
 d <- d[d$d0.FormalEducation != "I prefer not to answer",]
@@ -93,7 +92,7 @@ The sample sizes lower dramatically beyond the three major categories of bachelo
 ### *Analyzing the power of Welch t test,*
 
 Power of multiple Welch t test to detect a difference of $10,000 in salary between any of three educational groups.
-```{r}
+```{r, Q3_Welch_power_simulation, eval=TRUE, echo=FALSE}
 set.seed(3)
 n = 700
 n2 = 1530
@@ -135,16 +134,8 @@ dec = 5
 format(round(results, dec), nsmall=dec)
 ```
 
-```{r}
-prof = prof$d0.CompensationYearUSD
-bach = bach$d0.CompensationYearUSD
-mas = mas$d0.CompensationYearUSD
-doc = doc$d0.CompensationYearUSD
-```
 
-```{r}
-
-
+```{r, Q3_Welch_tests, eval=TRUE, echo=FALSE}
 pvalues=data.frame(Prof_v_BS=NA, BS_v_MS=NA, BS_v_PhD=NA, MS_v_PhD=NA, MS_v_Prof=NA, Prof_v_PhD=NA)
 pvalues$Prof_v_BS=t.test(prof, bach, var.equal=F)$p.value
 pvalues$BS_v_MS=t.test(bach,mas,var.equal=F)$p.value
@@ -159,7 +150,7 @@ When simulating for the alternative hyothesis (difference of $10,000 between eac
 
 ### *Analyzing the power of ANOVA*
 The large sample sizes allow us to overlook the assumption of normal distributions within the groups for ANOVA. The assumption of equal variances is not as clearly met, so with the acknowledgement that the present differences may be enough to invalidate the use of ANOVA, we report the results of the power analysis regardless.
-```{r}
+```{r,  Q3_ANOVA_power, eval=TRUE, echo=FALSE}
 groupmeans
 anovaP <- power.anova.test(groups = 4, 
 between.var = var(c(50000, 60000, 55000, 70000)), within.var = 50000^2, 
@@ -174,11 +165,11 @@ Like the multiple t - test, ANOVA would have a power of 1 given our sample size 
 
 
 ### *Test for significant difference between the different education groups (Bachelor, Masters’, PhD)*
-```{r}
+```{r,  Q3_education_level_ordering, eval=TRUE, echo=FALSE}
 d$d0.FormalEducation <- ordered(d$d0.FormalEducation,
                          levels = c("Professional degree", "Bachelor's degree", "Master's degree", "Doctoral degree"))
 ```
-```{r}
+```{r,  Q3_ANOVA, eval=TRUE, echo=FALSE}
 summary(aov(d$d0.CompensationYearUSD ~ d$d0.FormalEducation, data = d))
 ```
 P-Value result from ANOVA: 1.79e-15
@@ -186,7 +177,7 @@ P-Value result from ANOVA: 1.79e-15
 The null hypothesis is rejected, there is a significant difference between education level groups.
 
 ### *Visualizing the Distributions*
-```{r}
+```{r,  Q3_distributions, eval=TRUE, echo=FALSE}
 ggplot(d) +
   ggtitle("Distributions of Salary per Education Group") +
   xlab("Salary in USD") +
@@ -196,10 +187,10 @@ ggplot(d) +
 ```
 Interestingly, it appears that besides PhD's, the difference in means for the other groups has more to do with the tail of the distribution than with a major difference between the bulk.
 ### *Test for linear relationship in compensation as an increase in education level*
-```{r}
+```{r,  Q3_linear_regression, eval=TRUE, echo=FALSE}
 summary(lm(d$d0.CompensationYearUSD ~ factor(d$d0.FormalEducation), data=d))
 ```
-```{r}
+```{r,  Q3_regression_graph, eval=TRUE, echo=FALSE}
 ggplot(d, aes(x=d0.FormalEducation, y=d0.CompensationYearUSD)) + 
   ggtitle("Salary by Education Level") +
   xlab("Education Level") +
