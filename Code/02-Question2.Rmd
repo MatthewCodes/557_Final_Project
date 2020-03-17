@@ -247,7 +247,7 @@ par(mfrow=c(1,2),mar=c(5,4,4,1))
 fitjob=glm(log(CapSalary) ~ JobTitleGroup, data= DSdata3, family = poisson)
 
 scatter.smooth(fitjob$linear.predictors,residuals(fitjob,type="deviance"),cex=0.5,col="gray")
-qqnorm(fitjob$residuals,main = "Normal Q-Q Plot for Job Title GLM")
+qqnorm(fitjob$residuals,main = "Normal Q-Q Plot: Job GLM")
 qqline(fitjob$residuals, col='red')
 
 
@@ -260,7 +260,7 @@ par(mfrow=c(1,2),mar=c(5,4,4,1))
 fitlan=glm(log(CapSalary) ~ LanguageRecommendationSelect, data= DSdata2, family = poisson)
 
 scatter.smooth(fitlan$linear.predictors,residuals(fitlan,type="deviance"),cex=0.5,col="gray")
-qqnorm(fitlan$residuals,main = "Normal Q-Q Plot for Language Title GLM")
+qqnorm(fitlan$residuals,main = "Normal Q-Q Plot: Language GLM")
 qqline(fitlan$residuals, col='red')
 
 
