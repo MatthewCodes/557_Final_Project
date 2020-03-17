@@ -70,7 +70,7 @@ knitr::read_chunk("temp3")
 ```
 ```{r ref.label='Q3_overall_hist'}
 ```
-The mean for this unlceaned data is `r mn` with a maximum value of `r mx`. Further exploration of this revealed that the dataset also contains a large quantity of zeros and values that seem too low to be someone's full time pay. Based on our domain knowledge of the subject at hand, we judged that these results were unrealistic and therefore manipulated the data in a few important ways before applying our analyses to it.
+The mean for this uncleaned data is `r mn` with a maximum value of `r mx`. Further exploration of this revealed that the dataset also contains a large quantity of zeros and values that seem too low to be someone's full time pay. Based on our domain knowledge of the subject at hand, we judged that these results were unrealistic and therefore manipulated the data in a few important ways before applying our analyses to it.
 
 First, we removed all entries with a zero for compensation, as this would either imply unemployment, entry error, or plain junk data, none of which were wanted for our analyses.
 
@@ -91,7 +91,7 @@ Methods:
 The first method we thought to use was Anova.
 From lecture we know that Analysis of Variance is designed to provide a single test of a null hypothesis of equal group means with a desired signiﬁcance level. It is a generalization of the equal-variance t-test to the case where the number of means to be compared is greater than 2. The second test we thought to use was linear regression.
 From lecture we know that linear regression is equal to Anova when the variances are equal and the null hypotheses for ANOVA and regression are equivalent: they both imply that the mean response does not depend on the predictor.We also know that ANOVA and regression will not always agree in this way that why we decided to run them both.
-After some exploratoy analysis of the data we found that the variances we not quite equal which lead us to conduct a Welch T-Test for each of the questions as well.
+After some exploratoy analysis of the data we found that the variances were not quite equal which lead us to conduct a Welch T-Test for each of the questions as well, addressing the difference in variance how this would affect the ANOVA test.
 
 For question 1, we wanted to 
 use ANOVA to test possible differences in multiple groups (groups being 1 for high and 0 for low density) and Linear Regression to test if there is a linear relationship between compensation and the density of groups.

@@ -225,8 +225,20 @@ glm.gen.lang <- summary(glm(CapSalary ~ LanguageRecommendationSelect, data= DSda
 grid.table(cbind(c("R","SQL"),round((exp(glm.gen.lang$coefficients[2:3,1])-1)*100,digits = 1)))
 ```
 
+```{r, glm-assumptions, warning=FALSE}
 
-```{r, sorted-salary-plots}
+par(mfrow=c(1,2),mar=c(5,4,4,1))
+fitjob=glm(log(CapSalary) ~ JobTitleGroup, data= DSdata3, family = poisson)
+fitlan=glm(CapSalary ~ LanguageRecommendationSelect, data= DSdata2, family = poisson)
+r.jobs=residuals(fitjob,type="pearson")
+r.lang=residuals(fitlan,type="pearson")
+scatter.smooth(fitjob$linear.predictors,r.jobs,cex=0.5,col="gray")
+scatter.smooth(fitjob$linear.predictors,abs(r.jobs),cex=0.5,col="gray")
+
+```
+
+
+```{r, sorted-salary-plots,}
 
 scidf %>%
      ggplot(aes(x=1:length(CapSalary),y=sort(CapSalary), color=LanguageRecommendationSelect)) + geom_point(position=position_jitter(h=0.1, w=0.1),alpha = 0.5)
