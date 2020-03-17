@@ -1,0 +1,219 @@
+## ---- Q2_setup, eval=TRUE, echo=FALSE-----------------------------------------
+DSdata <- read_csv("../Data/DataScienceData.csv")
+
+
+## ---- Jobtitlegroups----------------------------------------------------------
+
+Scientists <- c("Statistician", "Data Scientist", "Machine Learning Engineer", "Predictive Modeler", "Scientist/Researcher")
+ResearchAnalyst <- c("Data Analyst", "Business Analyst", "Data Miner", "Researcher")
+Engineer <- c("Software Developer/Software Engineer", "Programmer", "Computer Scientist", "Operations Research Practitioner", "Engineer", "DBA/Database Engineer")
+
+DSdata1 <- DSdata[,] 
+DSdata1$CapSalary <- if_else(DSdata1$CompensationYearUSD > 500000, 500000, DSdata1$CompensationYearUSD)
+DSdata2 <- DSdata1[DSdata1$CompensationYearUSD >= 20000,]
+DSdata2 <- DSdata2 %>% filter(LanguageRecommendationSelect %in% c('SQL', 'Python', 'R'))
+DSdata2$JobTitleGroup <- if_else(DSdata2$CurrentJobTitleSelect %in% Scientists, "Scientist", if_else(DSdata2$CurrentJobTitleSelect %in% ResearchAnalyst,'ResearchAnalyst',if_else(DSdata2$CurrentJobTitleSelect %in% Engineer, 'Engineer', 'Other'))) 
+DSdata1$JobTitleGroup <- if_else(DSdata1$CurrentJobTitleSelect %in% Scientists, "Scientist", if_else(DSdata1$CurrentJobTitleSelect %in% ResearchAnalyst,'ResearchAnalyst',if_else(DSdata1$CurrentJobTitleSelect %in% Engineer, 'Engineer', 'Other'))) 
+
+DSdata2 <- DSdata2 %>% arrange(desc(JobTitleGroup))
+
+
+## ---- den-bp-figures-general--------------------------------------------------
+
+density.gen.jobs <- DSdata2%>%
+  ggplot(aes(x=CapSalary, fill = JobTitleGroup, color = JobTitleGroup))+ geom_density(alpha = .3)+ labs(x ='Annual Salary in USD') + scale_x_log10(labels = dollar) + theme(axis.title.y = element_blank())
+
+boxplot.gen.jobs <- DSdata2 %>%
+  ggplot(aes(y=CapSalary, x=JobTitleGroup)) + geom_boxplot() + labs(y = "Annual Salary in USD") + theme(axis.title.x=element_blank(),axis.title.y = element_text(size=8)) + scale_y_log10(labels = dollar)
+
+plot.jobs <- ggarrange(boxplot.gen.jobs, density.gen.jobs,
+          ncol = 1, nrow = 2)
+
+
+density.gen.lang <- DSdata2%>%
+  ggplot(aes(x=CapSalary, fill = LanguageRecommendationSelect, color = LanguageRecommendationSelect))+ geom_density(alpha = .3)+ labs(x ='Annual Salary in USD', color = "Language", fill = "Language") + scale_x_log10(labels=dollar) + theme(axis.title.y = element_blank()) 
+
+boxplot.gen.lang <- DSdata2 %>%
+  ggplot(aes(y=CapSalary, x=LanguageRecommendationSelect)) + geom_boxplot() + labs(y = "Annual Salary in USD") + theme(axis.title.x=element_blank(),axis.title.y =  element_text(size=8)) + scale_y_log10(labels = dollar) 
+
+plot.lang <- ggarrange(boxplot.gen.lang, density.gen.lang,
+          ncol = 1, nrow = 2)
+
+
+
+
+## ---- test-general------------------------------------------------------------
+anova.gen.jobs <- summary(aov(CapSalary ~ JobTitleGroup, data= DSdata2))
+
+anova.gen.lang <- summary(aov(CapSalary ~ LanguageRecommendationSelect, data= DSdata2))
+
+
+## ---- setup-dfs, message=F, warning=F-----------------------------------------
+# setting up individual datasets for each job title group
+scidf <- DSdata2 %>%
+  filter(!is.na(CompensationYearUSD), CompensationYearUSD >= 20000, JobTitleGroup == 'Scientist', LanguageRecommendationSelect == c('SQL', 'Python', 'R'))
+
+engdf <- DSdata2 %>%
+  filter(!is.na(CompensationYearUSD), CompensationYearUSD >= 20000, JobTitleGroup == 'Engineer', LanguageRecommendationSelect == c('SQL', 'Python', 'R'))
+
+resanldf <- DSdata2 %>%
+  filter(!is.na(CompensationYearUSD), CompensationYearUSD >= 20000, JobTitleGroup == 'ResearchAnalyst' , LanguageRecommendationSelect == c('SQL', 'Python', 'R'))
+
+otherdf <- DSdata2 %>%
+  filter(!is.na(CompensationYearUSD), CompensationYearUSD >= 20000, JobTitleGroup == 'Other', LanguageRecommendationSelect == c('SQL', 'Python', 'R'))
+
+
+
+## ---- density-fig-Job---------------------------------------------------------
+
+sciden <- scidf %>%
+  ggplot(aes(x=CapSalary, fill = LanguageRecommendationSelect, color = LanguageRecommendationSelect))+ geom_density(alpha = .3) + scale_x_log10(labels=dollar) + ggtitle('Scientist Title') + theme(axis.title.x=element_blank(), axis.title.y = element_blank(), legend.position = "none")
+
+engden <- engdf %>%
+  ggplot(aes(x=CapSalary, fill = LanguageRecommendationSelect, color = LanguageRecommendationSelect))+ geom_density(alpha = .3) + scale_x_log10(labels=dollar) + ggtitle('Engineer Title') + theme(axis.title.x=element_blank(), axis.title.y = element_blank(), legend.position = "none")
+
+resden <- resanldf %>%
+  ggplot(aes(x=CapSalary, fill = LanguageRecommendationSelect, color = LanguageRecommendationSelect))+ geom_density(alpha = .3) + scale_x_log10(labels=dollar) + ggtitle('Research Analyst Title') + theme(axis.title.x=element_blank(), axis.title.y = element_blank(), legend.position = "none")
+
+othden <- otherdf %>%
+  ggplot(aes(x=CapSalary, fill = LanguageRecommendationSelect, color = LanguageRecommendationSelect))+ geom_density(alpha = .3) + scale_x_log10(labels=dollar) + ggtitle('Other Title') + theme(axis.title.x=element_blank(), axis.title.y = element_blank(), legend.position = "none")
+
+density.jobs <- ggarrange(sciden, engden, resden, othden,
+          ncol = 2, nrow = 2, common.legend = T, legend = 'top') 
+
+density.final.job <- annotate_figure(density.jobs, 
+                top = text_grob("Distribution of Annual Salary USD", color = "black", face = "bold", size = 14),
+                bottom = text_grob("Annual Salary in USD", color = "black"),
+                left = text_grob("Density", 
+                                 color ="black", rot = 90))
+
+
+
+## ---- boxplot-Title-----------------------------------------------------------
+
+scibox <- scidf %>%
+  ggplot(aes(y=CapSalary, x=LanguageRecommendationSelect)) + geom_boxplot()+ theme(axis.title.x=element_blank(), axis.title.y = element_blank()) + scale_y_log10(labels=dollar) + ggtitle('Scientist')
+
+engbox <- engdf %>%
+  ggplot(aes(y=CapSalary, x=LanguageRecommendationSelect)) + geom_boxplot()+ theme(axis.title.x=element_blank(), axis.title.y = element_blank()) + scale_y_log10(labels=dollar) + ggtitle('Engineer')
+
+resbox <- resanldf %>%
+  ggplot(aes(y=CapSalary, x=LanguageRecommendationSelect)) + geom_boxplot()+ theme(axis.title.x=element_blank(), axis.title.y = element_blank()) + scale_y_log10(labels=dollar) + ggtitle('Research Analyst')
+
+othbox <- otherdf %>%
+  ggplot(aes(y=CapSalary, x=LanguageRecommendationSelect)) + geom_boxplot()+ theme(axis.title.x=element_blank(), axis.title.y = element_blank()) + scale_y_log10(labels=dollar) + ggtitle('Other')
+
+
+boxplot.job <- ggarrange(scibox, engbox, resbox, othbox,
+          ncol = 2, nrow = 2) 
+
+boxplot.final.job <- annotate_figure(boxplot.job, 
+                top = text_grob("Boxplot Salary Compensation", color = "black", face = "bold", size = 14),
+                bottom = text_grob("Language Preference", color = "black"),
+                left = text_grob("Salary in USD", 
+                                 color ="black", rot = 90))
+
+
+
+## ---- tests-for, message=F, warning=F-----------------------------------------
+
+# Bonferroni correction
+bonferCorr <- 0.05/3
+
+# Scientist datasets to test with Welch t-test
+test.sci.pr <- t.test(scidf$CapSalary[scidf$LanguageRecommendationSelect=='Python'],scidf$CapSalary[scidf$LanguageRecommendationSelect=='R'],conf.level = 1 - bonferCorr)
+
+test.sci.ps <- t.test(scidf$CapSalary[scidf$LanguageRecommendationSelect=='Python'],scidf$CapSalary[scidf$LanguageRecommendationSelect=='SQL'],conf.level = 1 - bonferCorr)
+
+test.sci.rs<- t.test(scidf$CapSalary[scidf$LanguageRecommendationSelect=='SQL'],scidf$CapSalary[scidf$LanguageRecommendationSelect=='R'],conf.level = 1 - bonferCorr)
+
+Adjusted.P.Value=c(test.sci.pr$p.value,test.sci.ps$p.value, test.sci.rs$p.value)
+Reject.Null <- Adjusted.P.Value < bonferCorr
+sciresult <- data.frame(Groups=c("Python - R","Python - SQL","R - SQL"),Adjusted.P.Value, Reject.Null)
+
+scitable <- grid.table(sciresult)
+
+# Engineer datasets to test with Welch t-test
+test.eng.pr <- t.test(engdf$CapSalary[engdf$LanguageRecommendationSelect=='Python'],engdf$CapSalary[engdf$LanguageRecommendationSelect=='R'],conf.level = 1 - bonferCorr)
+
+test.eng.ps <- t.test(engdf$CapSalary[engdf$LanguageRecommendationSelect=='Python'],engdf$CapSalary[engdf$LanguageRecommendationSelect=='SQL'],conf.level = 1 - bonferCorr)
+
+test.eng.rs <- t.test(engdf$CapSalary[engdf$LanguageRecommendationSelect=='SQL'],engdf$CapSalary[engdf$LanguageRecommendationSelect=='R'],conf.level = 1 - bonferCorr)
+
+Adjusted.P.Value=c(test.eng.pr$p.value,test.eng.ps$p.value, test.eng.rs$p.value)
+Reject.Null <- Adjusted.P.Value < bonferCorr
+engresult <- data.frame(Groups=c("Python - R","Python - SQL","R - SQL"),Adjusted.P.Value, Reject.Null)
+
+engtable <- grid.table(engresult)
+
+# Research Analyst datasets to test with Welch t-test
+test.res.pr <- t.test(resanldf$CapSalary[resanldf$LanguageRecommendationSelect=='Python'],resanldf$CapSalary[resanldf$LanguageRecommendationSelect=='R'],conf.level = 1 - bonferCorr)
+
+test.res.ps <- t.test(resanldf$CapSalary[resanldf$LanguageRecommendationSelect=='Python'],resanldf$CapSalary[resanldf$LanguageRecommendationSelect=='SQL'],conf.level = 1 - bonferCorr)
+
+test.res.rs <- t.test(resanldf$CapSalary[resanldf$LanguageRecommendationSelect=='SQL'],resanldf$CapSalary[resanldf$LanguageRecommendationSelect=='R'],conf.level = 1 - bonferCorr)
+
+Adjusted.P.Value=c(test.res.pr$p.value,test.res.ps$p.value, test.res.rs$p.value)
+Reject.Null <- Adjusted.P.Value < bonferCorr
+resresult <- data.frame(Groups=c("Python - R","Python - SQL","R - SQL"),Adjusted.P.Value, Reject.Null)
+
+restable <- grid.table(resresult)
+
+
+# Other datasets to test with Welch t-test
+test.other.pr <- t.test(otherdf$CapSalary[otherdf$LanguageRecommendationSelect=='Python'],otherdf$CapSalary[otherdf$LanguageRecommendationSelect=='R'],conf.level = 1 - bonferCorr)
+
+test.other.ps <- t.test(otherdf$CapSalary[otherdf$LanguageRecommendationSelect=='Python'],otherdf$CapSalary[otherdf$LanguageRecommendationSelect=='SQL'],conf.level = 1 - bonferCorr)
+
+test.other.rs <- t.test(otherdf$CapSalary[otherdf$LanguageRecommendationSelect=='SQL'],otherdf$CapSalary[otherdf$LanguageRecommendationSelect=='R'],conf.level = 1 - bonferCorr)
+
+Adjusted.P.Value=c(test.other.pr$p.value,test.other.ps$p.value, test.other.rs$p.value)
+Reject.Null <- Adjusted.P.Value < bonferCorr
+otherresult <- data.frame(Groups=c("Python - R","Python - SQL","R - SQL"),Adjusted.P.Value, Reject.Null)
+
+othtable <- grid.table(otherresult)
+
+
+
+## ---- glm-model, message=F, warning=F-----------------------------------------
+DSdata3 <- DSdata2[,]
+DSdata3$JobTitleGroup <- relevel(as.factor(DSdata3$JobTitleGroup), ref = 'Scientist')
+
+DSdata4 <- DSdata3[DSdata3$LanguageRecommendationSelect != "SQL",]
+
+glm.gen.jobs <- summary(glm(log(CapSalary) ~ JobTitleGroup, data= DSdata3, family = poisson))
+
+grid.table(cbind(c("Engineer","Other","Research Analyst"),round((exp(glm.gen.jobs$coefficients[2:4,1])-1)*100,digits = 1)))
+
+##########
+glm.gen.lang <- summary(glm(CapSalary ~ LanguageRecommendationSelect, data= DSdata2, family = poisson))
+
+grid.table(cbind(c("R","SQL"),round((exp(glm.gen.lang$coefficients[2:3,1])-1)*100,digits = 1)))
+
+
+## ---- glm-assumptions, warning=FALSE------------------------------------------
+
+par(mfrow=c(1,2),mar=c(5,4,4,1))
+fitjob=glm(log(CapSalary) ~ JobTitleGroup, data= DSdata3, family = poisson)
+fitlan=glm(CapSalary ~ LanguageRecommendationSelect, data= DSdata2, family = poisson)
+r.jobs=residuals(fitjob,type="pearson")
+r.lang=residuals(fitlan,type="pearson")
+scatter.smooth(fitjob$linear.predictors,r.jobs,cex=0.5,col="gray")
+scatter.smooth(fitjob$linear.predictors,abs(r.jobs),cex=0.5,col="gray")
+
+
+
+## ---- sorted-salary-plots-----------------------------------------------------
+
+scidf %>%
+     ggplot(aes(x=1:length(CapSalary),y=sort(CapSalary), color=LanguageRecommendationSelect)) + geom_point(position=position_jitter(h=0.1, w=0.1),alpha = 0.5)
+
+engdf %>%
+     ggplot(aes(x=1:length(CapSalary),y=sort(CapSalary), color=LanguageRecommendationSelect)) + geom_point(position=position_jitter(h=0.1, w=0.1),alpha = 0.5)
+
+resanldf %>%
+     ggplot(aes(x=1:length(CapSalary),y=sort(CapSalary), color=LanguageRecommendationSelect)) + geom_point(position=position_jitter(h=0.1, w=0.1),alpha = 0.5)
+
+otherdf %>%
+     ggplot(aes(x=1:length(CapSalary),y=sort(CapSalary), color=LanguageRecommendationSelect)) + geom_point(position=position_jitter(h=0.1, w=0.1),alpha = 0.5)
+

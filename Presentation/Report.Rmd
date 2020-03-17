@@ -151,6 +151,9 @@ unlink("temp")
 
 
 ### Question 3: Pay and Education
+```{r, echo =FALSE}
+knitr::read_chunk("temp2")
+```
 
 
 ## Discussion
