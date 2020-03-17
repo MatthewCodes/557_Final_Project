@@ -82,7 +82,11 @@ First, we removed all entries with a zero for compensation, as this would either
 Second, we dichotomized compensation into two groups: 'salaries', and 'commissions' (the values which we decided are too low to be salaries).
 We decided to split the values at 20K; anything below this is considered commission.
 
-Third, we decided that some values on the high end were either entry error or extreme outliers (there were values ranging from millions to billions of dollars), and should be capped. The capping value was set to $500,000 based on our real world experience.
+Third, we decided that some values on the high end were either entry error or extreme outliers (there were values ranging from millions to billions of dollars), and should be capped. The capping value was set to $500,000 based on our real world experience. As evidenced below, the resulting data set was much more reasonable to base further work on.
+```{r, ref.label='Q3_capping'}
+```
+```{r ref.label='Q3_overall_hist'}
+```
 
 A secondary dataset was employed to help answer Question 1 (https://population.un.org/wpp/Download/Standard/Population/).
 

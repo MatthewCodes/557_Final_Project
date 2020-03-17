@@ -42,6 +42,16 @@ plot.lang <- ggarrange(boxplot.gen.lang, density.gen.lang,
 
 
 
+## ---- histograms--------------------------------------------------------------
+
+meancapsal <- round(mean(DSdata2$CapSalary))
+maxcapsal <- round(max(DSdata2$CapSalary)) 
+detailCapSal <- cat(sprintf('mean : $%.2f',meancapsal))
+
+DSdata2 %>% 
+  ggplot(aes(x=CapSalary))+ geom_histogram(alpha = .8,bins = 10)+ labs(x ='Annual Salary in USD') + scale_x_continuous(labels = dollar) + annotate("text", x = 300000, y = 530, label = c(paste('Mean: $',meancapsal)),size=4)
+
+
 ## ---- test-general------------------------------------------------------------
 anova.gen.jobs <- summary(aov(CapSalary ~ JobTitleGroup, data= DSdata2))
 
