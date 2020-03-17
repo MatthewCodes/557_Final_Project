@@ -62,6 +62,16 @@ plot.lang <- ggarrange(boxplot.gen.lang, density.gen.lang,
 
 ```
 
+```{r, histograms}
+
+meancapsal <- round(mean(DSdata2$CapSalary))
+maxcapsal <- round(max(DSdata2$CapSalary)) 
+detailCapSal <- cat(sprintf('mean : $%.2f',meancapsal))
+
+DSdata2 %>% 
+  ggplot(aes(x=CapSalary))+ geom_histogram(alpha = .8,bins = 10)+ labs(x ='Annual Salary in USD') + scale_x_continuous(labels = dollar) + annotate("text", x = 300000, y = 530, label = c(paste('Mean: $',meancapsal)),size=4)
+```
+
 From the figures, we can see that the groups for Job Titles and for Language Recommendations seem to have close enough variances. We'll proceed under the assumption of equal variances to use ANOVA and test the null hypothesis of equality of the means of the groups (for each Job Title and separately each Language).
 
 ```{r, test-general}
