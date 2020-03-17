@@ -2,12 +2,14 @@
 DSdata <- read_csv("../Data/DataScienceData.csv")
 
 
-## ---- Jobtitlegroups----------------------------------------------------------
+## ---- Q2_Jobtitlegroups-------------------------------------------------------
 
 Scientists <- c("Statistician", "Data Scientist", "Machine Learning Engineer", "Predictive Modeler", "Scientist/Researcher")
 ResearchAnalyst <- c("Data Analyst", "Business Analyst", "Data Miner", "Researcher")
 Engineer <- c("Software Developer/Software Engineer", "Programmer", "Computer Scientist", "Operations Research Practitioner", "Engineer", "DBA/Database Engineer")
 
+
+## ----Q2_data------------------------------------------------------------------
 DSdata1 <- DSdata[,] 
 DSdata1$CapSalary <- if_else(DSdata1$CompensationYearUSD > 500000, 500000, DSdata1$CompensationYearUSD)
 DSdata2 <- DSdata1[DSdata1$CompensationYearUSD >= 20000,]
@@ -40,6 +42,16 @@ plot.lang <- ggarrange(boxplot.gen.lang, density.gen.lang,
           ncol = 1, nrow = 2)
 
 
+
+
+## ---- Q2_histograms, message=FALSE--------------------------------------------
+
+meancapsal <- round(mean(DSdata2$CapSalary))
+maxcapsal <- round(max(DSdata2$CapSalary)) 
+
+
+DSdata2 %>% 
+  ggplot(aes(x=CapSalary))+ geom_histogram(alpha = .8,bins = 10)+ labs(x ='Annual Salary in USD') + scale_x_continuous(labels = dollar) + annotate("text", x = 300000, y = 530, label = c(paste('Mean: $',meancapsal)),size=4)
 
 
 ## ---- test-general------------------------------------------------------------

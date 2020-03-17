@@ -84,6 +84,18 @@ We decided to split the values at 20K; anything below this is considered commiss
 
 Third, we decided that some values on the high end were either entry error or extreme outliers (there were values ranging from millions to billions of dollars), and should be capped. The capping value was set to $500,000 based on our real world experience.
 
+```{r, echo =FALSE}
+knitr::read_chunk("temp2")
+```
+```{r ref.label='Q2_setup'}
+```
+```{r ref.label='Q2_Jobtitlegroups'}
+```
+```{r ref.label='Q2_data'}
+```
+```{r ref.label='Q2_histograms'}
+```
+
 A secondary dataset was employed to help answer Question 1 (https://population.un.org/wpp/Download/Standard/Population/).
 
 We introduced this to allow a determination of high-density and low-denisty countries. All of the countries that were included in the multipleChoiceReponses dataset were also included in the population dataset so we appended the appropriate densities to their respective rows in the multipleChoiceReponses Dataset as a final step before we started our analyses.
