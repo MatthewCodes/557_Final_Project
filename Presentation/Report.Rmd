@@ -89,8 +89,17 @@ Third, we decided that some values on the high end were either entry error or ex
 ```
 
 A secondary dataset was employed to help answer Question 1 (https://population.un.org/wpp/Download/Standard/Population/).
+The dataset is described as follows:
 
-We introduced this to allow a determination of high-density and low-denisty countries. All of the countries that were included in the multipleChoiceReponses dataset were also included in the population dataset so we appended the appropriate densities to their respective rows in the multipleChoiceReponses Dataset as a final step before we started our analyses.
+Total population by sex, annually from 1950 to 2100.
+
+    PopMale: Total male population (thousands)
+    PopFemale: Total female population (thousands)
+    PopTotal: Total population, both sexes (thousands)
+    PopDensity: Population per square kilometre (thousands)
+
+
+First, we were only interested in the lastest population so we used the entries for 2019. After we had these values, they were converted in population per square mile for interpretability. The goal of this data was to allow a determination of high-density and low-denisty countries. All of the countries that were included in the multipleChoiceReponses dataset were also included in the population dataset so we appended the appropriate densities to their respective rows in the multipleChoiceReponses dataset as a final step before we started our analyses.
 
 
 ## Statistical Methods and Assumptions
