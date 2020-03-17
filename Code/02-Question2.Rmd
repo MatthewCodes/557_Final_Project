@@ -3,16 +3,13 @@ title: "Question 2"
 output: html_document
 ---
 
-```{r setup, include=FALSE, message=FALSE, warning=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
 
-library(tidyverse)
-library(ggpubr)
-library(gridExtra)
-library(grid)
-library(scales)
+#```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+#knitr::opts_chunk$set(echo = TRUE)
+#```
 
-DSdata <- read_csv("C:/Users/Juan Solorio/Desktop/DataScience/Grad School/Classes/Data 557/557_Final_Project/Data/DataScienceData.csv")
+```{r, Q2_setup, eval=TRUE, echo=FALSE}
+DSdata <- read_csv("../Data/DataScienceData.csv")
 ```
 
 ### **Question 2: Are Data Scientist salaries affected by the Job Title Group (i.e. Data Analyst/Data Scientist, Engineer, Researcher) or by the type of Programming Language they employ most?**
