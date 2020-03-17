@@ -97,8 +97,7 @@ knitr::read_chunk("temp2")
 ```
 ```{r ref.label='Q2_data'}
 ```
-```{r ref.label='Q2_histograms'}
-```
+
 
 A secondary dataset was employed to help answer Question 1 (https://population.un.org/wpp/Download/Standard/Population/).
 
