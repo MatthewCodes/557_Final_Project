@@ -13,6 +13,11 @@ geometry: "left=2cm,right=2cm,top=2cm,bottom=2cm"
 ```{r setup, eval=TRUE,message=FALSE, warning=FALSE, include=FALSE, echo=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning=FALSE, message=FALSE)
 library(ggplot2)
+library(tidyverse)
+library(ggpubr)
+library(gridExtra)
+library(grid)
+library(scales)
 ```
 ```{r, echo =FALSE}
 invisible(knitr::purl("../Code/01-Question1.Rmd", output="temp", quiet=TRUE))
@@ -25,7 +30,7 @@ invisible(knitr::purl("../Code/02-Question2.Rmd", output="temp2", quiet=TRUE))
 ```
 
 ## Abstract
-The goal of this project is to evaluate the relevance of certain factors (such as job title and education) towards observing differences in salary for working Data Scientists. The analysis employs techniques such as Welch t-tests, ANOVA and Regression, and is based on the dataset provided by Kaggle's 2017 'ML and DS Survey' (https://www.kaggle.com/kaggle/kaggle-survey-2017). The factors explored in this project are physical location (specifically whether the respondent is in a 'high density' or 'low density' area), job title, suggested programming language, and education. We found evidence (insert p-value) that physical location indicates a difference in the salary of a Data Scientist. We did not find strong evidence that programming language indicates a difference, even within individual job titles. However, we did find strong evidence for a difference in salaries between job titles. We also found evidence for a positive relation between education and salary.
+The goal of this project is to evaluate the relevance of certain factors (such as job title and education) towards observing differences in salary for working Data Scientists. The analysis employs techniques such as Welch t-tests, ANOVA and Regression, and is based on the dataset provided by Kaggle's 2017 "ML and DS Survey" (https://www.kaggle.com/kaggle/kaggle-survey-2017). The factors explored in this project are physical location (specifically whether the respondent is in a 'high density' or 'low density' area), job title, suggested programming language, and education. We found evidence (insert p-value) that physical location indicates a difference in the salary of a Data Scientist. We did not find strong evidence that programming language indicates a difference, even within individual job titles. However, we did find strong evidence for a difference in salaries between job titles. We also found evidence for a positive relation between education and salary.
 
 
 ## Introduction
@@ -41,7 +46,7 @@ After some exploratory analysis, we came up with three questions to focus our ef
 
 **Question 3**: Do Data Scientists' salaries differ based on the level of education they have attained?
 
-For each of these questions, we aimed to test for both the presence of differences between groups, and for certain relationships by using regression.
+For each of these questions, we aimed to test for both the presence of differences between groups, and for more specific relationships by using regression.
 
 
 ## Data Set Description 
@@ -81,9 +86,7 @@ Third, we decided that some values on the high end were either entry error or ex
 
 A secondary dataset was employed to help answer Question 1 (https://population.un.org/wpp/Download/Standard/Population/).
 
-This was introduced to allow a determination of high-density and low-denisty countries. All of the countries that were included in the multipleChoiceReponses dataset were also included in the population dataset so we appended the appropriate densities to their respective rows in the multipleChoiceReponses Dataset as a final step before we started our analysis.
-
-
+We introduced this to allow a determination of high-density and low-denisty countries. All of the countries that were included in the multipleChoiceReponses dataset were also included in the population dataset so we appended the appropriate densities to their respective rows in the multipleChoiceReponses Dataset as a final step before we started our analyses.
 
 
 ## Statistical Methods
@@ -148,6 +151,9 @@ unlink("temp")
 
 
 ### Question 3: Pay and Education
+```{r, echo =FALSE}
+knitr::read_chunk("temp2")
+```
 
 
 ## Discussion

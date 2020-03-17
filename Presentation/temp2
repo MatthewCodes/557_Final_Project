@@ -1,24 +1,8 @@
----
-title: "Question 2"
-output: html_document
----
-
-
-#```{r setup, include=FALSE, message=FALSE, warning=FALSE}
-#knitr::opts_chunk$set(echo = TRUE)
-#```
-
-```{r, Q2_setup, eval=TRUE, echo=FALSE}
+## ---- Q2_setup, eval=TRUE, echo=FALSE-----------------------------------------
 DSdata <- read_csv("../Data/DataScienceData.csv")
-```
 
-### **Question 2: Are Data Scientist salaries affected by the Job Title Group (i.e. Data Analyst/Data Scientist, Engineer, Researcher) or by the type of Programming Language they employ most?**
 
-Within the original data, the participants were provided with 17 different Job Titles as options for title that best suit their current position. To answer the first question we needed to create groups for the 17 different entries to the Current Job Title descriptions. For this we decided upon grouping titles into 'Scientist' (people probably utilizing higher level math/statistics), 'ResearchAnalyst' (those focused with general data analysis and manipulation), 'Engineer' (titles focused in the data engineering or software), and 'Other' (description unknown).
-
-For the second part of the question, while there is no entry for "Programming Language Participant most employs", they were given the free hand option of Language Recommendation they would give to people wanting to enter their field, which we used as a proxy. There were 14 languages (ex: Java, Python, R, Scale, etc), of which we were only interested in Python, R, and SQL as these were the top 3 recommendations. 
-
-```{r, Jobtitlegroups}
+## ---- Jobtitlegroups----------------------------------------------------------
 
 Scientists <- c("Statistician", "Data Scientist", "Machine Learning Engineer", "Predictive Modeler", "Scientist/Researcher")
 ResearchAnalyst <- c("Data Analyst", "Business Analyst", "Data Miner", "Researcher")
@@ -32,10 +16,9 @@ DSdata2$JobTitleGroup <- if_else(DSdata2$CurrentJobTitleSelect %in% Scientists, 
 DSdata1$JobTitleGroup <- if_else(DSdata1$CurrentJobTitleSelect %in% Scientists, "Scientist", if_else(DSdata1$CurrentJobTitleSelect %in% ResearchAnalyst,'ResearchAnalyst',if_else(DSdata1$CurrentJobTitleSelect %in% Engineer, 'Engineer', 'Other'))) 
 
 DSdata2 <- DSdata2 %>% arrange(desc(JobTitleGroup))
-```
 
 
-```{r, den-bp-figures-general}
+## ---- den-bp-figures-general--------------------------------------------------
 
 density.gen.jobs <- DSdata2%>%
   ggplot(aes(x=CapSalary, fill = JobTitleGroup, color = JobTitleGroup))+ geom_density(alpha = .3)+ labs(x ='Annual Salary in USD') + scale_x_log10(labels = dollar) + theme(axis.title.y = element_blank())
@@ -57,34 +40,15 @@ plot.lang <- ggarrange(boxplot.gen.lang, density.gen.lang,
           ncol = 1, nrow = 2)
 
 
-```
 
-```{r, histograms}
 
-meancapsal <- round(mean(DSdata2$CapSalary))
-maxcapsal <- round(max(DSdata2$CapSalary)) 
-detailCapSal <- cat(sprintf('mean : $%.2f',meancapsal))
-
-DSdata2 %>% 
-  ggplot(aes(x=CapSalary))+ geom_histogram(alpha = .8,bins = 10)+ labs(x ='Annual Salary in USD') + scale_x_continuous(labels = dollar) + annotate("text", x = 300000, y = 530, label = c(paste('Mean: $',meancapsal)),size=4)
-```
-
-From the figures, we can see that the groups for Job Titles and for Language Recommendations seem to have close enough variances. We'll proceed under the assumption of equal variances to use ANOVA and test the null hypothesis of equality of the means of the groups (for each Job Title and separately each Language).
-
-```{r, test-general}
+## ---- test-general------------------------------------------------------------
 anova.gen.jobs <- summary(aov(CapSalary ~ JobTitleGroup, data= DSdata2))
 
 anova.gen.lang <- summary(aov(CapSalary ~ LanguageRecommendationSelect, data= DSdata2))
-```
-
-From the anova test, we optained a `p-value = ``r anova.gen.lang[[1]][["Pr(>F)"]][[1]]`, which implies that we fail to reject the null hypothesis at our alpha level of 0.05.
-
-For the Job Title anova test, we got the `p-value = ``r anova.gen.jobs[[1]][["Pr(>F)"]][[1]]`, showing strong evidence to reject the null hypothesis.
 
 
-### **Do similar data science jobs that involve different programming languages see comparable salaries (i.e. Data Analyst/Data Scientist, Machine Learning Engineer/Machine Learning Scientist)?**
-
-```{r, setup-dfs, message=F, warning=F}
+## ---- setup-dfs, message=F, warning=F-----------------------------------------
 # setting up individual datasets for each job title group
 scidf <- DSdata2 %>%
   filter(!is.na(CompensationYearUSD), CompensationYearUSD >= 20000, JobTitleGroup == 'Scientist', LanguageRecommendationSelect == c('SQL', 'Python', 'R'))
@@ -98,10 +62,9 @@ resanldf <- DSdata2 %>%
 otherdf <- DSdata2 %>%
   filter(!is.na(CompensationYearUSD), CompensationYearUSD >= 20000, JobTitleGroup == 'Other', LanguageRecommendationSelect == c('SQL', 'Python', 'R'))
 
-```
 
 
-```{r, density-fig-Job}
+## ---- density-fig-Job---------------------------------------------------------
 
 sciden <- scidf %>%
   ggplot(aes(x=CapSalary, fill = LanguageRecommendationSelect, color = LanguageRecommendationSelect))+ geom_density(alpha = .3) + scale_x_log10(labels=dollar) + ggtitle('Scientist Title') + theme(axis.title.x=element_blank(), axis.title.y = element_blank(), legend.position = "none")
@@ -124,10 +87,9 @@ density.final.job <- annotate_figure(density.jobs,
                 left = text_grob("Density", 
                                  color ="black", rot = 90))
 
-```
 
 
-```{r, boxplot-Title}
+## ---- boxplot-Title-----------------------------------------------------------
 
 scibox <- scidf %>%
   ggplot(aes(y=CapSalary, x=LanguageRecommendationSelect)) + geom_boxplot()+ theme(axis.title.x=element_blank(), axis.title.y = element_blank()) + scale_y_log10(labels=dollar) + ggtitle('Scientist')
@@ -151,12 +113,9 @@ boxplot.final.job <- annotate_figure(boxplot.job,
                 left = text_grob("Salary in USD", 
                                  color ="black", rot = 90))
 
-```
 
 
-The Boxplots show that there is some difference in the variance of Job Title groups of the Language Preference Datasets for the Engineer and Research Analyst groups, so we will use a Weltch t-test to test the null hypothesis of equality of means in the salary of Language recommendation groups. Given that we are testing for difference in multiple groups, we will have to apply a Bonferroni correction, making out `alpha =` `r 0.05/3`.
-
-```{r, tests-for, message=F, warning=F}
+## ---- tests-for, message=F, warning=F-----------------------------------------
 
 # Bonferroni correction
 bonferCorr <- 0.05/3
@@ -214,9 +173,9 @@ otherresult <- data.frame(Groups=c("Python - R","Python - SQL","R - SQL"),Adjust
 
 othtable <- grid.table(otherresult)
 
-```
 
-```{r, glm-model, message=F, warning=F}
+
+## ---- glm-model, message=F, warning=F-----------------------------------------
 DSdata3 <- DSdata2[,]
 DSdata3$JobTitleGroup <- relevel(as.factor(DSdata3$JobTitleGroup), ref = 'Scientist')
 
@@ -230,9 +189,9 @@ grid.table(cbind(c("Engineer","Other","Research Analyst"),round((exp(glm.gen.job
 glm.gen.lang <- summary(glm(CapSalary ~ LanguageRecommendationSelect, data= DSdata2, family = poisson))
 
 grid.table(cbind(c("R","SQL"),round((exp(glm.gen.lang$coefficients[2:3,1])-1)*100,digits = 1)))
-```
 
-```{r, glm-assumptions, warning=FALSE}
+
+## ---- glm-assumptions, warning=FALSE------------------------------------------
 
 par(mfrow=c(1,2),mar=c(5,4,4,1))
 fitjob=glm(log(CapSalary) ~ JobTitleGroup, data= DSdata3, family = poisson)
@@ -242,10 +201,9 @@ r.lang=residuals(fitlan,type="pearson")
 scatter.smooth(fitjob$linear.predictors,r.jobs,cex=0.5,col="gray")
 scatter.smooth(fitjob$linear.predictors,abs(r.jobs),cex=0.5,col="gray")
 
-```
 
 
-```{r, sorted-salary-plots,}
+## ---- sorted-salary-plots-----------------------------------------------------
 
 scidf %>%
      ggplot(aes(x=1:length(CapSalary),y=sort(CapSalary), color=LanguageRecommendationSelect)) + geom_point(position=position_jitter(h=0.1, w=0.1),alpha = 0.5)
@@ -258,6 +216,4 @@ resanldf %>%
 
 otherdf %>%
      ggplot(aes(x=1:length(CapSalary),y=sort(CapSalary), color=LanguageRecommendationSelect)) + geom_point(position=position_jitter(h=0.1, w=0.1),alpha = 0.5)
-```
-
 

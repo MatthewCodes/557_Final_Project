@@ -27,7 +27,8 @@ Here is plot of compensation in USD overall
 ggplot(d, aes(x=d0.CompensationYearUSD)) +
   geom_histogram() +
   ggtitle("Histogram of Compensation") +
-  xlab("Compensation in USD")
+  xlab("Compensation in USD") +
+  scale_x_continuous(labels=dollar)
 mx = max(d$d0.CompensationYearUSD)
 mn = mean(d$d0.CompensationYearUSD)
 ```
