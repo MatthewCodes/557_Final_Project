@@ -37,7 +37,7 @@ DSdata2 <- DSdata2 %>% arrange(desc(JobTitleGroup))
 ```
 
 
-```{r, den-bp-figures-general}
+```{r, job-den-bp-figures-general}
 
 density.gen.jobs <- DSdata2%>%
   ggplot(aes(x=CapSalary, fill = JobTitleGroup, color = JobTitleGroup))+ geom_density(alpha = .3)+ labs(x ='Annual Salary in USD') + scale_x_log10(labels = dollar) + theme(axis.title.y = element_blank())
@@ -48,6 +48,10 @@ boxplot.gen.jobs <- DSdata2 %>%
 plot.jobs <- ggarrange(boxplot.gen.jobs, density.gen.jobs,
           ncol = 1, nrow = 2)
 
+plot.jobs
+```
+
+```{r, lang-den-bp-figures-general}
 
 density.gen.lang <- DSdata2%>%
   ggplot(aes(x=CapSalary, fill = LanguageRecommendationSelect, color = LanguageRecommendationSelect))+ geom_density(alpha = .3)+ labs(x ='Annual Salary in USD', color = "Language", fill = "Language") + scale_x_log10(labels=dollar) + theme(axis.title.y = element_blank()) 
@@ -58,7 +62,7 @@ boxplot.gen.lang <- DSdata2 %>%
 plot.lang <- ggarrange(boxplot.gen.lang, density.gen.lang,
           ncol = 1, nrow = 2)
 
-
+plot.lang
 ```
 
 ```{r, Q2_histograms, echo= FALSE, message=FALSE}
@@ -126,6 +130,7 @@ density.final.job <- annotate_figure(density.jobs,
                 left = text_grob("Density", 
                                  color ="black", rot = 90))
 
+density.final.job
 ```
 
 
@@ -153,12 +158,13 @@ boxplot.final.job <- annotate_figure(boxplot.job,
                 left = text_grob("Salary in USD", 
                                  color ="black", rot = 90))
 
+boxplot.final.job
 ```
 
 
 The Boxplots show that there is some difference in the variance of Job Title groups of the Language Preference Datasets for the Engineer and Research Analyst groups, so we will use a Weltch t-test to test the null hypothesis of equality of means in the salary of Language recommendation groups. Given that we are testing for difference in multiple groups, we will have to apply a Bonferroni correction, making out `alpha =` `r 0.05/3`.
 
-```{r, tests-for, message=F, warning=F}
+```{r, Q2_tests-for, message=F, warning=F}
 
 # Bonferroni correction
 bonferCorr <- 0.05/3
@@ -174,7 +180,7 @@ Adjusted.P.Value=c(test.sci.pr$p.value,test.sci.ps$p.value, test.sci.rs$p.value)
 Reject.Null <- Adjusted.P.Value < bonferCorr
 sciresult <- data.frame(Groups=c("Python - R","Python - SQL","R - SQL"),Adjusted.P.Value, Reject.Null)
 
-scitable <- grid.table(sciresult)
+grid.table(sciresult)
 
 # Engineer datasets to test with Welch t-test
 test.eng.pr <- t.test(engdf$CapSalary[engdf$LanguageRecommendationSelect=='Python'],engdf$CapSalary[engdf$LanguageRecommendationSelect=='R'],conf.level = 1 - bonferCorr)
@@ -187,7 +193,7 @@ Adjusted.P.Value=c(test.eng.pr$p.value,test.eng.ps$p.value, test.eng.rs$p.value)
 Reject.Null <- Adjusted.P.Value < bonferCorr
 engresult <- data.frame(Groups=c("Python - R","Python - SQL","R - SQL"),Adjusted.P.Value, Reject.Null)
 
-engtable <- grid.table(engresult)
+grid.table(engresult)
 
 # Research Analyst datasets to test with Welch t-test
 test.res.pr <- t.test(resanldf$CapSalary[resanldf$LanguageRecommendationSelect=='Python'],resanldf$CapSalary[resanldf$LanguageRecommendationSelect=='R'],conf.level = 1 - bonferCorr)
@@ -200,7 +206,7 @@ Adjusted.P.Value=c(test.res.pr$p.value,test.res.ps$p.value, test.res.rs$p.value)
 Reject.Null <- Adjusted.P.Value < bonferCorr
 resresult <- data.frame(Groups=c("Python - R","Python - SQL","R - SQL"),Adjusted.P.Value, Reject.Null)
 
-restable <- grid.table(resresult)
+grid.table(resresult)
 
 
 # Other datasets to test with Welch t-test
@@ -214,11 +220,11 @@ Adjusted.P.Value=c(test.other.pr$p.value,test.other.ps$p.value, test.other.rs$p.
 Reject.Null <- Adjusted.P.Value < bonferCorr
 otherresult <- data.frame(Groups=c("Python - R","Python - SQL","R - SQL"),Adjusted.P.Value, Reject.Null)
 
-othtable <- grid.table(otherresult)
+grid.table(otherresult)
 
 ```
 
-```{r, glm-model, message=F, warning=F}
+```{r, Q2_glm-model, message=F, warning=F}
 DSdata3 <- DSdata2[,]
 DSdata3$JobTitleGroup <- relevel(as.factor(DSdata3$JobTitleGroup), ref = 'Scientist')
 
@@ -226,26 +232,36 @@ DSdata4 <- DSdata3[DSdata3$LanguageRecommendationSelect != "SQL",]
 
 glm.gen.jobs <- summary(glm(log(CapSalary) ~ JobTitleGroup, data= DSdata3, family = poisson))
 
-grid.table(cbind(c("Engineer","Other","Research Analyst"),round((exp(glm.gen.jobs$coefficients[2:4,1])-1)*100,digits = 1)))
+#grid.table(cbind(c("Engineer","Other","Research Analyst"),round((exp(glm.gen.jobs$coefficients[2:4,1])-1)*100,digits = 1)))
 
 ##########
 glm.gen.lang <- summary(glm(CapSalary ~ LanguageRecommendationSelect, data= DSdata2, family = poisson))
 
-grid.table(cbind(c("R","SQL"),round((exp(glm.gen.lang$coefficients[2:3,1])-1)*100,digits = 1)))
+#grid.table(cbind(c("R","SQL"),round((exp(glm.gen.lang$coefficients[2:3,1])-1)*100,digits = 1)))
 ```
 
-```{r, glm-assumptions, echo=FALSE, warning=FALSE}
+```{r, Q2_glmjob-assumptions, echo=FALSE, warning=FALSE}
 
 par(mfrow=c(1,2),mar=c(5,4,4,1))
-fitjob=glm(log(CapSalary) ~ JobTitleGroup, data= DSdata3, family = poisson)
-fitlan=glm(CapSalary ~ LanguageRecommendationSelect, data= DSdata2, family = poisson)
-r.jobs=residuals(fitjob,type="pearson")
-r.lang=residuals(fitlan,type="pearson")
-scatter.smooth(fitjob$linear.predictors,r.jobs,cex=0.8,col="gray")
-scatter.smooth(fitjob$linear.predictors,abs(r.jobs),cex=0.8,col="gray")
 
+fitjob=glm(log(CapSalary) ~ JobTitleGroup, data= DSdata3, family = poisson)
+
+scatter.smooth(fitjob$linear.predictors,residuals(fitjob,type="deviance"),cex=0.5,col="gray")
 qqnorm(fitjob$residuals,main = "Normal Q-Q Plot for Job Title GLM")
 qqline(fitjob$residuals, col='red')
+
+
+```
+
+```{r, Q2_glmlang-assumptions, echo=FALSE, warning=FALSE}
+
+par(mfrow=c(1,2),mar=c(5,4,4,1))
+
+fitlan=glm(log(CapSalary) ~ LanguageRecommendationSelect, data= DSdata2, family = poisson)
+
+scatter.smooth(fitlan$linear.predictors,residuals(fitlan,type="deviance"),cex=0.5,col="gray")
+qqnorm(fitlan$residuals,main = "Normal Q-Q Plot for Language Title GLM")
+qqline(fitlan$residuals, col='red')
 
 
 ```

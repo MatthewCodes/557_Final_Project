@@ -97,7 +97,12 @@ knitr::read_chunk("temp2")
 ```
 ```{r ref.label='Q2_data'}
 ```
-
+```{r ref.label='Q2_glm-model'}
+```
+```{r ref.label='Q2_glmjob-assumptions'}
+```
+```{r ref.label='Q2_glmlang-assumptions'}
+```
 
 A secondary dataset was employed to help answer Question 1 (https://population.un.org/wpp/Download/Standard/Population/).
 
