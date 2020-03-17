@@ -87,7 +87,7 @@ This was introduced to allow a determination of high-density and low-denisty cou
 
 
 ## Statistical Methods
-Methods: 
+**Methods:** 
 The first method we thought to use was Anova.
 From lecture we know that Analysis of Variance is designed to provide a single test of a null hypothesis of equal group means with a desired signiﬁcance level. It is a generalization of the equal-variance t-test to the case where the number of means to be compared is greater than 2. The second test we thought to use was linear regression.
 From lecture we know that linear regression is equal to Anova when the variances are equal and the null hypotheses for ANOVA and regression are equivalent: they both imply that the mean response does not depend on the predictor.We also know that ANOVA and regression will not always agree in this way that why we decided to run them both.
@@ -96,7 +96,7 @@ After some exploratoy analysis of the data we found that the variances were not 
 For question 1, we wanted to 
 use ANOVA to test possible differences in multiple groups (groups being 1 for high and 0 for low density) and Linear Regression to test if there is a linear relationship between compensation and the density of groups.
 
-Assumptions:
+**Assumptions:**
 For question 1,
 Prior to conducting our experiment some of the things that we were assuming going into this question is that the amount of information provided by the dense areas will be significantly larger than the data provided by sparse areas. We are assuming this because we think that areas that have a high population will have more of a need for data scientists than sparse areas like rural countries. Another assumption that we are making is that each one 
 of the samples that are included in the dataset are independent, meaning that no answers provided by someone that took the survey affected someone else’s response. One important assumption we are making which affected the 
@@ -107,6 +107,7 @@ We initially thought that this would be a problem.Even if our data wasn’t norm
 The last thing we are assuming for this is that there is Equal variance.
 
 For question 2,
+
 
 For question 3,
 
