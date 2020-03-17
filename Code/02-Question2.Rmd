@@ -61,7 +61,7 @@ plot.lang <- ggarrange(boxplot.gen.lang, density.gen.lang,
 
 ```
 
-```{r, Q2_histograms, message=FALSE}
+```{r, Q2_histograms, echo= FALSE, message=FALSE}
 
 meancapsal <- round(mean(DSdata2$CapSalary))
 maxcapsal <- round(max(DSdata2$CapSalary)) 
