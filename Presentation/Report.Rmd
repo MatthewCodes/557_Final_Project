@@ -152,11 +152,14 @@ unlink("temp")
 
 
 ### Question 2: Pay and Job Title / Programming Language
+```{r, echo =FALSE}
+knitr::read_chunk("temp2")
+```
 
 
 ### Question 3: Pay and Education
 ```{r, echo =FALSE}
-knitr::read_chunk("temp2")
+knitr::read_chunk("temp3")
 ```
 
 
