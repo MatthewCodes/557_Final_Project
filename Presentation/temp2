@@ -20,7 +20,12 @@ DSdata1$JobTitleGroup <- if_else(DSdata1$CurrentJobTitleSelect %in% Scientists, 
 DSdata2 <- DSdata2 %>% arrange(desc(JobTitleGroup))
 
 
-## ---- job-den-bp-figures-general----------------------------------------------
+## ---- Q2_table-jobs-----------------------------------------------------------
+table(DSdata2$JobTitleGroup) %>%
+  knitr::kable()
+
+
+## ---- Q2_job-den-bp-figures-general-------------------------------------------
 
 density.gen.jobs <- DSdata2%>%
   ggplot(aes(x=CapSalary, fill = JobTitleGroup, color = JobTitleGroup))+ geom_density(alpha = .3)+ labs(x ='Annual Salary in USD') + scale_x_log10(labels = dollar) + theme(axis.title.y = element_blank())
@@ -31,10 +36,12 @@ boxplot.gen.jobs <- DSdata2 %>%
 plot.jobs <- ggarrange(boxplot.gen.jobs, density.gen.jobs,
           ncol = 1, nrow = 2)
 
-plot.jobs
+hist.gen.jobs <- DSdata2%>%
+  ggplot(aes(x=CapSalary, fill = JobTitleGroup, color = JobTitleGroup))+ geom_histogram(alpha = .5, bins= 10)+ labs(x ='Annual Salary in USD') + scale_x_log10(labels = dollar) + theme(axis.title.y = element_blank()) + annotate("text", x = rep(300000,5), y = c(550,500,450,400,350), label = c(paste('Title  |',"Count"),paste('Eng: ',dim(DSdata2[DSdata2$JobTitleGroup=='Engineer',])[1]),paste('Oth: ',dim(DSdata2[DSdata2$JobTitleGroup=='Other',])[1]),paste('Res: ',dim(DSdata2[DSdata2$JobTitleGroup=='ResearchAnalyst',])[1]),paste('Sci:',dim(DSdata2[DSdata2$JobTitleGroup=='Scientist',])[1])),size=4)
 
 
-## ---- lang-den-bp-figures-general---------------------------------------------
+
+## ---- Q2_lang-den-bp-figures-general------------------------------------------
 
 density.gen.lang <- DSdata2%>%
   ggplot(aes(x=CapSalary, fill = LanguageRecommendationSelect, color = LanguageRecommendationSelect))+ geom_density(alpha = .3)+ labs(x ='Annual Salary in USD', color = "Language", fill = "Language") + scale_x_log10(labels=dollar) + theme(axis.title.y = element_blank()) 
@@ -48,23 +55,19 @@ plot.lang <- ggarrange(boxplot.gen.lang, density.gen.lang,
 plot.lang
 
 
-## ---- Q2_histograms, echo= FALSE, message=FALSE-------------------------------
+## ---- Q2_histogram_jobs, echo= FALSE, message=FALSE---------------------------
 
-meancapsal <- round(mean(DSdata2$CapSalary))
-maxcapsal <- round(max(DSdata2$CapSalary)) 
-
-
-DSdata2 %>% 
-  ggplot(aes(x=CapSalary))+ geom_histogram(alpha = .8,bins = 10)+ labs(x ='Annual Salary in USD') + scale_x_continuous(labels = dollar) + annotate("text", x = 300000, y = 530, label = c(paste('Mean: $',meancapsal)),size=4)
+hist.gen.jobs <- DSdata2%>%
+  ggplot(aes(x=CapSalary, fill = JobTitleGroup, color = JobTitleGroup))+ geom_histogram(alpha = .5, bins= 10)+ labs(x ='Annual Salary in USD') + scale_x_log10(labels = dollar) + theme(axis.title.y = element_blank()) + annotate("text", x = rep(300000,5), y = c(550,500,450,400,350), label = c(paste('Title  |',"Count"),paste('Eng: ',dim(DSdata2[DSdata2$JobTitleGroup=='Engineer',])[1]),paste('Oth: ',dim(DSdata2[DSdata2$JobTitleGroup=='Other',])[1]),paste('Res: ',dim(DSdata2[DSdata2$JobTitleGroup=='ResearchAnalyst',])[1]),paste('Sci:',dim(DSdata2[DSdata2$JobTitleGroup=='Scientist',])[1])),size=4)
 
 
-## ---- test-general------------------------------------------------------------
+## ---- Q2_test-general---------------------------------------------------------
 anova.gen.jobs <- summary(aov(CapSalary ~ JobTitleGroup, data= DSdata2))
 
 anova.gen.lang <- summary(aov(CapSalary ~ LanguageRecommendationSelect, data= DSdata2))
 
 
-## ---- setup-dfs, message=F, warning=F-----------------------------------------
+## ---- Q2_setup-dfs, message=F, warning=F--------------------------------------
 # setting up individual datasets for each job title group
 scidf <- DSdata2 %>%
   filter(!is.na(CompensationYearUSD), CompensationYearUSD >= 20000, JobTitleGroup == 'Scientist', LanguageRecommendationSelect == c('SQL', 'Python', 'R'))
@@ -80,7 +83,7 @@ otherdf <- DSdata2 %>%
 
 
 
-## ---- density-fig-Job---------------------------------------------------------
+## ---- Q2_density-fig-Job------------------------------------------------------
 
 sciden <- scidf %>%
   ggplot(aes(x=CapSalary, fill = LanguageRecommendationSelect, color = LanguageRecommendationSelect))+ geom_density(alpha = .3) + scale_x_log10(labels=dollar) + ggtitle('Scientist Title') + theme(axis.title.x=element_blank(), axis.title.y = element_blank(), legend.position = "none")
@@ -106,7 +109,7 @@ density.final.job <- annotate_figure(density.jobs,
 density.final.job
 
 
-## ---- boxplot-Title-----------------------------------------------------------
+## ---- Q2_boxplot-Title--------------------------------------------------------
 
 scibox <- scidf %>%
   ggplot(aes(y=CapSalary, x=LanguageRecommendationSelect)) + geom_boxplot()+ theme(axis.title.x=element_blank(), axis.title.y = element_blank()) + scale_y_log10(labels=dollar) + ggtitle('Scientist')
