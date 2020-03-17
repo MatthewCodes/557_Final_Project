@@ -234,15 +234,19 @@ glm.gen.lang <- summary(glm(CapSalary ~ LanguageRecommendationSelect, data= DSda
 grid.table(cbind(c("R","SQL"),round((exp(glm.gen.lang$coefficients[2:3,1])-1)*100,digits = 1)))
 ```
 
-```{r, glm-assumptions, warning=FALSE}
+```{r, glm-assumptions, echo=FALSE, warning=FALSE}
 
 par(mfrow=c(1,2),mar=c(5,4,4,1))
 fitjob=glm(log(CapSalary) ~ JobTitleGroup, data= DSdata3, family = poisson)
 fitlan=glm(CapSalary ~ LanguageRecommendationSelect, data= DSdata2, family = poisson)
 r.jobs=residuals(fitjob,type="pearson")
 r.lang=residuals(fitlan,type="pearson")
-scatter.smooth(fitjob$linear.predictors,r.jobs,cex=0.5,col="gray")
-scatter.smooth(fitjob$linear.predictors,abs(r.jobs),cex=0.5,col="gray")
+scatter.smooth(fitjob$linear.predictors,r.jobs,cex=0.8,col="gray")
+scatter.smooth(fitjob$linear.predictors,abs(r.jobs),cex=0.8,col="gray")
+
+qqnorm(fitjob$residuals,main = "Normal Q-Q Plot for Job Title GLM")
+qqline(fitjob$residuals, col='red')
+
 
 ```
 
