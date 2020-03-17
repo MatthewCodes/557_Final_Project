@@ -44,11 +44,19 @@ plot.lang <- ggarrange(boxplot.gen.lang, density.gen.lang,
 
 
 
+<<<<<<< HEAD
 ## ---- Q2_histograms, message=FALSE--------------------------------------------
 
 meancapsal <- round(mean(DSdata2$CapSalary))
 maxcapsal <- round(max(DSdata2$CapSalary)) 
 
+=======
+## ---- histograms--------------------------------------------------------------
+
+meancapsal <- round(mean(DSdata2$CapSalary))
+maxcapsal <- round(max(DSdata2$CapSalary)) 
+detailCapSal <- cat(sprintf('mean : $%.2f',meancapsal))
+>>>>>>> f2c7fabf33b45ab0408806a67db9f28fc01d96ba
 
 DSdata2 %>% 
   ggplot(aes(x=CapSalary))+ geom_histogram(alpha = .8,bins = 10)+ labs(x ='Annual Salary in USD') + scale_x_continuous(labels = dollar) + annotate("text", x = 300000, y = 530, label = c(paste('Mean: $',meancapsal)),size=4)
