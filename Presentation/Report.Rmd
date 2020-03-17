@@ -110,11 +110,19 @@ We introduced this to allow a determination of high-density and low-denisty coun
 
 
 ## Statistical Methods
-**Methods:** 
+**ANOVA:**
+
 The first method we thought to use was Anova.
-From lecture we know that Analysis of Variance is designed to provide a single test of a null hypothesis of equal group means with a desired signiﬁcance level. It is a generalization of the equal-variance t-test to the case where the number of means to be compared is greater than 2. The second test we thought to use was linear regression.
+From lecture we know that Analysis of Variance is designed to provide a single test of a null hypothesis of equal group means with a desired signiﬁcance level. It is a generalization of the equal-variance t-test to the case where the number of means to be compared is greater than 2. We are testing for difference in means of various groups, hense using ANOVA would be very convenient and efficient.
+
+**Regression**
+
+The second test we thought to use was linear regression.
 From lecture we know that linear regression is equal to Anova when the variances are equal and the null hypotheses for ANOVA and regression are equivalent: they both imply that the mean response does not depend on the predictor.We also know that ANOVA and regression will not always agree in this way that why we decided to run them both.
-After some exploratoy analysis of the data we found that the variances were not quite equal which lead us to conduct a Welch T-Test for each of the questions as well, addressing the difference in variance how this would affect the ANOVA test.
+
+**Welch t-test**
+
+After some exploratoy analysis of the data we found that the variances showed some difference, hense we might not be able to satify assumptions for ANOVA for each group. This lead us to conduct a Welch T-Test as well, addressing the difference in variance, addressing the issues that might arise from ANOVA.
 
 For question 1, we wanted to 
 use ANOVA to test possible differences in multiple groups (groups being 1 for high and 0 for low density) and Linear Regression to test if there is a linear relationship between compensation and the density of groups.
@@ -130,6 +138,7 @@ We initially thought that this would be a problem.Even if our data wasn’t norm
 The last thing we are assuming for this is that there is Equal variance.
 
 For question 2,
+
 
 
 For question 3,
