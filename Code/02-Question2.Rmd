@@ -73,6 +73,13 @@ hist.gen.lang <- DSdata2%>%
   ggplot(aes(x=CapSalary, fill = LanguageRecommendationSelect, color = LanguageRecommendationSelect))+ geom_histogram(alpha = .5, bins= 10)+ labs(x ='Annual Salary in USD') + scale_x_log10(labels = dollar) + theme(axis.title.y = element_blank()) + annotate("text", x = rep(300000,4), y = c(550,500,450,400), label = c(paste('Lang |',"Count"),paste('Pth: ',dim(DSdata2[DSdata2$LanguageRecommendationSelect=='Python',])[1]),paste('R : ',dim(DSdata2[DSdata2$LanguageRecommendationSelect=='R',])[1]),paste('SQL: ',dim(DSdata2[DSdata2$LanguageRecommendationSelect=='SQL',])[1])),size=4)
 ```
 
+Working with this subset for Job Titles and Programming Languages we had satistifed the assumption of having a large dataset, but we still needed to make sure our assumptions of equal variance and normality were held to apply our test. The data was passed into some boxplots and density plots to check for the variance and normality of the distribution as shown in the figure below.
+
+```{r, group-plots}
+plot.jobs
+plot.lang
+```
+
 ```{r, Q2_histogram_jobs, echo= FALSE, message=FALSE}
 
 hist.gen.jobs <- DSdata2%>%

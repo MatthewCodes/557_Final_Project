@@ -188,6 +188,14 @@ hist.gen.lang
 ```
 
 
+Working with this subset for Job Titles and Programming Languages we had satistifed the assumption of having a large dataset, but we still needed to make sure our assumptions of equal variance and normality were held to apply our test. The data was passed into some boxplots and density plots to check for the variance and normality of the distribution as shown in the figure below.
+
+```{r}
+plot.jobs
+plot.lang
+```
+
+
 
 ```{r ref.label='Q2_glm-model'}
 ```
