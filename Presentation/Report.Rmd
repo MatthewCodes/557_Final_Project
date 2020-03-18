@@ -174,15 +174,20 @@ In question 2, we wanted to explore the effects that a specific Job Title or Pre
 
 **Are Data Scientist salaries affected by the Job Title Group (i.e. Data Analyst/Data Scientist, Engineer, Researcher) or by the type of Programming Language they employ most?**
 
-Within the original data, the participants were provided with 17 different Job Titles as options for title that best suit their current position. To answer the first question we needed to create groups for the 17 different entries to the Current Job Title descriptions. For this we decided upon grouping titles into 'Scientist' (people probably utilizing higher level math/statistics), 'ResearchAnalyst' (those focused with general data analysis and manipulation), 'Engineer' (titles focused in the data engineering or software), and 'Other' (description unknown). We worked with the already capped salary data to answer the question. This lead our original dataset of over 16,000 to one of over 3,000 for this question, distributed as described in the figures below:
+Within the original data, the participants were provided with 17 different Job Titles as options for title that best suit their current position. To answer the first question we needed to create groups for the 17 different entries to the Current Job Title descriptions. For this we decided upon grouping titles into 'Scientist' (people probably utilizing higher level math/statistics), 'ResearchAnalyst' (those focused with general data analysis and manipulation), 'Engineer' (titles focused in the data engineering or software), and 'Other' (description unknown). We worked with the already capped salary data to answer the question. 
+
+For the second part of the question, while there is no entry for "Programming Language Participant most employs", they were given the free hand option of Language Recommendation they would give to people wanting to enter their field, which we used as a proxy. There were 14 languages (ex: Java, Python, R, Scale, etc), of which we were only interested in Python, R, and SQL as these were the top 3 recommendations. This lead our original dataset of over 16,000 to one of over 3,000 for this question, distributed as described in the figures below:
 
 ```{r ref.label='Q2_job-den-bp-figures-general'}
 ```
+```{r ref.label='Q2_lang-den-bp-figures-general'}
+```
 ```{r}
 hist.gen.jobs
+hist.gen.lang
 ```
 
-For the second part of the question, while there is no entry for "Programming Language Participant most employs", they were given the free hand option of Language Recommendation they would give to people wanting to enter their field, which we used as a proxy. There were 14 languages (ex: Java, Python, R, Scale, etc), of which we were only interested in Python, R, and SQL as these were the top 3 recommendations. 
+
 
 ```{r ref.label='Q2_glm-model'}
 ```
