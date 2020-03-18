@@ -195,8 +195,19 @@ plot.jobs
 plot.lang
 ```
 
+The boxplots for both the Job Title groups and Language preference groups, seem to have minimal difference in their variance from what one can tell from the charts. The density plots for each group, also shows a general normality to the distribution of the groups. Given these, we proceeded with the assumption of equal variance and normality needed for ANOVA and Regression.
 
+For our tests, we ran under the hypothesis:
+$$
+  H_0: There \ is \ no \ difference \ in \ means \ (\mu_1=\mu_2 = ...=\mu_n)
+  \\
+$$
+$$
+  H_1: There \ is \ difference\ in \ means
+$$
 
+```{r ref.label='Q2_ANOVA-test-general'}
+```
 ```{r ref.label='Q2_glm-model'}
 ```
 ```{r ref.label='Q2_glmjob-assumptions'}
