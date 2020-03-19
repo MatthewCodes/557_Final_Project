@@ -222,7 +222,7 @@ knitr::read_chunk("temp3")
 
 
 ## Discussion
-We first address our original assumptions about Question #1: we did not ultimately receive more data from the high density areas. In fact, we actually received more data from the low density areas.
+We first address our original assumptions about Question #1: we did not ultimately receive more data from the high density areas. In fact, we received more data from the low density areas.
 The data points from the dataset were indeed independent, since this survey was given to individual participants, but we did not have a normal distribution of data for commission 
 or salary, nor equal variances for either of them. Subsequently, the initial metric statistics lead us to conclude that we should not use ANOVA or linear regression, as the variances are not the same. We also appreciate that unequal variances are a problem no matter how large the sample size may be, thus the Welch method is more appropriate. However, we also realize that there is a malleable window of difference (a certain thershold) that counts as equal variance, so we still performed our other tests.
 
@@ -247,6 +247,11 @@ Question 1:
 Question 2:
 
 Question 3:
+~~~ talking abt stuff in context of references ~~~
+
+We believe our work has strong connections to workforce-oriented research in the real world. Individuals have come across conclusions that are similar to ours, albeit with varying degrees of agreement. For instance, a finance website hosts an investigative piece on the importance of education level in data sience. It deviates mildly from our findings (identifying the relationship between degree and pay as mere positive correlation), but stresses that education level explains workers' skillsets and experience -- which may then translate to career and salary growth (Hayes). Similarly, a U.S. Bureau of Labor Statistics study cofirms our suspicions that location matters a great deal -- going so far as to claim that factors like cost of living or pace of life may supercede other attributes as determinants of compensation for identical work (Torpey). 
+
+In any case, our project has the potential to benefit not only prospective data scientists, but also to inform the industry at large as to the state of affairs in the data science arena. Our tests (and additional tests using the unexplored data in the complete survey) could continue to be used in this regard, to unearth even more surprising and beneficial patterns in this ever-growing field.  
 
 ## References
 
