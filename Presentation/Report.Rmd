@@ -31,32 +31,30 @@ invisible(knitr::purl("../Code/02-Question2.Rmd", output="temp2", quiet=TRUE))
 ```
 
 ## Abstract
-The goal of this project is to evaluate the relevance of certain factors (such as job title and education) towards observing differences in salary for working Data Scientists. The analysis employs techniques such as Welch t-tests, ANOVA and Regression, and is based on the dataset provided by Kaggle's 2017 "ML and DS Survey" (https://www.kaggle.com/kaggle/kaggle-survey-2017). The factors explored in this project are physical location (specifically whether the respondent is in a 'high density' or 'low density' area), job title, suggested programming language, and education. We found evidence (insert p-value) that physical location indicates a difference in the salary of a Data Scientist. We did not find strong evidence that programming language indicates a difference, even within individual job titles. However, we did find strong evidence for a difference in salaries between job titles. We also found evidence for a positive relation between education and salary.
+The goal of this project is to evaluate the effects of certain factors (such as job title and education) on observed differences in salary for working data scientists. The analysis employs techniques such as Welch t-tests, ANOVA, and regression, performed on data provided by Kaggle's 2017 "ML and DS Survey" (https://www.kaggle.com/kaggle/kaggle-survey-2017). The factors explored in this project are physical location (specifically, whether the respondent is in a 'high density' or 'low density' area), job title, recommended programming language, and education. We found evidence (insert p-value) supporting the notion that location determines differences in data scientists' salaries. We did not find sufficient evidence to claim that programming language determines such differences, even within individual job titles. However, we did find evidence for a significant difference in salaries between different job titles. A positive relationship betwen education level and salary was similarly supported by the data.
 
 
 ## Introduction
 
-The focus of this project is compensation within the industry of Data Science. As future employees in the field, we have an interest in which factors might relate to current Data Scientists' pay. 
-To base our analysis of this topic, we decided on a dataset from Kaggle, which is the result of a wide survey conducted on people working in the field (https://www.kaggle.com/kaggle/kaggle-survey-2017). See the next section for our description of the data.
+The focus of this project is compensation within the industry of data science. As prospective employees in the field, we have an interest in which factors might affect current data scientists' pay. Our analyses are built upon a dataset from Kaggle, which itself is the result of an industry-wide survey conducted on people working in the data science arena. This data is further explored in the 'Dataset Description' section. Then, after some exploratory analysis, we derived three questions upon which to center our research.
 
-After some exploratory analysis, we came up with three questions to focus our efforts on.
+**Question 1**: Do data scientists' salaries differ between densely-populated and sparsely-populated areas?
 
-**Question 1**: Do Data Scientists' salaries differ between densely populated and sparsely populated areas?
-
-**Question 2**: Do Data Scientists' salaries differ based on their job title? Do salaries differ based on the programming languages an individual recommends?
-
-**Question 3**: Do Data Scientists' salaries differ based on the level of education they have attained?
-
-For each of these questions, we aimed to test for both the presence of differences between groups, and for more specific relationships by using regression.
+**Question 2**: Do data scientists' salaries differ based on their job title? Do these salaries differ based on the programming languages recommended by respondents? 
 
 
-## Data Set Description 
+**Question 3**: Do data scientists' salaries differ based on the level of education they have attained?
 
-As referenced above, the dataset we utilized to draw our conclusions is Kaggle's 'ML and DS Survey' for the year 2017. Kaggle's description of the dataset reads as follows: "For the first time, Kaggle conducted an industry-wide survey to establish a comprehensive view of the state of data science and machine learning. The survey received over 16,000 responses and we learned a ton about who is working with data, what’s happening at the cutting edge of machine learning across industries, and how new data scientists can best break into the field." The survey asked an extremely broad scope of questions, which resulted in a dataset with a mixture of multiple choice responses (e.g. "Education Level") and free form responses (e.g. "Best description of undergraduate major?").
+For each of these questions, we aimed to test for both the presence of significant differences between groups, and for more specific relationships (via regression).
 
-The dataset contains the following:
 
-*schema.csv*: a CSV file with the survey schema. This schema includes the questions that correspond to each column name in both the multipleChoiceResponses.csv and freeformResponses.csv.
+## Dataset Description 
+
+As previously mentioned, the dataset from which we drew our conclusions is Kaggle's 'ML and DS Survey' for 2017. Kaggle's subsequent results are summarized as follows: "For the first time, Kaggle conducted an industry-wide survey to establish a comprehensive view of the state of data science and machine learning. The survey received over 16,000 responses and we learned a ton about who is working with data, what’s happening at the cutting edge of machine learning across industries, and how new data scientists can best break into the field." The survey asked an extremely broad scope of questions, which resulted in a mixture of multiple choice responses (e.g. "Education Level") and freeform responses (e.g. "Best description of undergraduate major?").
+
+The dataset is structured as follows:
+
+*schema.csv*: A .csv file with the survey schema. This schema includes the full, exact questions that correspond to each column name in both the multipleChoiceResponses.csv and freeformResponses.csv sheets.
 
 *multipleChoiceResponses.csv*: Respondents' answers to multiple choice and ranking questions. These are non-randomized and thus a single row corresponds to all of a single user's answers.
 
@@ -68,7 +66,7 @@ The dataset contains the following:
 
 We used the values in the dataset's conversion rates file to generate compensation values in USD for all respondents. For the purposes of our analyses, we limited our focus to multipleChoiceReponses.csv.
 
-Below is a simple histogram of our generated compensation data in USD from the survey before any kind of manipulation.
+The following is a simple histogram of our generated compensation data (in USD) from the survey, before any kind of manipulation.
 ```{r, echo =FALSE}
 knitr::read_chunk("temp3")
 ```
@@ -76,14 +74,13 @@ knitr::read_chunk("temp3")
 ```
 ```{r ref.label='Q3_overall_hist'}
 ```
-The mean for this uncleaned data is `r mn` with a maximum value of `r mx`. Further exploration of this revealed that the dataset also contains a large quantity of zeros and values that seem too low to be someone's full time pay. Based on our domain knowledge of the subject at hand, we judged that these results were unrealistic and therefore manipulated the data in a few important ways before applying our analyses to it.
+The mean for this uncleaned data is `r mn` with a maximum value of `r mx`. Further exploration revealed that the dataset also contains a large quantity of zeros and values that seem too low to be someone's full-time pay. Based on our domain knowledge, we judged that these results were unrealistic, and therefore manipulated the data in a few important ways before applying our analyses.
 
 First, we removed all entries with a zero for compensation, as this would either imply unemployment, entry error, or plain junk data, none of which were wanted for our analyses.
 
-Second, we dichotomized compensation into two groups: 'salaries', and 'commissions' (the values which we decided are too low to be salaries).
-We decided to split the values at 20K; anything below this is considered commission.
+Second, we dichotomized compensation into two groups: 'salaries', and 'commissions' (the values which we decided are too low to be salaries). We decided to split the values at 20K; anything below this is considered commission.
 
-Third, we decided that some values on the high end were either entry error or extreme outliers (there were values ranging from millions to billions of dollars), and should be capped. The capping value was set to $500,000 based on our real world experience. As evidenced below, the resulting data set was much more reasonable to base further work on.
+Third, we decided that some values on the high end were either entry error or extreme outliers (there were values ranging from millions to billions of dollars), and should be capped. The capping value was set to $500,000 based on our real world experience. As evidenced below, the resulting dataset was much more reasonable to base further work on.
 ```{r, ref.label='Q3_capping'}
 ```
 ```{r ref.label='Q3_overall_hist'}
@@ -92,7 +89,7 @@ Third, we decided that some values on the high end were either entry error or ex
 A secondary dataset was employed to help answer Question 1 (https://population.un.org/wpp/Download/Standard/Population/).
 The dataset is described as follows:
 
-Total population by sex, annually from 1950 to 2100.
+Total annual population, by sex, from 1950 to 2100.
 
     PopMale: Total male population (thousands)
     PopFemale: Total female population (thousands)
@@ -100,38 +97,35 @@ Total population by sex, annually from 1950 to 2100.
     PopDensity: Population per square kilometre (thousands)
 
 
-First, we were only interested in the lastest population so we used the entries for 2019. After we had these values, they were converted in population per square mile for interpretability. The goal of this data was to allow a determination of high-density and low-denisty countries. All of the countries that were included in the multipleChoiceReponses dataset were also included in the population dataset so we appended the appropriate densities to their respective rows in the multipleChoiceReponses dataset as a final step before we started our analyses.
+We were only interested in the lastest population, so we used the entries for 2019. After we had these values, they were converted in population per square mile for interpretability. The goal of this data was to allow for a determination of high-density and low-denisty countries. All of the countries that were included in the multipleChoiceReponses dataset were also included in the population dataset, so we appended the appropriate densities to their respective rows in the multipleChoiceReponses dataset as a final step before starting our analyses.
 
 
 ## Statistical Methods and Assumptions
 **ANOVA:**
 
-The first method we thought to use was Anova.
-From lecture we know that Analysis of Variance is designed to provide a single test of a null hypothesis of equal group means with a desired signiﬁcance level. It is a generalization of the equal-variance t-test to the case where the number of means to be compared is greater than 2. We are testing for difference in means of various groups, hense using ANOVA would be very convenient and efficient.
+The first method we arrived at was Analysis of Variance (ANOVA).
+From lecture, we know that ANOVA is designed to provide a single test of a null hypothesis of equal group means with a desired signiﬁcance level. It is a generalization of the equal-variance t-test to the case where the number of means to be compared is greater than 2. We are testing for difference in means of various groups, hence using ANOVA would be convenient and efficient.
 
 **Regression**
 
 The second test we thought to use was linear regression.
-From lecture we know that linear regression is equal to Anova when the variances are equal and the null hypotheses for ANOVA and regression are equivalent: they both imply that the mean response does not depend on the predictor.We also know that ANOVA and regression will not always agree in this way that why we decided to run them both.
+From lecture, we know that linear regression is equivalent to ANOVA when the variances are equal, and the null hypotheses for ANOVA and regression both imply that the mean response does not depend on the predictor. We also ackowledge that ANOVA and regression will not always agree, which is why we decided to run both.
 
-**Welch t-test**
+**Welch T-Test**
 
-After some exploratoy analysis of the data we found that the variances showed some difference, hense we might not be able to satify assumptions for ANOVA for each group. This lead us to conduct a Welch T-Test as well, addressing the difference in variance, addressing the issues that might arise from ANOVA.
+After some exploratory analysis, we found that sample variances showed notable differences, meaning we might not necessarily satify the pertinent ANOVA assumptions for each group. This led us to conduct a Welch T-Test as well, addressing the differences in variances, and thus the issues that might arise from the use of ANOVA.
 
 **Assumptions:**
-For the each of the test we are working under the assumption that the samples included in the Kaggle Survey dataset are independent, meaning that no answers provided by someone that took the survey affected a different entry. Moreover, we are working under the assumption that we have large enought data for each group to account for normality in both the ANOVA and Welch t-test. For the ANOVA and Regression models, we are also assuming equality in the variance of the groups. Finally, we persume there to be normality and liniarity for the models to perform either Linear or a Generalize linear model.
+For the each of the tests, we are working under the assumption that the samples included in the Kaggle Survey dataset are independent, meaning that no answers provided by one surveyee affected another surveyee's entry. Moreover, we are working under the assumption that we have sufficiently large data sizes for each group, to account for the normality requirement in both the ANOVA and Welch tests. For the ANOVA and regression models, we are also assuming equality in the variance of the groups. Finally, we presume normality and liniarity for the models, to construct either linear or generalized linear models.
 
 
-## Pay and Location
+## Pay & Location
 
 For question 1,
-Prior to conducting our experiment some of the things that we were assuming going into this question is that the amount of information provided by the dense areas will be significantly larger than the data provided by sparse areas. We are assuming this because we think that areas that have a high population will have more of a need for data scientists than sparse areas like rural countries. Another assumption that we are making is that each one 
-of the samples that are included in the dataset are independent, meaning that no answers provided by someone that took the survey affected someone else’s response. One important assumption we are making which affected the 
-method we want to use is that we have a normal distribution of data.
+prior to conducting our experiment, we anticipated that the amount of information provided by the dense areas will be significantly larger than the data provided by sparse areas. We are assuming this because we think that areas with a high population will have more of a need for data scientists than sparse areas (like rural countries). One important assumption we are making (which affected our choice of method) is that the data is normally distributed.
 This means that areas that are on the lower end of sparse and dense will appear as often as areas that are on the higher end of dense and sparse,
 while the majority of areas fall closer to the mean of each population density. 
-We initially thought that this would be a problem.Even if our data wasn’t normally distributed, since we have around 10,000 rows and roughly 4 features we think the sample size will be large enough. 
-The last thing we are assuming for this is that there is Equal variance.
+We initially felt that this would be a problem. However, even if the data wasn’t normally distributed, since we have around 10,000 rows and roughly 4 features, it is believed that the sample size is sufficiently large. Lastly, as previously stated, we make the equal-variance assumption.
 
 ```{r, echo =FALSE}
 knitr::read_chunk("temp")
@@ -142,14 +136,14 @@ knitr::read_chunk("temp")
 
 ```{r ref.label='testing'}
 ```
-Below are histograms for commission and salary broken down into high denstiy and low density areas.
+Below are histograms for commission and salary, broken down into high density and low density areas.
 ```{r ref.label='pre_plots'}
 ```
-From Linear Regression, there is a slight negative linear relationship between density and compensation (for salary and commission).
-X axis is 1 for high and 0 for low density, so we can see that as density goes from low to high on average Salary goes down by $21,652.
+From linear regression tests, there is a slightly negative linear relationship between density and compensation (for salary and commission).
+The x-axis denotes 1 for high and 0 for low density, so we can see that (as density goes from low to high), average salary goes down by $21,652.
 ```{r ref.label='Question_1_plot_salary'}
 ```
-This is the linear regression plot and the distribution of the total commission (including high and low density), similarly as density goes from low to high on average commission goes down by $2,106.
+This is the linear regression plot and the distribution of the total commission (including high and low density). Similarly, as density goes from low to high, average commission goes down by $2,106.
 ```{r ref.label='Question_1_plot_commission'}
 ```
 ```{r echo=FALSE}
@@ -157,7 +151,7 @@ unlink("temp")
 ```
 
 
-## Pay and Job Title / Programming Language
+## Pay & Job Title / Programming Language
 ```{r, echo =FALSE}
 knitr::read_chunk("temp2")
 ```
@@ -170,13 +164,13 @@ knitr::read_chunk("temp2")
 ```{r ref.label='Q2_setup-dfs'}
 ```
 
-In question 2, we wanted to explore the effects that a specific Job Title or Preference in Programming Language might have on salary. For our purpose our questions narrowed down to:
+For question 2, we wanted to explore the effects that a specific job title or preference in programming language might have on salary. For our purposes, our questions narrowed down to:
 
-**Are Data Scientist salaries affected by the Job Title Group (i.e. Data Analyst/Data Scientist, Engineer, Researcher) or by the type of Programming Language they employ most?**
+**Are data scientists' salaries affected by job-title group (i.e. Data Analyst/Data Scientist, Engineer, Researcher), or by the type of programming language they employ most?**
 
-Within the original data, the participants were provided with 17 different Job Titles as options for title that best suit their current position. To answer the first question we needed to create groups for the 17 different entries to the Current Job Title descriptions. For this we decided upon grouping titles into 'Scientist' (people probably utilizing higher level math/statistics), 'ResearchAnalyst' (those focused with general data analysis and manipulation), 'Engineer' (titles focused in the data engineering or software), and 'Other' (description unknown). We worked with the already capped salary data to answer the question. 
+Within the original survey, the participants were provided with 17 different titles as options for that which best suited their current role. To answer the first question we needed to create groups for the 17 different entries to the 'Current Job Title' descriptions. For this we decided upon grouping titles into 'Scientist' (people probably utilizing higher level math/statistics), 'ResearchAnalyst' (those focused with general data analysis and manipulation), 'Engineer' (titles focused on data engineering or software), and 'Other' (description unknown). We worked with the already-capped salary data for this question. 
 
-For the second part of the question, while there is no entry for "Programming Language Participant most employs", they were given the free hand option of Language Recommendation they would give to people wanting to enter their field, which we used as a proxy. There were 14 languages (ex: Java, Python, R, Scale, etc), of which we were only interested in Python, R, and SQL as these were the top 3 recommendations. This lead our original dataset of over 16,000 to one of over 3,000 for this question, distributed as described in the figures below:
+Additionally, while there is no entry for "programming language participant most frequently employs", surveyees were given the free-hand option of 'Language Recommendation' they would give to people wanting to enter their field, which we used as a proxy. There were 14 languages (ex: Java, Python, R, Scale, etc), of which we were only interested in Python, R, and SQL (these were the top 3 recommendations). This narrowed our original dataset of over 16,000 rows, to one of around 3,000 for this part of the project, distributed as shown here:
 
 ```{r ref.label='Q2_job-den-bp-figures-general'}
 ```
@@ -188,16 +182,16 @@ hist.gen.lang
 ```
 
 
-Working with this subset for Job Titles and Programming Languages we had satistifed the assumption of having a large dataset, but we still needed to make sure our assumptions of equal variance and normality were held to apply our test. The data was passed into some boxplots and density plots to check for the variance and normality of the distribution as shown in the figure below.
+Working with this subset for job titles and programming languages, we had satistifed the need for a sufficiently large dataset, but we still needed to make sure our assumptions of equal variance and normality were held to then apply our tests. The data was passed into some box-plots and density plots to check for the variance and normality of the distribution as shown in the figure here:
 
 ```{r}
 plot.jobs
 plot.lang
 ```
 
-The boxplots for both the Job Title groups and Language preference groups, seem to have minimal difference in their variance from what one can tell from the charts. The density plots for each group, also shows a general normality to the distribution of the groups. Given these, we proceeded with the assumption of equal variance and normality needed for ANOVA and Regression.
+The boxplots for both the job title groups and language preference groups seem to have minimal difference in their variance. The density plots for each group also suggests a general normality in the distribution of the groups. Given these observations, we proceeded with the needed assumptions of equal variance and normality for ANOVA and regression.
 
-For our tests, we ran under the hypothesis:
+For our tests, we ran under the hypotheses:
 $$
   H_0: There \ is \ no \ difference \ in \ mean \ salary \ (\mu_1=\mu_2 = ...=\mu_n)
   \\
@@ -209,7 +203,7 @@ $$
 ```{r ref.label='Q2_ANOVA-test-general'}
 ```
 
-From the ANOVA tests, when testing at the $$\alpha=0.05$$ level, we got found for the Jobs Title Groups to have a p-value = `r formatC(anova.gen.jobs[[1]][["Pr(>F)"]][1],format = 'e')`, meaning we have strong evidence to reject the null hypothesis and that the mean salary of the Job Title groups are not equal. On the other hand, for the Language groups we got the p-value = `r formatC(anova.gen.lang[[1]][["Pr(>F)"]][1],format = 'e')`, meaning we do not have strong evidence to reject the null hypothesis or equal mean salary among Language Preference.
+From the ANOVA tests, when testing at the $$\alpha=0.05$$ significance level, we found the job title groups to have a p-value = `r formatC(anova.gen.jobs[[1]][["Pr(>F)"]][1],format = 'e')`, yielding strong evidence to reject the null hypothesis and implying that the mean salary of the job title groups are not equal. On the other hand, for the language groups we have the p-value = `r formatC(anova.gen.lang[[1]][["Pr(>F)"]][1],format = 'e')`, meaning we do not have strong evidence to reject the null hypothesis of equal mean salary among language preferences.
 
 ```{r, message=FALSE, echo=FALSE}
 grid.table(cbind(c('Group Test','Jobs ANOVA','Lang ANOVA'),c('p-value',formatC(anova.gen.jobs[[1]][["Pr(>F)"]][1],format = 'e'),formatC(anova.gen.lang[[1]][["Pr(>F)"]][1],format = 'e'))))
@@ -221,27 +215,19 @@ grid.table(cbind(c('Group Test','Jobs ANOVA','Lang ANOVA'),c('p-value',formatC(a
 ```{r ref.label='Q2_glmlang-assumptions'}
 ```
 
-## Pay and Education
+## Pay & Education
 ```{r, echo =FALSE}
 knitr::read_chunk("temp3")
 ```
 
 
 ## Discussion
-summarize results and conclusions:
-Question 1:
-To adress our original assumptions about this question we did not receive more data from the high density areas we actually received more data from the low density areas.
-The data points from the dataset were independent since this survey was given to individual participants, but we did not have a normal distribution of data for commission 
-or for salary or equal variance for either of them.
-Conclusion from the initial metric statistics, is that we should not use Anova or linear regression because the variances are not the same, and 
-we know that unequal variances are a problem no matter how large the sample size thus we should use Welch. However, we also know that there
-is a certain thershold that counts as equal variance so we ran the other tests anyway.
-Commission was define as anyone making less than $30k and otherwise they are classified as salaried.
-The p-value reported from the anova tests are <2e-16 for salary and .00011 for commission.
+We first address our original assumptions about Question #1: we did not ultimately receive more data from the high density areas. In fact, we actually received more data from the low density areas.
+The data points from the dataset were indeed independent, since this survey was given to individual participants, but we did not have a normal distribution of data for commission 
+or salary, nor equal variances for either of them. Subsequently, the initial metric statistics lead us to conclude that we should not use ANOVA or linear regression, as the variances are not the same. We also appreciate that unequal variances are a problem no matter how large the sample size may be, thus the Welch method is more appropriate. However, we also realize that there is a malleable window of difference (a certain thershold) that counts as equal variance, so we still performed our other tests.
 
-When looking at the p-value for salary and commision they are 2.2e-16 and 0.0001096 respectively so there is evidence to reject the null hypothesis
-meaning that density has an effect on compensation for salary and commision. We know that there is defintely a difference and if we inlcude the 
-results from our linear regression model, we can conclude that there is a negative association between density and compensation.
+Recall that commission is defined as anyone making less than $20k, all other respondents are classified as salaried.
+The p-value reported from the anova tests are <2e-16 for salary and .00011 for commission. The p-value for salary and commision are 2.2e-16 and 0.0001096, respectively, so there is remarkable evidence to reject the null hypothesis. Consequently, we conclude that density does have an effect on compensation (both salary and commision). There is defintely some existing difference, and if we inlcude the results from our linear regression model, we can further point towards a possible a negative association between density and compensation.
 
 Question 2:
 
@@ -263,7 +249,11 @@ Question 2:
 Question 3:
 
 ## References
-brief 
 
-## Appendices 
-more technical aspects of analyses, any other tidbits 
+Hayes, Bob. *"When Does Education Level Matter in Data Science?"* Business Broadway, 2020. (https://businessoverbroadway.com/2016/03/14/when-does-education-level-matter-in-data-science/)
+
+Kleiman, Iair. *"Data Scientists' Salaries Around the World V2.0."* Kaggle, 2017. (https://www.kaggle.com/kaggle/kaggle-survey-2017)
+
+Torpey, Elka. *"Same Occupation, Different Pay: How Wages Vary."* U.S. Bureau of Labor Statistics, 2015. (https://www.bls.gov/careeroutlook/2015/article/wage-differences.htm?view_full)
+
+
