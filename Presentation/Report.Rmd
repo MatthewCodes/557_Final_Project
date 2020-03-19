@@ -199,14 +199,20 @@ The boxplots for both the Job Title groups and Language preference groups, seem 
 
 For our tests, we ran under the hypothesis:
 $$
-  H_0: There \ is \ no \ difference \ in \ means \ (\mu_1=\mu_2 = ...=\mu_n)
+  H_0: There \ is \ no \ difference \ in \ mean \ salary \ (\mu_1=\mu_2 = ...=\mu_n)
   \\
 $$
 $$
-  H_1: There \ is \ difference\ in \ means
+  H_1: There \ is \ difference\ in \ mean \ salary
 $$
 
 ```{r ref.label='Q2_ANOVA-test-general'}
+```
+
+From the ANOVA tests, when testing at the $$\alpha=0.05$$ level, we got found for the Jobs Title Groups to have a p-value = `r formatC(anova.gen.jobs[[1]][["Pr(>F)"]][1],format = 'e')`, meaning we have strong evidence to reject the null hypothesis and that the mean salary of the Job Title groups are not equal. On the other hand, for the Language groups we got the p-value = `r formatC(anova.gen.lang[[1]][["Pr(>F)"]][1],format = 'e')`, meaning we do not have strong evidence to reject the null hypothesis or equal mean salary among Language Preference.
+
+```{r, message=FALSE, echo=FALSE}
+grid.table(cbind(c('Group Test','Jobs ANOVA','Lang ANOVA'),c('p-value',formatC(anova.gen.jobs[[1]][["Pr(>F)"]][1],format = 'e'),formatC(anova.gen.lang[[1]][["Pr(>F)"]][1],format = 'e'))))
 ```
 ```{r ref.label='Q2_glm-model'}
 ```
