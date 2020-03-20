@@ -43,35 +43,30 @@ d <- d[d$d0.CompensationYearUSD > 20000,]
 These numbers seem much more familiar and reasonable, except the standard deviation is almost equal to the mean, which is unusual. This is also being affected by the really low values that don't seem to correspond to full time employment. 
 
 ```{r, Q3_education_values, eval=TRUE, echo=FALSE}
-unique(d$d0.FormalEducation)
+#unique(d$d0.FormalEducation)
 
-"bachelor's"
 bach = d[d$d0.FormalEducation=="Bachelor's degree",]
-nrow(bach)
+#nrow(bach)
 m_bachelor <- mean(bach$d0.CompensationYearUSD)
-sd(bach$d0.CompensationYearUSD)
+#sd(bach$d0.CompensationYearUSD)
 
-"master's"
 mas = d[d$d0.FormalEducation=="Master's degree",]
-nrow(mas)
 m_master <- mean(mas$d0.CompensationYearUSD)
-sd(mas$d0.CompensationYearUSD)
+#sd(mas$d0.CompensationYearUSD)
 
-"doctorate"
 doc = d[d$d0.FormalEducation=="Doctoral degree",]
-nrow(doc)
+#nrow(doc)
 m_doctor <- mean(doc$d0.CompensationYearUSD)
-sd(doc$d0.CompensationYearUSD)
+#sd(doc$d0.CompensationYearUSD)
 
-"professional"
 prof = d[d$d0.FormalEducation=="Professional degree",]
-nrow(prof)
+#nrow(prof)
 m_professional <- mean(prof$d0.CompensationYearUSD)
-sd(prof$d0.CompensationYearUSD)
+#sd(prof$d0.CompensationYearUSD)
 
 
 groupmeans = c(m_bachelor, m_master, m_doctor, m_professional)
-groupmeans
+#groupmeans
 
 prof = prof$d0.CompensationYearUSD
 bach = bach$d0.CompensationYearUSD
@@ -127,12 +122,12 @@ for(i in 1:reps){
 
 # This creates a dataframe with a TRUE or FALSE value for each pairwise test indicating if it rejected
 # as well as a column indicating if any one test rejected
-reject = data.frame(pvalues < (0.05/6), any.rejection=apply(pvalues<(0.05/6), 1, any))
+reject = data.frame(pvalues < (0.05/6), rejection=apply(pvalues<(0.05/6), 1, any))
 
 # This calculates the mean TRUE entries in each column (proportion of rejections) and shows a given number of decimal places for the results
 results = apply(reject,2,mean)
-dec = 5
-format(round(results, dec), nsmall=dec)
+#results
+anyreject = results[7]
 ```
 
 
@@ -145,19 +140,19 @@ pvalues$MS_v_PhD=t.test(mas, doc, var.equal=F)$p.value
 pvalues$MS_v_Prof=t.test(mas, prof, var.equal=F)$p.value
 pvalues$Prof_v_PhD=t.test(prof, doc, var.equal=F)$p.value
 
-grid.table(pvalues)
+tablevalues=data.frame(Test=c("Prof v BS", "BS v MS", "BS v PhD", "MS v PhD", "MS v Prof", "Prof v PhD"), p_value=c(pvalues$Prof_v_BS, pvalues$BS_v_MS, pvalues$BS_v_PhD, pvalues$MS_v_PhD, pvalues$MS_v_Prof, pvalues$Prof_v_PhD))
+grid.table(tablevalues)
 ```
 When simulating for the alternative hyothesis (difference of $10,000 between each of 3 groups), the test between the simulated groups with lowest and highest means will logically have the highest power. In the simulation, this test had a power of 1, meaning that the overall power for detecting a difference when each group is separated by 10,000 is 1. This is not too hard to believe given the very large sample sizes and properties of the available data.
 
 ### *Analyzing the power of ANOVA*
 The large sample sizes allow us to overlook the assumption of normal distributions within the groups for ANOVA. The assumption of equal variances is not as clearly met, so with the acknowledgement that the present differences may be enough to invalidate the use of ANOVA, we report the results of the power analysis regardless.
 ```{r,  Q3_ANOVA_power, eval=TRUE, echo=FALSE}
-groupmeans
 anovaP <- power.anova.test(groups = 4, 
 between.var = var(c(50000, 60000, 55000, 70000)), within.var = 50000^2, 
 power=NULL,sig.level=0.05,n=c(700, 1500, 800, 100))
 
-anovaP
+anova_power = anovaP$power[4]
 ```
 
 Like the multiple t - test, ANOVA would have a power of 1 given our sample size and the variances present in the data. Power for a sample size of 100 (the samller groups) is about 88.6%, but with the sample sizes of the three biggest groups it is 100%.
@@ -171,7 +166,7 @@ d$d0.FormalEducation <- ordered(d$d0.FormalEducation,
                          levels = c("Professional degree", "Bachelor's degree", "Master's degree", "Doctoral degree"))
 ```
 ```{r,  Q3_ANOVA, eval=TRUE, echo=FALSE}
-summary(aov(d$d0.CompensationYearUSD ~ d$d0.FormalEducation, data = d))
+anova_p = summary(aov(d$d0.CompensationYearUSD ~ d$d0.FormalEducation, data = d))[[1]][["Pr(>F)"]][1]
 ```
 P-Value result from ANOVA: 1.79e-15
 
@@ -189,11 +184,13 @@ ggplot(d) +
 Interestingly, it appears that besides PhD's, the difference in means for the other groups has more to do with the tail of the distribution than with a major difference between the bulk.
 ### *Test for linear relationship in compensation as an increase in education level*
 ```{r,  Q3_linear_regression, eval=TRUE, echo=FALSE}
-summary(lm(d$d0.CompensationYearUSD ~ factor(d$d0.FormalEducation), data=d))
+s = summary(lm(d$d0.CompensationYearUSD ~ factor(d$d0.FormalEducation), data=d))$coef
+reg_p = s[14]
+reg_c = s[2]
 ```
 ```{r,  Q3_regression_graph, eval=TRUE, echo=FALSE}
 ggplot(d, aes(x=d0.FormalEducation, y=d0.CompensationYearUSD)) + 
-  ggtitle("Salary by Education Level") +
+  ggtitle("Linear Regression on Salary vs Education Level") +
   xlab("Education Level") +
   ylab("Salary in USD") +
   geom_point() +

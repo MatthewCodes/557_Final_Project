@@ -91,10 +91,12 @@ The dataset is described as follows:
 
 Total annual population, by sex, from 1950 to 2100.
 
-    PopMale: Total male population (thousands)
-    PopFemale: Total female population (thousands)
-    PopTotal: Total population, both sexes (thousands)
-    PopDensity: Population per square kilometre (thousands)
+    PopMale: Total male population
+    PopFemale: Total female population 
+    PopTotal: Total population, both sexes 
+    PopDensity: Population per square km
+    
+    (each of these is in thousands)
 
 
 We were only interested in the lastest population, so we used the entries for 2019. After we had these values, they were converted in population per square mile for interpretability. The goal of this data was to allow for a determination of high-density and low-denisty countries. All of the countries that were included in the multipleChoiceReponses dataset were also included in the population dataset, so we appended the appropriate densities to their respective rows in the multipleChoiceReponses dataset as a final step before starting our analyses.
@@ -121,10 +123,8 @@ For the each of the tests, we are working under the assumption that the samples 
 
 ## Pay & Location
 
-For question 1,
-prior to conducting our experiment, we anticipated that the amount of information provided by the dense areas will be significantly larger than the data provided by sparse areas. We are assuming this because we think that areas with a high population will have more of a need for data scientists than sparse areas (like rural countries). One important assumption we are making (which affected our choice of method) is that the data is normally distributed.
-This means that areas that are on the lower end of sparse and dense will appear as often as areas that are on the higher end of dense and sparse,
-while the majority of areas fall closer to the mean of each population density. 
+Prior to conducting our analyses into Question 1, we suspected that the amount of information from the dense areas would be significantly larger than the data from sparse areas. We thought this because of the assumption that areas with a high population will have more of a need for data scientists than sparse areas (like rural countries). One important assumption we are making (which affected our choice of method) is that the data is normally distributed.
+This means that areas that are on the lower end of sparse and dense will appear as often as areas that are on the higher end of dense and sparse, while the majority of areas fall closer to the mean of each population density. 
 We initially felt that this would be a problem. However, even if the data wasn’t normally distributed, since we have around 10,000 rows and roughly 4 features, it is believed that the sample size is sufficiently large. Lastly, as previously stated, we make the equal-variance assumption.
 
 ```{r, echo =FALSE}
@@ -166,7 +166,7 @@ knitr::read_chunk("temp2")
 
 For question 2, we wanted to explore the effects that a specific job title or preference in programming language might have on salary. For our purposes, our questions narrowed down to:
 
-**Are data scientists' salaries affected by job-title group (i.e. Data Analyst/Data Scientist, Engineer, Researcher), or by the type of programming language they employ most?**
+**Are there differences in data scientists' salaries when grouped by job-title (i.e. Data Analyst/Data Scientist, Engineer, Researcher), or by the type of programming language they employ most?**
 
 Within the original survey, the participants were provided with 17 different titles as options for that which best suited their current role. To answer the first question we needed to create groups for the 17 different entries to the 'Current Job Title' descriptions. For this we decided upon grouping titles into 'Scientist' (people probably utilizing higher level math/statistics), 'ResearchAnalyst' (those focused with general data analysis and manipulation), 'Engineer' (titles focused on data engineering or software), and 'Other' (description unknown). We worked with the already-capped salary data for this question. 
 
@@ -216,10 +216,62 @@ grid.table(cbind(c('Group Test','Jobs ANOVA','Lang ANOVA'),c('p-value',formatC(a
 ```
 
 ## Pay & Education
+
+For our third question, we decided to look for both the overall presence of differences in salary between education levels, as well as a linear relationship between education level and salary. The original dataset contains several response categories for education level, a few of which we removed for our analyses. We removed these categories for two reasons: they have small sample sizes, and they do not represent groups we were interested in. The resulting set of education levels is:
+
+* Professional degree
+* Bachelor's degree
+* Master's degree
+* Doctoral degree
+
+The smallest sample size among these groups is about 100, which is large enough to overlook the usual requirement for normal distributions in some of the following analyses.
+
+Previous to actually running Welch T Tests or ANOVA to detect a difference between groups, we performed power caclulations on each approach. Specifically, we calculated the power to detect a difference two groups given a maximum difference of $20,000 among the groups overall (with a significance level of 5%).
+
 ```{r, echo =FALSE}
 knitr::read_chunk("temp3")
 ```
+```{r, ref.label='Q3_data'}
+```
+```{r, ref.label='Q3_capping'}
+```
+```{r, ref.label='Q3_remove_education_levels'}
+```
+```{r, ref.label='Q3_education_values'}
+```
+```{r, ref.label='Q3_Welch_power_simulation'}
+```
+**Power Calculations**
 
+For the multiple Welch T Test approach, we used simulation to calculate power. We generated simulated samples for four groups from normal distributions with means ranging by $20,000, and sample sizes and variances similar to those from the groups in the real dataset. For each iteration of the simulation, a Welch T Test was run on each pair of groups. The resulting p values were compared to a significance level of 5%, reduced by Bonferroni correction. The rejections were averaged for each test and an overall rejection rate was calculated. The resulting power in our simulations was `r anyreject`.
+
+```{r, ref.label='Q3_ANOVA_power'}
+```
+For ANOVA, we used an R function called *power.anova.test* to generate the power, based on the same parameters as above except that the smallest sample size was used as the size of each group. 
+The resulting power was `r anova_power`.
+
+**Testing For Difference**
+
+On to the actual tests, we first ran the multiple Welch T Tests, one for each pairing of education levels. The resulting p values are shown below. Even with Bonferroni correction, there are three tests whose results indicate a significant difference between groups. Each test between PhD's and other groups was significant, and the rest of the tests were not. Overall, this indicates that there is significant difference in salary between some educational groups, but it further seems to suggest that the only group which is different from the rest is that of PhD's.
+```{r, ref.label='Q3_Welch_tests'}
+```
+```{r, ref.label='Q3_ANOVA'}
+```
+The results of ANOVA also indicate the presence of a difference between groups, with a highly significant p value: `r anova_p`. There is a caveat to our use of ANOVA which is detailed in the "Discussion" section following this.
+```{r, ref.label='Q3_education_level_ordering'}
+```
+The visualization below of the distributions for each group agrees with the conclusions of our tests for differences; there is a difference among groups, and PhD's exhibit the most difference.
+
+```{r, ref.label='Q3_distributions'}
+```
+**Linear Regression**
+```{r, ref.label='Q3_linear_regression'}
+```
+Beyond testing for the above, we also wanted to test for a linear relationship between education level and salary. In order to perform a regression, the education levels were considered to be ordered as follows: Professional, Bachelor's, Master's, and Doctoral. The resulting p value of `r reg_p` is evidence for a linear relationship. 
+
+```{r, ref.label='Q3_regression_graph'}
+```
+The visualization above graphs the resulting linear relation along with the grouped data. This model's coefficient is `r reg_c`, leading to our conclusion that pay is higher by almost $18,000 for each level of increase in education.
 
 ## Discussion
 We first address our original assumptions about Question #1: we did not ultimately receive more data from the high density areas. In fact, we received more data from the low density areas.
@@ -234,12 +286,8 @@ Question 2:
 Question 3:
 
 
-limits of analyses:
-Question 1: Unequal variances.
-
-Question 2:
-
-Question 3:
+**Limits of Analyses:**
+One major limitation of the analyses presented here is that we report the results of ANOVA tests despite the fact that the groupings of data for each question did not have exactly equal variances. Though this can be a violation of the assumptions of ANOVA, we decided that the differences between variances are not very large relative to the magnitude of the variances themselves. Since there is not a simple rule for how different variances must be to invalidate ANOVA, we opted to report the results, specifically alongside the results of Welch T Tests, which are valid with the unequal variances.
 
 limits of data too: ( I think this applies to all questions)
 Question 1:
