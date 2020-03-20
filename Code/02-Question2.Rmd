@@ -94,7 +94,7 @@ hist.gen.jobs <- DSdata2%>%
 
 From the figures, we can see that the groups for Job Titles and for Language Recommendations seem to have close enough variances. We'll proceed under the assumption of equal variances to use ANOVA and test the null hypothesis of equality of the means of the groups (for each Job Title and separately each Language).
 
-```{r, Q2_type1_sim}
+```{r, Q2_type1_sim_1}
 set.seed(8911) 
 
 jobssummary <- DSdata2 %>%
@@ -257,7 +257,7 @@ boxplot.final.job <- annotate_figure(boxplot.job,
 
 The Boxplots show that there is some difference in the variance of Job Title groups of the Language Preference Datasets for the Engineer and Research Analyst groups, so we will use a Weltch t-test to test the null hypothesis of equality of means in the salary of Language recommendation groups. Given that we are testing for difference in multiple groups, we will have to apply a Bonferroni correction, making out `alpha =` `r 0.05/3`.
 
-```{r, Q2_tests-for, message=F, warning=F}
+```{r, Q2_WT_tests, message=F, warning=F}
 
 # Bonferroni correction
 bonferCorr <- 0.05/3

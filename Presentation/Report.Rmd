@@ -200,14 +200,14 @@ $$
   H_1: There \ is \ difference\ in \ mean \ salary
 $$
 
-```{r ref.label='Q2_type1_sim'}
+```{r ref.label='Q2_type1_sim_1'}
 ```
 
 Going with the assumption of a normal distribution for the Capped Salaries, the Type 1 error probability of the ANOVA test was calculated to be p-val=`r mean(a<.05)` through MC-simulations. This falls within the critival value of 0.04-0.06 for our alpha.
 
 ```{r ref.label='Q2_ANOVA-test-general'}
 ```
-From the ANOVA tests, when testing at the $\alpha=0.05$ significance level, we found the job title groups to have a p-value = `r formatC(anova.gen.jobs[[1]][["Pr(>F)"]][1],format = 'e')`, yielding strong evidence to reject the null hypothesis and implying that the mean salary of the job title groups are not equal. On the other hand, for the language groups we have the p-value = `r formatC(anova.gen.lang[[1]][["Pr(>F)"]][1],format = 'e')`, meaning we do not have strong evidence to reject the null hypothesis of equal mean salary among language preferences.
+From the ANOVA tests, when testing at the $\alpha=0.05$ significance level, we found the job title groups to have a p-value = `r formatC(anova.gen.jobs[[1]][["Pr(>F)"]][1],format = 'e')`, yielding strong evidence to reject the null hypothesis and implying that the mean salary of the job title groups are not equal. On the other hand, for the language groups we have the p-value = `r round(anova.gen.lang[[1]][["Pr(>F)"]][1],digits = 3)`, meaning we do not have strong evidence to reject the null hypothesis of equal mean salary among language preferences.
 
 ```{r ref.label='Q2_glm-model'}
 ```
@@ -217,15 +217,31 @@ From the Poisson glm for Job Titles, we got that when compared to the mean salar
 
 For the Language Preference glm, we compared the results to the mean Salary of those who recommended *Python*. Those who recommended *R* were ~4% more likely to have a lower mean Salary, and those who recommended *SQL* were ~1% more likely to have lower mean Salary than the Python group.
 
-The results from the Poisson GLMs were interesting, as they provided an different interpretation to our question. However, when checking for the *dispersion parameter*, we saw that both models were overdispered (jobs dispersion: `r glm.gen.jobs$deviance/glm.gen.jobs$df.residual`, language dispersion: `r glm.gen.lang$deviance/glm.gen.lang$df.residual`), meaning that the SEs and test statistics obtained were far from valid.
-
-Addressing the assumption of the poisson regression, 
+The results from the Poisson GLMs were interesting, as they provided an different interpretation to our question. However, when checking for the *dispersion parameter*, we saw that both models were overdispered (jobs dispersion: `r glm.gen.jobs$deviance/glm.gen.jobs$df.residual`, language dispersion: `r glm.gen.lang$deviance/glm.gen.lang$df.residual`), meaning that the SEs and test statistics obtained were far from valid. Addressing the assumption of the poisson regression, we can see in the figures below that the assumption of proportionality between mean and variance for poisson regression is not true for the models.
 
 
 ```{r ref.label='Q2_glmjob-assumptions'}
 ```
 ```{r ref.label='Q2_glmlang-assumptions'}
 ```
+
+**Is the mean Salary within similar Job Titles affected by the choice of Programming Language?**
+
+For the secon part of the question, given that there was evidence through ANOVA that mean salary between Job Titles was different, we wondered if language recommendation would have an effect in the salary within each Job Title group. In essence, we wanted to test for a difference in mean salary between Scientist who recommend Python vs R vs SQL, and so on for each Job Title.
+
+When visually inspecting each groups variance and distributions (seen in figure below), it was clear that the equal variance assumption for ANOVA would be violated. The Welch t-test was then used for the test and a Bonferroni correction was applied for the 3 group pairs: Python v R, Python v SQL, R v SQL. 
+```{r ref.label='Q2_boxplot-Title'}
+```
+```{r ref.label='Q2_density-fig-Job'}
+```
+```{r}
+boxplot.final.job
+density.final.job
+```
+```{r ref.label='Q2_WT_tests'}
+```
+From the Welch t-test, we obtained that for each of the Job Titled groups we no had p-values < `r bonferCorr`, for our Bonferroni correction coefficient. Hence in each of the groups we failed to reject the null hypothesis, since there was no significant evidence for a difference in mean salary for Programming Language recommendation.  
+
 
 ## Pay & Education
 
@@ -302,6 +318,8 @@ Question 3:
 
 **Limits of Analyses:**
 One major limitation of the analyses presented here is that we report the results of ANOVA tests despite the fact that the groupings of data for each question did not have exactly equal variances. Though this can be a violation of the assumptions of ANOVA, we decided that the differences between variances are not very large relative to the magnitude of the variances themselves. Since there is not a simple rule for how different variances must be to invalidate ANOVA, we opted to report the results, specifically alongside the results of Welch T Tests, which are valid with the unequal variances.
+
+For the Poisson regression, we saw that some of the assumptions were violated, meaning the results would be questionable and less reliable. The analysis for this part could be addressed by conducting a robust calculation for the SE. Otherwise, the results would be a gross estimate for the data.
 
 limits of data too: ( I think this applies to all questions)
 Question 1:

@@ -73,7 +73,7 @@ hist.gen.jobs <- DSdata2%>%
   ggplot(aes(x=CapSalary, fill = JobTitleGroup, color = JobTitleGroup))+ geom_histogram(alpha = .5, bins= 10)+ labs(x ='Annual Salary in USD') + scale_x_log10(labels = dollar) + theme(axis.title.y = element_blank()) + annotate("text", x = rep(300000,5), y = c(550,500,450,400,350), label = c(paste('Title  |',"Count"),paste('Eng: ',dim(DSdata2[DSdata2$JobTitleGroup=='Engineer',])[1]),paste('Oth: ',dim(DSdata2[DSdata2$JobTitleGroup=='Other',])[1]),paste('Res: ',dim(DSdata2[DSdata2$JobTitleGroup=='ResearchAnalyst',])[1]),paste('Sci:',dim(DSdata2[DSdata2$JobTitleGroup=='Scientist',])[1])),size=4)
 
 
-## ---- Q2_type1_sim------------------------------------------------------------
+## ---- Q2_type1_sim_1----------------------------------------------------------
 set.seed(8911) 
 
 jobssummary <- DSdata2 %>%
@@ -221,7 +221,7 @@ boxplot.final.job <- annotate_figure(boxplot.job,
 
 
 
-## ---- Q2_tests-for, message=F, warning=F--------------------------------------
+## ---- Q2_WT_tests, message=F, warning=F---------------------------------------
 
 # Bonferroni correction
 bonferCorr <- 0.05/3
