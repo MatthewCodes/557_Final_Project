@@ -32,17 +32,16 @@ invisible(knitr::purl("../Code/02-Question2.Rmd", output="temp2", quiet=TRUE))
 ```
 
 ## Abstract
-The goal of this project is to evaluate the effects of certain factors (such as job title and education) on observed differences in salary for working data scientists. The analysis employs techniques such as Welch t-tests, ANOVA, and regression, performed on data provided by Kaggle's 2017 "ML and DS Survey" (https://www.kaggle.com/kaggle/kaggle-survey-2017). The factors explored in this project are physical location (specifically, whether the respondent is in a 'high density' or 'low density' area), job title, recommended programming language, and education. We found evidence (insert p-value) supporting the notion that location determines differences in data scientists' salaries. We did not find sufficient evidence to claim that programming language determines such differences, even within individual job titles. However, we did find evidence for a significant difference in salaries between different job titles. A positive relationship betwen education level and salary was similarly supported by the data.
+The goal of this project is to evaluate whether there are differences in salary for working data scientists based on certain factors (such as job title and education). To this end we employ techniques such as Welch t-tests, ANOVA, and regression, on data provided by Kaggle's 2017 "ML and DS Survey" (https://www.kaggle.com/kaggle/kaggle-survey-2017). The factors explored in this project are physical location (specifically, whether the respondent is in a 'high density' or 'low density' area), job title, recommended programming language, and education. We found evidence that data scientists' salaries differ based on location, job titles, and educational level. We further found evidence for a positive linear relationship between educational level and salary. However, we did not find sufficient evidence for differences in salary based on programming language, even within individual job titles.
 
 
 ## Introduction
 
-The focus of this project is compensation within the industry of data science. As prospective employees in the field, we have an interest in which factors might affect current data scientists' pay. Our analyses are built upon a dataset from Kaggle, which itself is the result of an industry-wide survey conducted on people working in the data science arena. This data is further explored in the 'Dataset Description' section. Then, after some exploratory analysis, we derived three questions upon which to center our research.
+As prospective employees in the field, we have an interest in which factors might affect current data scientists' pay. For this reason we conducted our analyses on a dataset from Kaggle which is the result of a recent industry-wide survey conducted on data science professionals. This data is described in more detail in the following section. After some exploration of the data, we formulated three questions to guide our analysis.
 
 **Question 1**: Do data scientists' salaries differ between densely-populated and sparsely-populated areas?
 
-**Question 2**: Do data scientists' salaries differ based on their job title? Do these salaries differ based on the programming languages recommended by respondents? 
-
+**Question 2**: Do data scientists' salaries differ based on their job title? Do these salaries differ based on their recommendation of programming language? 
 
 **Question 3**: Do data scientists' salaries differ based on the level of education they have attained?
 
@@ -51,9 +50,9 @@ For each of these questions, we aimed to test for both the presence of significa
 
 ## Dataset Description 
 
-As previously mentioned, the dataset from which we drew our conclusions is Kaggle's 'ML and DS Survey' for 2017. Kaggle's subsequent results are summarized as follows: "For the first time, Kaggle conducted an industry-wide survey to establish a comprehensive view of the state of data science and machine learning. The survey received over 16,000 responses and we learned a ton about who is working with data, what’s happening at the cutting edge of machine learning across industries, and how new data scientists can best break into the field." The survey asked an extremely broad scope of questions, which resulted in a mixture of multiple choice responses (e.g. "Education Level") and freeform responses (e.g. "Best description of undergraduate major?").
+As previously mentioned, the dataset from which we drew our conclusions is Kaggle's 'ML and DS Survey' for 2017. Kaggle describes the dataset as follows: "For the first time, Kaggle conducted an industry-wide survey to establish a comprehensive view of the state of data science and machine learning. The survey received over 16,000 responses and we learned a ton about who is working with data, what’s happening at the cutting edge of machine learning across industries, and how new data scientists can best break into the field." The survey asked an extremely broad scope of questions, which resulted in a mixture of multiple choice responses (e.g. "Education Level") and freeform responses (e.g. "Best description of undergraduate major?").
 
-The dataset is structured as follows:
+Contents of the dataset:
 
 *schema.csv*: A .csv file with the survey schema. This schema includes the full, exact questions that correspond to each column name in both the multipleChoiceResponses.csv and freeformResponses.csv sheets.
 
@@ -67,7 +66,7 @@ The dataset is structured as follows:
 
 We used the values in the dataset's conversion rates file to generate compensation values in USD for all respondents. For the purposes of our analyses, we limited our focus to multipleChoiceReponses.csv.
 
-The following is a simple histogram of our generated compensation data (in USD) from the survey, before any kind of manipulation.
+The following is a simple histogram of our calculated compensation data from the survey, before any kind of manipulation.
 ```{r, echo =FALSE}
 knitr::read_chunk("temp3")
 ```
@@ -100,26 +99,26 @@ Total annual population, by sex, from 1950 to 2100.
     (each of these is in thousands)
 
 
-We were only interested in the lastest population, so we used the entries for 2019. After we had these values, they were converted in population per square mile for interpretability. The goal of this data was to allow for a determination of high-density and low-denisty countries. All of the countries that were included in the multipleChoiceReponses dataset were also included in the population dataset, so we appended the appropriate densities to their respective rows in the multipleChoiceReponses dataset as a final step before starting our analyses.
+We were only interested in the latest population, so we used the entries for 2019. After we had these values, they were converted in population per square mile for interpretability. The goal of this data was to allow for a determination of high-density and low-denisty countries. All of the countries that were included in the multipleChoiceReponses dataset were also included in the population dataset, so we appended the appropriate densities to their respective rows in the multipleChoiceReponses dataset as a final step before starting our analyses.
 
 
 ## Statistical Methods and Assumptions
 **ANOVA:**
 
-The first method we arrived at was Analysis of Variance (ANOVA).
-From lecture, we know that ANOVA is designed to provide a single test of a null hypothesis of equal group means with a desired signiﬁcance level. It is a generalization of the equal-variance t-test to the case where the number of means to be compared is greater than 2. We are testing for difference in means of various groups, hence using ANOVA would be convenient and efficient.
+The first method we decided to use was Analysis of Variance (ANOVA).
+ANOVA is designed to provide a single test of the null hypothesis that group means are equal with a desired signiﬁcance level. It is a generalization of the equal-variance t-test to the case where the number of means to be compared is greater than 2. Since each of our questions deals with there being a difference between various groups, ANOVA is an obvious and efficient choice of method. However, there is a potential issue with our use of ANOVA which is discussed further in our concluding 'Discussion' section.
 
 **Regression**
 
-The second test we thought to use was linear regression.
-From lecture, we know that linear regression is equivalent to ANOVA when the variances are equal, and the null hypotheses for ANOVA and regression both imply that the mean response does not depend on the predictor. We also ackowledge that ANOVA and regression will not always agree, which is why we decided to run both.
+Linear regression was also used, though not for the same purpose in every question. In question 1 for example, it is a supplement to ANOVA and Welch T Tests in that it is detecting a difference between two groups. In question 3, however, it is used to detect a positive linear relationship.
+In the context of being used to detect a difference, linear regression is equivalent to ANOVA when the variances are equal. We also ackowledge that ANOVA and regression will not always agree, which is why we decided to run both.
 
 **Welch T-Test**
 
-After some exploratory analysis, we found that sample variances showed notable differences, meaning we might not necessarily satify the pertinent ANOVA assumptions for each group. This led us to conduct a Welch T-Test as well, addressing the differences in variances, and thus the issues that might arise from the use of ANOVA.
+After some exploratory analysis, we found that the variances of the data groups formed for each question are not exactly equal. Since this could be a problem for ANOVA, we decided to conduct Welch T-Tests as well, addressing the differences in variances.
 
 **Assumptions:**
-For the each of the tests, we are working under the assumption that the samples included in the Kaggle Survey dataset are independent, meaning that no answers provided by one surveyee affected another surveyee's entry. Moreover, we are working under the assumption that we have sufficiently large data sizes for each group, to account for the normality requirement in both the ANOVA and Welch tests. For the ANOVA and regression models, we are also assuming equality in the variance of the groups. Finally, we presume normality and liniarity for the models, to construct either linear or generalized linear models.
+For the each of the tests, we are working under the assumption that the samples included in the Kaggle Survey dataset are independent, meaning that the answers of one respondent do not affect the expectation of answers for another respondent. Moreover, we are working under the assumption that we have sufficiently large data sizes for each group, to account for the normality requirement in both the ANOVA and Welch tests. For the ANOVA and regression models, we are also assuming equality in the variance of the groups. Finally, we assume the linearity of the relationship for the questions in which we applied linear regression to detect a relationship.
 
 
 ## Pay & Location
@@ -252,6 +251,8 @@ knitr::read_chunk("temp3")
 ```
 ```{r, ref.label='Q3_education_values'}
 ```
+```{r, ref.label='Q3_education_level_ordering'}
+```
 ```{r, ref.label='Q3_Welch_power_simulation'}
 ```
 **Power Calculations**
@@ -271,15 +272,15 @@ On to the actual tests, we first ran the multiple Welch T Tests, one for each pa
 ```{r, ref.label='Q3_ANOVA'}
 ```
 The results of ANOVA also indicate the presence of a difference between groups, with a highly significant p value: `r anova_p`. There is a caveat to our use of ANOVA which is detailed in the "Discussion" section following this.
-```{r, ref.label='Q3_education_level_ordering'}
-```
-The visualization below of the distributions for each group agrees with the conclusions of our tests for differences; there is a difference among groups, and PhD's exhibit the most difference.
+
+The visualization below of the distributions for each group agrees with the conclusions of our tests for differences; there is a difference among groups, and PhD's exhibit the most difference. The conclusions that can be drawn from ANOVA and Welch T Tests, however, are limited to the presence of difference among some groups, and in the case of ordinal data such as education level, there is room to test for a linear relationship.
 
 ```{r, ref.label='Q3_distributions'}
 ```
-**Linear Regression**
 ```{r, ref.label='Q3_linear_regression'}
 ```
+**Linear Regression**
+
 Beyond testing for the above, we also wanted to test for a linear relationship between education level and salary. In order to perform a regression, the education levels were considered to be ordered as follows: Professional, Bachelor's, Master's, and Doctoral. The resulting p value of `r reg_p` is evidence for a linear relationship. 
 
 ```{r, ref.label='Q3_regression_graph'}
