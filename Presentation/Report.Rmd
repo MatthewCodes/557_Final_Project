@@ -281,7 +281,7 @@ The visualization below of the distributions for each group agrees with the conc
 ```
 **Linear Regression**
 
-Beyond testing for the above, we also wanted to test for a linear relationship between education level and salary. In order to perform a regression, the education levels were considered to be ordered as follows: Professional, Bachelor's, Master's, and Doctoral. The resulting p value of `r reg_p` is evidence for a linear relationship. 
+We wanted to test for a linear relationship between education level and salary. In order to perform a regression, the education levels were considered to be ordered as follows: Professional, Bachelor's, Master's, and Doctoral. The resulting p value of `r reg_p` is evidence for a linear relationship. 
 
 ```{r, ref.label='Q3_regression_graph'}
 ```
