@@ -9,6 +9,12 @@ output: html_document
 #```
 
 ```{r, Q2_setup, eval=TRUE, echo=FALSE}
+# library(ggplot2)
+# library(tidyverse)
+# library(ggpubr)
+# library(gridExtra)
+# library(grid)
+# library(scales)
 DSdata <- read_csv("../Data/DataScienceData.csv")
 ```
 
@@ -139,7 +145,7 @@ DSdata3$JobTitleGroup <- relevel(as.factor(DSdata3$JobTitleGroup), ref = 'Scient
 
 DSdata4 <- DSdata3[DSdata3$LanguageRecommendationSelect != "SQL",]
 
-glm.gen.jobs <- summary(glm(log(CapSalary) ~ JobTitleGroup, data= DSdata3, family = poisson))
+glm.gen.jobs <- summary(glm(CapSalary ~ JobTitleGroup, data= DSdata3, family = poisson))
 
 #grid.table(cbind(c("Engineer","Other","Research Analyst"),round((exp(glm.gen.jobs$coefficients[2:4,1])-1)*100,digits = 1)))
 
@@ -219,7 +225,6 @@ density.final.job <- annotate_figure(density.jobs,
                 left = text_grob("Density", 
                                  color ="black", rot = 90))
 
-density.final.job
 ```
 
 
@@ -247,7 +252,6 @@ boxplot.final.job <- annotate_figure(boxplot.job,
                 left = text_grob("Salary in USD", 
                                  color ="black", rot = 90))
 
-boxplot.final.job
 ```
 
 
@@ -269,7 +273,6 @@ Adjusted.P.Value=c(test.sci.pr$p.value,test.sci.ps$p.value, test.sci.rs$p.value)
 Reject.Null <- Adjusted.P.Value < bonferCorr
 sciresult <- data.frame(Groups=c("Python - R","Python - SQL","R - SQL"),Adjusted.P.Value, Reject.Null)
 
-grid.table(sciresult)
 
 # Engineer datasets to test with Welch t-test
 test.eng.pr <- t.test(engdf$CapSalary[engdf$LanguageRecommendationSelect=='Python'],engdf$CapSalary[engdf$LanguageRecommendationSelect=='R'],conf.level = 1 - bonferCorr)
@@ -282,7 +285,6 @@ Adjusted.P.Value=c(test.eng.pr$p.value,test.eng.ps$p.value, test.eng.rs$p.value)
 Reject.Null <- Adjusted.P.Value < bonferCorr
 engresult <- data.frame(Groups=c("Python - R","Python - SQL","R - SQL"),Adjusted.P.Value, Reject.Null)
 
-grid.table(engresult)
 
 # Research Analyst datasets to test with Welch t-test
 test.res.pr <- t.test(resanldf$CapSalary[resanldf$LanguageRecommendationSelect=='Python'],resanldf$CapSalary[resanldf$LanguageRecommendationSelect=='R'],conf.level = 1 - bonferCorr)
@@ -295,7 +297,6 @@ Adjusted.P.Value=c(test.res.pr$p.value,test.res.ps$p.value, test.res.rs$p.value)
 Reject.Null <- Adjusted.P.Value < bonferCorr
 resresult <- data.frame(Groups=c("Python - R","Python - SQL","R - SQL"),Adjusted.P.Value, Reject.Null)
 
-grid.table(resresult)
 
 
 # Other datasets to test with Welch t-test
@@ -309,7 +310,7 @@ Adjusted.P.Value=c(test.other.pr$p.value,test.other.ps$p.value, test.other.rs$p.
 Reject.Null <- Adjusted.P.Value < bonferCorr
 otherresult <- data.frame(Groups=c("Python - R","Python - SQL","R - SQL"),Adjusted.P.Value, Reject.Null)
 
-grid.table(otherresult)
+
 
 ```
 

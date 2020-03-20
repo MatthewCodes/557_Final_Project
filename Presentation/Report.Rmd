@@ -3,6 +3,7 @@ title: "Analyzing Compensation for Data Scientists"
 author: "Anmol Srivastava, Juan Solorio, Matthew Rhodes, and Andres De La Fuente"
 output: 
   pdf_document: 
+    df_print: kable
 classoption: twocolumn
 #header-includes:
 #  - \setlength{\parindent}{4em}
@@ -209,14 +210,17 @@ Going with the assumption of a normal distribution for the Capped Salaries, the 
 ```
 From the ANOVA tests, when testing at the $\alpha=0.05$ significance level, we found the job title groups to have a p-value = `r formatC(anova.gen.jobs[[1]][["Pr(>F)"]][1],format = 'e')`, yielding strong evidence to reject the null hypothesis and implying that the mean salary of the job title groups are not equal. On the other hand, for the language groups we have the p-value = `r formatC(anova.gen.lang[[1]][["Pr(>F)"]][1],format = 'e')`, meaning we do not have strong evidence to reject the null hypothesis of equal mean salary among language preferences.
 
-```{r, message=FALSE, echo=FALSE}
-#grid.table(cbind(c('Group Test','Jobs ANOVA','Lang ANOVA'),c('p-value',formatC(anova.gen.jobs[[1]][["Pr(>F)"]][1],format = 'e'),formatC(anova.gen.lang[[1]][["Pr(>F)"]][1],format = 'e'))))
-```
 ```{r ref.label='Q2_glm-model'}
 ```
 We further test the null hypothesis through a generalized linear model (glm), log-linear regression, as this might provide a different conclusion than the ANOVA test. The log-linear model was chosen because it would return a ratio relative difference in the mean Salary for the groups compared to the Scientist groups. This would be a better way to express the difference in Salary instead of the direct value comparison of the mean Salary difference given by a linear regression model. 
 
+From the Poisson glm for Job Titles, we got that when compared to the mean salary of the *Scientist* group, *Engineers* are ~3% more likely to have lower mean Salary, *Researchers* are ~16% more likely to have lower mean Salary, and those in the *Other* group are ~14% more likely to have higher mean Salaries than Scientist.
 
+For the Language Preference glm, we compared the results to the mean Salary of those who recommended *Python*. Those who recommended *R* were ~4% more likely to have a lower mean Salary, and those who recommended *SQL* were ~1% more likely to have lower mean Salary than the Python group.
+
+The results from the Poisson GLMs were interesting, as they provided an different interpretation to our question. However, when checking for the *dispersion parameter*, we saw that both models were overdispered (jobs dispersion: `r glm.gen.jobs$deviance/glm.gen.jobs$df.residual`, language dispersion: `r glm.gen.lang$deviance/glm.gen.lang$df.residual`), meaning that the SEs and test statistics obtained were far from valid.
+
+Addressing the assumption of the poisson regression, 
 
 
 ```{r ref.label='Q2_glmjob-assumptions'}
