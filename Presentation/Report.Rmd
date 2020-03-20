@@ -1,6 +1,6 @@
 ---
 title: "Analyzing Compensation for Data Scientists"
-author: "Anmol Srivastava, Juan Solorio, Matthew Rhodes, and Andres De La Fuente"
+author: "Anmol Srivastava, Juan Solorio, Matthew Rhodes, & Andres De La Fuente"
 output: 
   pdf_document: 
     df_print: kable
@@ -32,7 +32,7 @@ invisible(knitr::purl("../Code/02-Question2.Rmd", output="temp2", quiet=TRUE))
 ```
 
 ## Abstract
-The goal of this project is to evaluate whether there are differences in salary for working data scientists based on certain factors (such as job title and education). To this end we employ techniques such as Welch t-tests, ANOVA, and regression, on data provided by Kaggle's 2017 "ML and DS Survey" (https://www.kaggle.com/kaggle/kaggle-survey-2017). The factors explored in this project are physical location (specifically, whether the respondent is in a 'high density' or 'low density' area), job title, recommended programming language, and education. We found evidence that data scientists' salaries differ based on location, job titles, and educational level. We further found evidence for a positive linear relationship between educational level and salary. However, we did not find sufficient evidence for differences in salary based on programming language, even within individual job titles.
+The goal of this project is to determine whether there are differences in salary for working data scientists based on certain factors (such as job title and education). To that end, we employ techniques such as Welch t-tests, ANOVA, and regression on data provided by Kaggle's 2017 "ML and DS Survey" (https://www.kaggle.com/kaggle/kaggle-survey-2017). The factors explored in this project are physical location (specifically, whether the respondent is in a 'high density' or 'low density' area), job title, recommended programming language, and education. We found evidence that data scientists' salaries differ based on location, job titles, and educational level. We further found evidence for a positive linear relationship between educational level and salary. However, we did not find sufficient evidence for differences in salary based on programming language, even within individual job titles. We finish with a comparison of our findings with the work of individuals doing similar research. 
 
 
 ## Introduction
