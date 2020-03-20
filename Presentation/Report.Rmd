@@ -32,7 +32,7 @@ invisible(knitr::purl("../Code/02-Question2.Rmd", output="temp2", quiet=TRUE))
 ```
 
 ## Abstract
-The goal of this project is to determine whether there are differences in salary for working data scientists based on certain factors (such as job title and education). To that end, we employ techniques such as Welch t-tests, ANOVA, and regression on data provided by Kaggle's 2017 "ML and DS Survey" (https://www.kaggle.com/kaggle/kaggle-survey-2017). The factors explored in this project are physical location (specifically, whether the respondent is in a 'high density' or 'low density' area), job title, recommended programming language, and education. We found evidence that data scientists' salaries differ based on location, job titles, and educational level. We further found evidence for a positive linear relationship between educational level and salary. However, we did not find sufficient evidence for differences in salary based on programming language, even within individual job titles. We finish with a comparison of our findings with the work of individuals doing similar research. 
+The goal of this project is to determine whether there are differences in salary for working data scientists based on certain factors (such as location, job title and education). To that end, we employ techniques such as Welch t-tests, ANOVA, and regression on data provided by Kaggle's 2017 "ML and DS Survey" (https://www.kaggle.com/kaggle/kaggle-survey-2017). The factors explored in this project are physical location (specifically, whether the respondent is in a 'high density' or 'low density' area), job title, recommended programming language, and education. We found evidence that data scientists' salaries differ based on location, job titles, and educational level. We further found evidence for a positive linear relationship between educational level and salary and a negative linear relationship between population density and salary. However, we did not find sufficient evidence for differences in salary based on programming language, even within individual job titles. We finish with a comparison of our findings with the work of individuals doing similar research. 
 
 
 ## Introduction
@@ -78,7 +78,7 @@ The mean for this uncleaned data is `r mn` with a maximum value of `r mx`. Furth
 
 First, we removed all entries with a zero for compensation, as this would either imply unemployment, entry error, or plain junk data, none of which were wanted for our analyses.
 
-Second, we dichotomized compensation into two groups: 'salaries', and 'commissions' (the values which we decided are too low to be salaries). We decided to split the values at 20K; anything below this is considered commission.
+Second, we dichotomized compensation into two groups: 'salaries', and 'commissions' (the values which we decided are too low to be salaries). We decided to split the values at eiher 20K or 30k; anything below the chosen threshold is considered commission.
 
 Third, we decided that some values on the high end were either entry error or extreme outliers (there were values ranging from millions to billions of dollars), and should be capped. The capping value was set to $500,000 based on our real world experience. As evidenced below, the resulting dataset was much more reasonable to base further work on.
 ```{r, ref.label='Q3_capping'}
@@ -99,7 +99,7 @@ Total annual population, by sex, from 1950 to 2100.
     (each of these is in thousands)
 
 
-We were only interested in the latest population, so we used the entries for 2019. After we had these values, they were converted in population per square mile for interpretability. The goal of this data was to allow for a determination of high-density and low-denisty countries. All of the countries that were included in the multipleChoiceReponses dataset were also included in the population dataset, so we appended the appropriate densities to their respective rows in the multipleChoiceReponses dataset as a final step before starting our analyses.
+We were only interested in the latest population, so we used the entries for 2019. After we had these values, they were converted in population per square mile for interpretability. The goal of this data was to allow for a determination of high-density and low-denisty countries. All of the countries that were included in the multipleChoiceReponses dataset were also included in the population dataset, so we appended the appropriate densities to their respective rows in the multipleChoiceReponses dataset as a final step before starting our analyses after all of the pre-processing was completed the amount of relevant data varied from question to question.
 
 
 ## Statistical Methods and Assumptions
@@ -125,7 +125,7 @@ For the each of the tests, we are working under the assumption that the samples 
 
 Prior to conducting our analyses into Question 1, we suspected that the amount of information from the dense areas would be significantly larger than the data from sparse areas. We thought this because of the assumption that areas with a high population will have more of a need for data scientists than sparse areas (like rural countries). One important assumption we are making (which affected our choice of method) is that the data is normally distributed.
 This means that areas that are on the lower end of sparse and dense will appear as often as areas that are on the higher end of dense and sparse, while the majority of areas fall closer to the mean of each population density. 
-We initially felt that this would be a problem. However, even if the data wasn’t normally distributed, since we have around 10,000 rows and roughly 4 features, it is believed that the sample size is sufficiently large. Lastly, as previously stated, we make the equal-variance assumption.
+We initially felt that this would be a problem. However, even if the data wasn’t normally distributed, since we have around 10,000 rows, it is believed that the sample size is sufficiently large. Lastly, as previously stated, we make the equal-variance assumption.
 
 ```{r, echo =FALSE}
 knitr::read_chunk("temp")
@@ -136,11 +136,10 @@ knitr::read_chunk("temp")
 
 ```{r ref.label='testing'}
 ```
-Below are histograms for commission and salary, broken down into high density and low density areas.
+Below are histograms for commission and salary, broken down into high density and low density areas. High density areas are countries that have more than 500 people per square mile, while low density areas have any amount under 500. As we can see from the histograms the data is not normally distributed so our initial assumption was incorrect.
 ```{r ref.label='pre_plots'}
 ```
-From linear regression tests, there is a slightly negative linear relationship between density and compensation (for salary and commission).
-The x-axis denotes 1 for high and 0 for low density, so we can see that (as density goes from low to high), average salary goes down by $21,652.
+From linear regression tests, there is a slightly negative linear relationship between density and compensation (for salary and commission). The x-axis denotes 1 for high and 0 for low density, so we can see that (as density goes from low to high), average salary goes down by $21,652.
 ```{r ref.label='Question_1_plot_salary'}
 ```
 This is the linear regression plot and the distribution of the total commission (including high and low density). Similarly, as density goes from low to high, average commission goes down by $2,106.
@@ -149,6 +148,14 @@ This is the linear regression plot and the distribution of the total commission 
 ```{r echo=FALSE}
 unlink("temp")
 ```
+
+## Discussion
+We first address our original assumptions about Question #1: we did not ultimately receive more data from the high density areas. In fact, we received more data from the low density areas.
+The data points from the dataset were indeed independent, since this survey was given to individual participants, but we did not have a normal distribution of data for commission 
+or salary, nor equal variances for either of them. Subsequently, the initial metric statistics lead us to conclude that we should not use ANOVA or linear regression, as the variances are not the same. We also understand that unequal variances are a problem no matter how large the sample size may be, thus the Welch method is more appropriate. However, we also realize that there is a malleable window of difference (a certain thershold) that counts as equal variance, so we still performed our other tests.
+
+Recall that commission is defined as anyone making less than $30k, all other respondents are classified as salaried.
+The p-value reported from the anova tests are <2e-16 for salary and .00011 for commission. The p-value for salary and commision are 2.2e-16 and 0.0001096, respectively, so there is remarkable evidence to reject the null hypothesis. Consequently, we conclude that density does have an effect on compensation (both salary and commision). There is defintely some existing difference, and if we inlcude the results from our linear regression model, we can further point towards a possible a negative association between density and compensation.
 
 
 ## Pay & Job Title / Programming Language
@@ -303,30 +310,13 @@ We wanted to test for a linear relationship between education level and salary. 
 ```
 The visualization above graphs the resulting linear relation along with the grouped data. This model's coefficient is `r reg_c`, leading to our conclusion that pay is higher by almost $18,000 for each level of increase in education.
 
-## Discussion
-We first address our original assumptions about Question #1: we did not ultimately receive more data from the high density areas. In fact, we received more data from the low density areas.
-The data points from the dataset were indeed independent, since this survey was given to individual participants, but we did not have a normal distribution of data for commission 
-or salary, nor equal variances for either of them. Subsequently, the initial metric statistics lead us to conclude that we should not use ANOVA or linear regression, as the variances are not the same. We also appreciate that unequal variances are a problem no matter how large the sample size may be, thus the Welch method is more appropriate. However, we also realize that there is a malleable window of difference (a certain thershold) that counts as equal variance, so we still performed our other tests.
-
-Recall that commission is defined as anyone making less than $20k, all other respondents are classified as salaried.
-The p-value reported from the anova tests are <2e-16 for salary and .00011 for commission. The p-value for salary and commision are 2.2e-16 and 0.0001096, respectively, so there is remarkable evidence to reject the null hypothesis. Consequently, we conclude that density does have an effect on compensation (both salary and commision). There is defintely some existing difference, and if we inlcude the results from our linear regression model, we can further point towards a possible a negative association between density and compensation.
-
-Question 2:
-
-Question 3:
 
 
 **Limits of Analyses:**
 One major limitation of the analyses presented here is that we report the results of ANOVA tests despite the fact that the groupings of data for each question did not have exactly equal variances. Though this can be a violation of the assumptions of ANOVA, we decided that the differences between variances are not very large relative to the magnitude of the variances themselves. Since there is not a simple rule for how different variances must be to invalidate ANOVA, we opted to report the results, specifically alongside the results of Welch T Tests, which are valid with the unequal variances.
 
-For the Poisson regression, we saw that some of the assumptions were violated, meaning the results would be questionable and less reliable. The analysis for this part could be addressed by conducting a robust calculation for the SE. Otherwise, the results would be a gross estimate for the data.
+For the Poisson regression, we saw that some of the assumptions were violated, meaning the results would be questionable and less reliable. The analysis for this part could be addressed by conducting a robust calculation for the SE. Otherwise, the results would be a gross estimate for the data. 
 
-limits of data too: ( I think this applies to all questions)
-Question 1:
-
-Question 2:
-
-Question 3:
 ~~~ talking abt stuff in context of references ~~~
 
 We believe our work has strong connections to workforce-oriented research in the real world. Individuals have come across conclusions that are similar to ours, albeit with varying degrees of agreement. For instance, a finance website hosts an investigative piece on the importance of education level in data sience. It deviates mildly from our findings (identifying the relationship between degree and pay as mere positive correlation), but stresses that education level explains workers' skillsets and experience -- which may then translate to career and salary growth (Hayes). Similarly, a U.S. Bureau of Labor Statistics study cofirms our suspicions that location matters a great deal -- going so far as to claim that factors like cost of living or pace of life may supercede other attributes as determinants of compensation for identical work (Torpey). 
