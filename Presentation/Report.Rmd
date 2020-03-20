@@ -200,16 +200,25 @@ $$
   H_1: There \ is \ difference\ in \ mean \ salary
 $$
 
-```{r ref.label='Q2_ANOVA-test-general'}
+```{r ref.label='Q2_type1_sim'}
 ```
 
-From the ANOVA tests, when testing at the $$\alpha=0.05$$ significance level, we found the job title groups to have a p-value = `r formatC(anova.gen.jobs[[1]][["Pr(>F)"]][1],format = 'e')`, yielding strong evidence to reject the null hypothesis and implying that the mean salary of the job title groups are not equal. On the other hand, for the language groups we have the p-value = `r formatC(anova.gen.lang[[1]][["Pr(>F)"]][1],format = 'e')`, meaning we do not have strong evidence to reject the null hypothesis of equal mean salary among language preferences.
+Going with the assumption of a normal distribution for the Capped Salaries, the Type 1 error probability of the ANOVA test was calculated to be p-val=`r mean(a<.05)` through MC-simulations. This falls within the critival value of 0.04-0.06 for our alpha.
+
+```{r ref.label='Q2_ANOVA-test-general'}
+```
+From the ANOVA tests, when testing at the $\alpha=0.05$ significance level, we found the job title groups to have a p-value = `r formatC(anova.gen.jobs[[1]][["Pr(>F)"]][1],format = 'e')`, yielding strong evidence to reject the null hypothesis and implying that the mean salary of the job title groups are not equal. On the other hand, for the language groups we have the p-value = `r formatC(anova.gen.lang[[1]][["Pr(>F)"]][1],format = 'e')`, meaning we do not have strong evidence to reject the null hypothesis of equal mean salary among language preferences.
 
 ```{r, message=FALSE, echo=FALSE}
-grid.table(cbind(c('Group Test','Jobs ANOVA','Lang ANOVA'),c('p-value',formatC(anova.gen.jobs[[1]][["Pr(>F)"]][1],format = 'e'),formatC(anova.gen.lang[[1]][["Pr(>F)"]][1],format = 'e'))))
+#grid.table(cbind(c('Group Test','Jobs ANOVA','Lang ANOVA'),c('p-value',formatC(anova.gen.jobs[[1]][["Pr(>F)"]][1],format = 'e'),formatC(anova.gen.lang[[1]][["Pr(>F)"]][1],format = 'e'))))
 ```
 ```{r ref.label='Q2_glm-model'}
 ```
+We further test the null hypothesis through a generalized linear model (glm), log-linear regression, as this might provide a different conclusion than the ANOVA test. The log-linear model was chosen because it would return a ratio relative difference in the mean Salary for the groups compared to the Scientist groups. This would be a better way to express the difference in Salary instead of the direct value comparison of the mean Salary difference given by a linear regression model. 
+
+
+
+
 ```{r ref.label='Q2_glmjob-assumptions'}
 ```
 ```{r ref.label='Q2_glmlang-assumptions'}

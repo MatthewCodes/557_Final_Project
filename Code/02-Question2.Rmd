@@ -88,6 +88,41 @@ hist.gen.jobs <- DSdata2%>%
 
 From the figures, we can see that the groups for Job Titles and for Language Recommendations seem to have close enough variances. We'll proceed under the assumption of equal variances to use ANOVA and test the null hypothesis of equality of the means of the groups (for each Job Title and separately each Language).
 
+```{r, Q2_type1_sim}
+set.seed(8911) 
+
+jobssummary <- DSdata2 %>%
+  select(JobTitleGroup, CapSalary) %>%
+  group_by(JobTitleGroup) %>%
+  summarise(n = n(),mean = mean(CapSalary),sd = sd(CapSalary))
+
+nms_eng=jobssummary[1,2:4]
+nms_oth=jobssummary[2,2:4]
+nms_res=jobssummary[3,2:4]
+nms_sci=jobssummary[4,2:4]
+
+
+reps = 500
+a=rep(NA,reps)
+ 
+for(i in 1:reps){   
+  xe = cbind(rep('Eng',nms_eng[[1]]),rnorm(nms_eng[[1]],log(nms_eng[[2]]),log(nms_eng[[3]]))) 
+  xo = cbind(rep('Oth',nms_oth[[1]]),rnorm(nms_oth[[1]],log(nms_oth[[2]]),log(nms_oth[[3]])))
+  xr = cbind(rep('Res',nms_res[[1]]),rnorm(nms_res[[1]],log(nms_res[[2]]),log(nms_res[[3]])))
+  xs = cbind(rep('Sci',nms_sci[[1]]),rnorm(nms_sci[[1]],log(nms_sci[[2]]),log(nms_sci[[3]])))
+  
+  xT = rbind(xe,xo,xr,xs)
+  
+  aovDF <- data.frame(method=xT[,1],value=xT[,2])
+  aovsum<-summary(aov(as.numeric(value)~method, data = aovDF))
+  a[i]= (abs(abs(aovsum[[1]][["Pr(>F)"]][[1]])))
+} 
+
+
+```
+
+Going with the assumption of a normal distribution for the Capped Salaries, the Type 1 error probability of the ANOVA test was calculated to be `r mean(a<.05)` through MC-simulations. This falls within the critival value of 0.04-0.06 our alpha.
+
 ```{r, Q2_ANOVA-test-general}
 anova.gen.jobs <- summary(aov(CapSalary ~ JobTitleGroup, data= DSdata2))
 
@@ -98,6 +133,49 @@ From the anova test, we optained a `p-value = ``r anova.gen.lang[[1]][["Pr(>F)"]
 
 For the Job Title anova test, we got the `p-value = ``r anova.gen.jobs[[1]][["Pr(>F)"]][[1]]`, showing strong evidence to reject the null hypothesis.
 
+```{r, Q2_glm-model, message=F, warning=F}
+DSdata3 <- DSdata2[,]
+DSdata3$JobTitleGroup <- relevel(as.factor(DSdata3$JobTitleGroup), ref = 'Scientist')
+
+DSdata4 <- DSdata3[DSdata3$LanguageRecommendationSelect != "SQL",]
+
+glm.gen.jobs <- summary(glm(log(CapSalary) ~ JobTitleGroup, data= DSdata3, family = poisson))
+
+#grid.table(cbind(c("Engineer","Other","Research Analyst"),round((exp(glm.gen.jobs$coefficients[2:4,1])-1)*100,digits = 1)))
+
+##########
+glm.gen.lang <- summary(glm(CapSalary ~ LanguageRecommendationSelect, data= DSdata2, family = poisson))
+
+#grid.table(cbind(c("R","SQL"),round((exp(glm.gen.lang$coefficients[2:3,1])-1)*100,digits = 1)))
+```
+
+
+
+```{r, Q2_glmjob-assumptions, echo=FALSE, warning=FALSE}
+
+par(mfrow=c(1,2),mar=c(5,4,4,1))
+
+fitjob=glm(log(CapSalary) ~ JobTitleGroup, data= DSdata3, family = poisson)
+
+scatter.smooth(fitjob$linear.predictors,residuals(fitjob,type="deviance"),cex=0.5,col="gray")
+qqnorm(fitjob$residuals,main = "Normal Q-Q Plot: Job GLM")
+qqline(fitjob$residuals, col='red')
+
+
+```
+
+```{r, Q2_glmlang-assumptions, echo=FALSE, warning=FALSE}
+
+par(mfrow=c(1,2),mar=c(5,4,4,1))
+
+fitlan=glm(log(CapSalary) ~ LanguageRecommendationSelect, data= DSdata2, family = poisson)
+
+scatter.smooth(fitlan$linear.predictors,residuals(fitlan,type="deviance"),cex=0.5,col="gray")
+qqnorm(fitlan$residuals,main = "Normal Q-Q Plot: Language GLM")
+qqline(fitlan$residuals, col='red')
+
+
+```
 
 ### **Do similar data science jobs that involve different programming languages see comparable salaries (i.e. Data Analyst/Data Scientist, Machine Learning Engineer/Machine Learning Scientist)?**
 
@@ -232,48 +310,6 @@ Reject.Null <- Adjusted.P.Value < bonferCorr
 otherresult <- data.frame(Groups=c("Python - R","Python - SQL","R - SQL"),Adjusted.P.Value, Reject.Null)
 
 grid.table(otherresult)
-
-```
-
-```{r, Q2_glm-model, message=F, warning=F}
-DSdata3 <- DSdata2[,]
-DSdata3$JobTitleGroup <- relevel(as.factor(DSdata3$JobTitleGroup), ref = 'Scientist')
-
-DSdata4 <- DSdata3[DSdata3$LanguageRecommendationSelect != "SQL",]
-
-glm.gen.jobs <- summary(glm(log(CapSalary) ~ JobTitleGroup, data= DSdata3, family = poisson))
-
-#grid.table(cbind(c("Engineer","Other","Research Analyst"),round((exp(glm.gen.jobs$coefficients[2:4,1])-1)*100,digits = 1)))
-
-##########
-glm.gen.lang <- summary(glm(CapSalary ~ LanguageRecommendationSelect, data= DSdata2, family = poisson))
-
-#grid.table(cbind(c("R","SQL"),round((exp(glm.gen.lang$coefficients[2:3,1])-1)*100,digits = 1)))
-```
-
-```{r, Q2_glmjob-assumptions, echo=FALSE, warning=FALSE}
-
-par(mfrow=c(1,2),mar=c(5,4,4,1))
-
-fitjob=glm(log(CapSalary) ~ JobTitleGroup, data= DSdata3, family = poisson)
-
-scatter.smooth(fitjob$linear.predictors,residuals(fitjob,type="deviance"),cex=0.5,col="gray")
-qqnorm(fitjob$residuals,main = "Normal Q-Q Plot: Job GLM")
-qqline(fitjob$residuals, col='red')
-
-
-```
-
-```{r, Q2_glmlang-assumptions, echo=FALSE, warning=FALSE}
-
-par(mfrow=c(1,2),mar=c(5,4,4,1))
-
-fitlan=glm(log(CapSalary) ~ LanguageRecommendationSelect, data= DSdata2, family = poisson)
-
-scatter.smooth(fitlan$linear.predictors,residuals(fitlan,type="deviance"),cex=0.5,col="gray")
-qqnorm(fitlan$residuals,main = "Normal Q-Q Plot: Language GLM")
-qqline(fitlan$residuals, col='red')
-
 
 ```
 
