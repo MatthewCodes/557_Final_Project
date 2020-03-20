@@ -1,4 +1,10 @@
 ## ---- Q2_setup, eval=TRUE, echo=FALSE-----------------------------------------
+# library(ggplot2)
+# library(tidyverse)
+# library(ggpubr)
+# library(gridExtra)
+# library(grid)
+# library(scales)
 DSdata <- read_csv("../Data/DataScienceData.csv")
 
 
@@ -67,10 +73,85 @@ hist.gen.jobs <- DSdata2%>%
   ggplot(aes(x=CapSalary, fill = JobTitleGroup, color = JobTitleGroup))+ geom_histogram(alpha = .5, bins= 10)+ labs(x ='Annual Salary in USD') + scale_x_log10(labels = dollar) + theme(axis.title.y = element_blank()) + annotate("text", x = rep(300000,5), y = c(550,500,450,400,350), label = c(paste('Title  |',"Count"),paste('Eng: ',dim(DSdata2[DSdata2$JobTitleGroup=='Engineer',])[1]),paste('Oth: ',dim(DSdata2[DSdata2$JobTitleGroup=='Other',])[1]),paste('Res: ',dim(DSdata2[DSdata2$JobTitleGroup=='ResearchAnalyst',])[1]),paste('Sci:',dim(DSdata2[DSdata2$JobTitleGroup=='Scientist',])[1])),size=4)
 
 
+## ---- Q2_type1_sim------------------------------------------------------------
+set.seed(8911) 
+
+jobssummary <- DSdata2 %>%
+  select(JobTitleGroup, CapSalary) %>%
+  group_by(JobTitleGroup) %>%
+  summarise(n = n(),mean = mean(CapSalary),sd = sd(CapSalary))
+
+nms_eng=jobssummary[1,2:4]
+nms_oth=jobssummary[2,2:4]
+nms_res=jobssummary[3,2:4]
+nms_sci=jobssummary[4,2:4]
+
+
+reps = 500
+a=rep(NA,reps)
+ 
+for(i in 1:reps){   
+  xe = cbind(rep('Eng',nms_eng[[1]]),rnorm(nms_eng[[1]],log(nms_eng[[2]]),log(nms_eng[[3]]))) 
+  xo = cbind(rep('Oth',nms_oth[[1]]),rnorm(nms_oth[[1]],log(nms_oth[[2]]),log(nms_oth[[3]])))
+  xr = cbind(rep('Res',nms_res[[1]]),rnorm(nms_res[[1]],log(nms_res[[2]]),log(nms_res[[3]])))
+  xs = cbind(rep('Sci',nms_sci[[1]]),rnorm(nms_sci[[1]],log(nms_sci[[2]]),log(nms_sci[[3]])))
+  
+  xT = rbind(xe,xo,xr,xs)
+  
+  aovDF <- data.frame(method=xT[,1],value=xT[,2])
+  aovsum<-summary(aov(as.numeric(value)~method, data = aovDF))
+  a[i]= (abs(abs(aovsum[[1]][["Pr(>F)"]][[1]])))
+} 
+
+
+
+
 ## ---- Q2_ANOVA-test-general---------------------------------------------------
 anova.gen.jobs <- summary(aov(CapSalary ~ JobTitleGroup, data= DSdata2))
 
 anova.gen.lang <- summary(aov(CapSalary ~ LanguageRecommendationSelect, data= DSdata2))
+
+
+## ---- Q2_glm-model, message=F, warning=F--------------------------------------
+DSdata3 <- DSdata2[,]
+DSdata3$JobTitleGroup <- relevel(as.factor(DSdata3$JobTitleGroup), ref = 'Scientist')
+
+DSdata4 <- DSdata3[DSdata3$LanguageRecommendationSelect != "SQL",]
+
+glm.gen.jobs <- summary(glm(CapSalary ~ JobTitleGroup, data= DSdata3, family = poisson))
+
+#grid.table(cbind(c("Engineer","Other","Research Analyst"),round((exp(glm.gen.jobs$coefficients[2:4,1])-1)*100,digits = 1)))
+
+##########
+glm.gen.lang <- summary(glm(CapSalary ~ LanguageRecommendationSelect, data= DSdata2, family = poisson))
+
+#grid.table(cbind(c("R","SQL"),round((exp(glm.gen.lang$coefficients[2:3,1])-1)*100,digits = 1)))
+
+
+## ---- Q2_glmjob-assumptions, echo=FALSE, warning=FALSE------------------------
+
+par(mfrow=c(1,2),mar=c(5,4,4,1))
+
+fitjob=glm(log(CapSalary) ~ JobTitleGroup, data= DSdata3, family = poisson)
+
+scatter.smooth(fitjob$linear.predictors,residuals(fitjob,type="deviance"),cex=0.5,col="gray")
+qqnorm(fitjob$residuals,main = "Normal Q-Q Plot: Job GLM")
+qqline(fitjob$residuals, col='red')
+
+
+
+
+## ---- Q2_glmlang-assumptions, echo=FALSE, warning=FALSE-----------------------
+
+par(mfrow=c(1,2),mar=c(5,4,4,1))
+
+fitlan=glm(log(CapSalary) ~ LanguageRecommendationSelect, data= DSdata2, family = poisson)
+
+scatter.smooth(fitlan$linear.predictors,residuals(fitlan,type="deviance"),cex=0.5,col="gray")
+qqnorm(fitlan$residuals,main = "Normal Q-Q Plot: Language GLM")
+qqline(fitlan$residuals, col='red')
+
+
 
 
 ## ---- Q2_setup-dfs, message=F, warning=F--------------------------------------
@@ -112,7 +193,6 @@ density.final.job <- annotate_figure(density.jobs,
                 left = text_grob("Density", 
                                  color ="black", rot = 90))
 
-density.final.job
 
 
 ## ---- Q2_boxplot-Title--------------------------------------------------------
@@ -139,7 +219,6 @@ boxplot.final.job <- annotate_figure(boxplot.job,
                 left = text_grob("Salary in USD", 
                                  color ="black", rot = 90))
 
-boxplot.final.job
 
 
 ## ---- Q2_tests-for, message=F, warning=F--------------------------------------
@@ -158,7 +237,6 @@ Adjusted.P.Value=c(test.sci.pr$p.value,test.sci.ps$p.value, test.sci.rs$p.value)
 Reject.Null <- Adjusted.P.Value < bonferCorr
 sciresult <- data.frame(Groups=c("Python - R","Python - SQL","R - SQL"),Adjusted.P.Value, Reject.Null)
 
-grid.table(sciresult)
 
 # Engineer datasets to test with Welch t-test
 test.eng.pr <- t.test(engdf$CapSalary[engdf$LanguageRecommendationSelect=='Python'],engdf$CapSalary[engdf$LanguageRecommendationSelect=='R'],conf.level = 1 - bonferCorr)
@@ -171,7 +249,6 @@ Adjusted.P.Value=c(test.eng.pr$p.value,test.eng.ps$p.value, test.eng.rs$p.value)
 Reject.Null <- Adjusted.P.Value < bonferCorr
 engresult <- data.frame(Groups=c("Python - R","Python - SQL","R - SQL"),Adjusted.P.Value, Reject.Null)
 
-grid.table(engresult)
 
 # Research Analyst datasets to test with Welch t-test
 test.res.pr <- t.test(resanldf$CapSalary[resanldf$LanguageRecommendationSelect=='Python'],resanldf$CapSalary[resanldf$LanguageRecommendationSelect=='R'],conf.level = 1 - bonferCorr)
@@ -184,7 +261,6 @@ Adjusted.P.Value=c(test.res.pr$p.value,test.res.ps$p.value, test.res.rs$p.value)
 Reject.Null <- Adjusted.P.Value < bonferCorr
 resresult <- data.frame(Groups=c("Python - R","Python - SQL","R - SQL"),Adjusted.P.Value, Reject.Null)
 
-grid.table(resresult)
 
 
 # Other datasets to test with Welch t-test
@@ -198,48 +274,6 @@ Adjusted.P.Value=c(test.other.pr$p.value,test.other.ps$p.value, test.other.rs$p.
 Reject.Null <- Adjusted.P.Value < bonferCorr
 otherresult <- data.frame(Groups=c("Python - R","Python - SQL","R - SQL"),Adjusted.P.Value, Reject.Null)
 
-grid.table(otherresult)
-
-
-
-## ---- Q2_glm-model, message=F, warning=F--------------------------------------
-DSdata3 <- DSdata2[,]
-DSdata3$JobTitleGroup <- relevel(as.factor(DSdata3$JobTitleGroup), ref = 'Scientist')
-
-DSdata4 <- DSdata3[DSdata3$LanguageRecommendationSelect != "SQL",]
-
-glm.gen.jobs <- summary(glm(log(CapSalary) ~ JobTitleGroup, data= DSdata3, family = poisson))
-
-#grid.table(cbind(c("Engineer","Other","Research Analyst"),round((exp(glm.gen.jobs$coefficients[2:4,1])-1)*100,digits = 1)))
-
-##########
-glm.gen.lang <- summary(glm(CapSalary ~ LanguageRecommendationSelect, data= DSdata2, family = poisson))
-
-#grid.table(cbind(c("R","SQL"),round((exp(glm.gen.lang$coefficients[2:3,1])-1)*100,digits = 1)))
-
-
-## ---- Q2_glmjob-assumptions, echo=FALSE, warning=FALSE------------------------
-
-par(mfrow=c(1,2),mar=c(5,4,4,1))
-
-fitjob=glm(log(CapSalary) ~ JobTitleGroup, data= DSdata3, family = poisson)
-
-scatter.smooth(fitjob$linear.predictors,residuals(fitjob,type="deviance"),cex=0.5,col="gray")
-qqnorm(fitjob$residuals,main = "Normal Q-Q Plot: Job GLM")
-qqline(fitjob$residuals, col='red')
-
-
-
-
-## ---- Q2_glmlang-assumptions, echo=FALSE, warning=FALSE-----------------------
-
-par(mfrow=c(1,2),mar=c(5,4,4,1))
-
-fitlan=glm(log(CapSalary) ~ LanguageRecommendationSelect, data= DSdata2, family = poisson)
-
-scatter.smooth(fitlan$linear.predictors,residuals(fitlan,type="deviance"),cex=0.5,col="gray")
-qqnorm(fitlan$residuals,main = "Normal Q-Q Plot: Language GLM")
-qqline(fitlan$residuals, col='red')
 
 
 
