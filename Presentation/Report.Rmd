@@ -123,10 +123,8 @@ For the each of the tests, we are working under the assumption that the samples 
 
 ## Pay & Location
 
-Prior to conducting our analyses into Question 1, we suspected that the amount of information from the dense areas would be significantly larger than the data from sparse areas. We thought this because of the assumption that areas with a high population will have more of a need for data scientists than sparse areas (like rural countries). One important assumption we are making (which affected our choice of method) is that the data is normally distributed.
-This means that areas that are on the lower end of sparse and dense will appear as often as areas that are on the higher end of dense and sparse, while the majority of areas fall closer to the mean of each population density. 
-We initially felt that this would be a problem. However, even if the data wasn’t normally distributed, since we have around 10,000 rows, it is believed that the sample size is sufficiently large. Lastly, as previously stated, we make the equal-variance assumption.
-
+Prior to conducting our analyses into Question 1, we suspected that the amount of information from the dense areas would be significantly larger than the data from sparse areas. We thought this because of the assumption that areas with a high population will have more of a need for data scientists than sparse areas (like rural countries). One important assumption we are making (which affected our choice of method) is that the data is normally distributed. For this question, this means that areas that are on the lower end of sparse and dense will appear as often as areas that are on the upper end of sparse and dense, while the majority of areas fall closer to the mean of each population density. 
+Even if the data wasn’t normally distributed, since we have around 10,000 rows it is believed that the sample size is sufficiently large. The last thing we are assuming for this is that there is equal variance.
 ```{r, echo =FALSE}
 knitr::read_chunk("temp")
 ```
@@ -136,13 +134,20 @@ knitr::read_chunk("temp")
 
 ```{r ref.label='testing'}
 ```
-Below are histograms for commission and salary, broken down into high density and low density areas. High density areas are countries that have more than 500 people per square mile, while low density areas have any amount under 500. As we can see from the histograms the data is not normally distributed so our initial assumption was incorrect.
+The data had a very wide range of values and we came to the conclusion that people are not making less than 20k-30k as a salaried employee. We decided to split the data into workers who make less than 30k as individuals who make commission and those that make more, as salaried here. High density areas are countries that have more than 500 people per square mile, while low density areas have less than 500. Below are histograms for commission and salary, broken down into high density and low density areas.  As we can see from the histograms the data is not normally distributed so our initial assumption was incorrect. This distribution looks more exponential than normal based on our salary split. 
+
+
+
 ```{r ref.label='pre_plots'}
 ```
-From linear regression tests, there is a slightly negative linear relationship between density and compensation (for salary and commission). The x-axis denotes 1 for high and 0 for low density, so we can see that (as density goes from low to high), average salary goes down by $21,652.
+We then did power calculations to verify that we had an appropriate amount of power to conduct a valid experiment. The sample sizes we had after the preprocessing was 574 for high density commission and 805 for low density commission which allowed us to achieve a power of 97%. While sample sizes of 787 and 2098 for high and low salary allowed us to achieve a power of 99%.
+
+From linear regression tests, we observed that there is a slightly negative linear relationship between density and compensation (for salary and commission). In both levels of compensation (commission and salary), as your density goes from low to high your compensation decreases.  
+
+The X axis is 1 for high and 0 for low density, so we can see that as density goes from low to high on average Salary goes down by $21,652. We also observed the distribution of the combined low and high density salaries. 
 ```{r ref.label='Question_1_plot_salary'}
 ```
-This is the linear regression plot and the distribution of the total commission (including high and low density). Similarly, as density goes from low to high, average commission goes down by $2,106.
+This is the linear regression plot and the distribution of the total commission (including high and low density), similarly as density goes from low to high on average commission goes down by $2,106. We also observed the distribution of the combined low and high density commission. 
 ```{r ref.label='Question_1_plot_commission'}
 ```
 ```{r echo=FALSE}
@@ -150,12 +155,15 @@ unlink("temp")
 ```
 
 ## Discussion
-We first address our original assumptions about Question #1: we did not ultimately receive more data from the high density areas. In fact, we received more data from the low density areas.
-The data points from the dataset were indeed independent, since this survey was given to individual participants, but we did not have a normal distribution of data for commission 
-or salary, nor equal variances for either of them. Subsequently, the initial metric statistics lead us to conclude that we should not use ANOVA or linear regression, as the variances are not the same. We also understand that unequal variances are a problem no matter how large the sample size may be, thus the Welch method is more appropriate. However, we also realize that there is a malleable window of difference (a certain thershold) that counts as equal variance, so we still performed our other tests.
+We first address our original assumptions about Question #1, we did not ultimately receive more data from the high density areas. In fact, we received more data from the low density areas.The data points from the dataset were indeed independent, since this survey was given to individual participants, but we did not have a normal distribution of data for commission or salary, nor equal variances for either of them. Subsequently, the initial metric statistics lead us to conclude that we should not use ANOVA or linear regression, as the variances are not the same. We also understand that unequal variances are a problem no matter how large the sample size may be, thus the Welch method is more appropriate. However, we also realize that there is a malleable window of difference (a certain thershold) that counts as equal variance, so we still performed our other tests.
+
+## Is there a differnce in pay between workers that live in high density and low density areas?
+From our experiments we would say that there is defintely a difference in pay between these types of workers and if we inlcude the results from our linear regression model, we can further conclude a negative linear association between density and compensation. We concluded that this negative association exists most likely because low density might lead to more space between individuals, a higher standard of living, or bigger housing, which all might contribute to higher paying jobs. Our rational was that coutries that have a high density would have more people living in tightly packed areas that couldn't afford more expensive (bigger housing).
+
 
 Recall that commission is defined as anyone making less than $30k, all other respondents are classified as salaried.
-The p-value reported from the anova tests are <2e-16 for salary and .00011 for commission. The p-value for salary and commision are 2.2e-16 and 0.0001096, respectively, so there is remarkable evidence to reject the null hypothesis. Consequently, we conclude that density does have an effect on compensation (both salary and commision). There is defintely some existing difference, and if we inlcude the results from our linear regression model, we can further point towards a possible a negative association between density and compensation.
+The p-value reported from the anova tests are <2e-16 for high salary compared to low salary and .00011 for low commission and high commission.  Since, the p-values for salary and commision are 2.2e-16 and 0.00011, respectively, there is remarkable evidence to reject the null hypothesis, but since we did not consider the variances to be equal we ran the Welch test as well. 
+The p-value reported from the welch tests are <2e-16 for high salary compared to low salary and .00002765 between low commission and high commission. Consequently, we conclude that density does have an effect on compensation (for both salary and commision) and that ultimately there is a difference in pay between workers that live in high density areas compared to low density areas.
 
 
 ## Pay & Job Title / Programming Language
@@ -313,9 +321,11 @@ The visualization above graphs the resulting linear relation along with the grou
 
 
 **Limits of Analyses:**
-One major limitation of the analyses presented here is that we report the results of ANOVA tests despite the fact that the groupings of data for each question did not have exactly equal variances. Though this can be a violation of the assumptions of ANOVA, we decided that the differences between variances are not very large relative to the magnitude of the variances themselves. Since there is not a simple rule for how different variances must be to invalidate ANOVA, we opted to report the results, specifically alongside the results of Welch T Tests, which are valid with the unequal variances.
+The first limitation we noticed was that due to the lack of entries, large amount of zeros, high outliers, and range of low values, we ended up having to significantly reduce the dataset. Since each question only required a few features, all irrelevant features were removed which resulted in the even more data reduction. One major limitation of the analyses presented here is that we report the results of ANOVA tests despite the fact that the groupings of data for each question did not have exactly equal variances. Though this can be a violation of the assumptions of ANOVA, we decided that the differences between variances are not very large relative to the magnitude of the variances themselves. Since there is not a simple rule for how different variances must be to invalidate ANOVA, we opted to report the results, specifically alongside the results of Welch T Tests, which are valid with the unequal variances.
 
 For the Poisson regression, we saw that some of the assumptions were violated, meaning the results would be questionable and less reliable. The analysis for this part could be addressed by conducting a robust calculation for the SE. Otherwise, the results would be a gross estimate for the data. 
+
+We aknowledge that the values of 20k and 30k are not perfect splits for the data into commission and salary features but this type of split was not provided to us. We consider this to be the biggest limitation of the data set since it doesn’t make the pay distinction for us.  Going forward these values can be changed and varied to find out more information from the dataset or to find what the best value is to split at. If the distinctions were made in the data, we could come up with more accurate answers to our questions.
 
 ~~~ talking abt stuff in context of references ~~~
 
