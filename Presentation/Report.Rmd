@@ -102,7 +102,7 @@ Total annual population, by sex, from 1950 to 2100.
 We were only interested in the latest population, so we used the entries for 2019. After we had these values, they were converted in population per square mile for interpretability. The goal of this data was to allow for a determination of high-density and low-denisty countries. All of the countries that were included in the multipleChoiceReponses dataset were also included in the population dataset, so we appended the appropriate densities to their respective rows in the multipleChoiceReponses dataset as a final step before starting our analyses after all of the pre-processing was completed the amount of relevant data varied from question to question.
 
 
-## Statistical Methods and Assumptions
+## Statistical Methods & Assumptions
 **ANOVA:**
 
 The first method we decided to use was Analysis of Variance (ANOVA).
@@ -144,7 +144,7 @@ We then did power calculations to verify that we had an appropriate amount of po
 
 From linear regression tests, we observed that there is a slightly negative linear relationship between density and compensation (for salary and commission). In both levels of compensation (commission and salary), as your density goes from low to high your compensation decreases.  
 
-The X axis is 1 for high and 0 for low density, so we can see that as density goes from low to high on average Salary goes down by $21,652. We also observed the distribution of the combined low and high density salaries. 
+The x-axis denotes 1 for high and 0 for low density, so we can see that as density goes from low to high on average Salary goes down by $21,652. We also observed the distribution of the combined low and high density salaries. 
 ```{r ref.label='Question_1_plot_salary'}
 ```
 This is the linear regression plot and the distribution of the total commission (including high and low density), similarly as density goes from low to high on average commission goes down by $2,106. We also observed the distribution of the combined low and high density commission. 
@@ -154,10 +154,11 @@ This is the linear regression plot and the distribution of the total commission 
 unlink("temp")
 ```
 
-## Exploratory findings
+**Exploratory Findings**
 We first address our original assumptions about Question #1, we did not ultimately receive more data from the high density areas. In fact, we received more data from the low density areas.The data points from the dataset were indeed independent, since this survey was given to individual participants, but we did not have a normal distribution of data for commission or salary, nor equal variances for either of them. Subsequently, the initial metric statistics lead us to conclude that we should not use ANOVA or linear regression, as the variances are not the same. We also understand that unequal variances are a problem no matter how large the sample size may be, thus the Welch method is more appropriate. However, we also realize that there is a malleable window of difference (a certain thershold) that counts as equal variance, so we still performed our other tests.
 
-## Is there a differnce in pay between workers that live in high density and low density areas?
+**Is there a difference in pay between workers that live in high vs. low density areas?**
+
 From our experiments we would say that there is defintely a difference in pay between these types of workers and if we inlcude the results from our linear regression model, we can further conclude a negative linear association between density and compensation. We concluded that this negative association exists most likely because low density might lead to more space between individuals, a higher standard of living, or bigger housing, which all might contribute to higher paying jobs. Our rational was that coutries that have a high density would have more people living in tightly packed areas that couldn't afford more expensive (bigger housing).
 
 
@@ -179,9 +180,9 @@ knitr::read_chunk("temp2")
 ```{r ref.label='Q2_setup-dfs'}
 ```
 
-For question 2, we wanted to explore the effects that a specific job title or preference in programming language might have on salary. For our purposes, our questions narrowed down to:
+For question 2, we wanted to explore the effects that a specific job title or preference in programming language might have on pay. Specifically, our question is:
 
-**Are there differences in data scientists' salaries when grouped by job-title (i.e. Data Analyst/Data Scientist, Engineer, Researcher), or by the type of programming language they employ most?**
+**Are there differences in data scientists' salaries when grouped by job title (Data Analyst/Scientist, Engineer, Researcher), or by the programming language they employ most?**
 
 Within the original survey, the participants were provided with 17 different titles as options for that which best suited their current role. To answer the first question we needed to create groups for the 17 different entries to the 'Current Job Title' descriptions. For this we decided upon grouping titles into 'Scientist' (people probably utilizing higher level math/statistics), 'ResearchAnalyst' (those focused with general data analysis and manipulation), 'Engineer' (titles focused on data engineering or software), and 'Other' (description unknown). We worked with the already-capped salary data for this question. 
 
@@ -208,7 +209,8 @@ The boxplots for both the job title groups and language preference groups seem t
 
 For our tests, we ran under the hypotheses:
 $$
-  H_0: There \ is \ no \ difference \ in \ mean \ salary \ (\mu_1=\mu_2 = ...=\mu_n)
+  H_0: There \ is \ no \ difference \ in \ mean \ salary \ 
+  \\ (\mu_1=\mu_2 = ...=\mu_n)
   \\
 $$
 $$
@@ -240,7 +242,7 @@ The results from the Poisson GLMs were interesting, as they provided an differen
 ```{r ref.label='Q2_glmlang-assumptions'}
 ```
 
-**Is the mean Salary within similar Job Titles affected by the choice of Programming Language?**
+**Is mean salary within similar job titles affected by the choice of programming language?**
 
 For the secon part of the question, given that there was evidence through ANOVA that mean salary between Job Titles was different, we wondered if language recommendation would have an effect in the salary within each Job Title group. In essence, we wanted to test for a difference in mean salary between Scientist who recommend Python vs R vs SQL, and so on for each Job Title.
 
@@ -333,7 +335,7 @@ For the Poisson regression, we saw that some of the assumptions were violated, m
 **Limits of Data:**
 The first limitation we noticed was that due to the lack of entries, large amount of zeros, high outliers, and range of low values, we ended up having to significantly reduce the dataset. Since each question only required a few features, all irrelevant features were removed which resulted in the even more data reduction. 500 was chosen  as the split for high and low density after exploratory analysis of the data but is not considered the "best" value to split at. Similar to density, we aknowledge that the values of 20k and 30k are not perfect splits of the data into commission and salary features but this type of split was not provided to us either. We consider this to be the biggest limitation of the data set since it doesn’t make the pay distinction for us. Going forward these values can be changed and varied to find out more information from the dataset or to find the best values to split at. If the distinctions were made in the data, we could come up with more accurate answers to our questions.
 
-~~~ talking abt stuff in context of references ~~~
+**Extending Our Research**
 
 We believe our work has strong connections to workforce-oriented research in the real world. Individuals have come across conclusions that are similar to ours, albeit with varying degrees of agreement. For instance, a finance website hosts an investigative piece on the importance of education level in data sience. It deviates mildly from our findings (identifying the relationship between degree and pay as mere positive correlation), but stresses that education level explains workers' skillsets and experience -- which may then translate to career and salary growth (Hayes). Similarly, a U.S. Bureau of Labor Statistics study cofirms our suspicions that location matters a great deal -- going so far as to claim that factors like cost of living or pace of life may supercede other attributes as determinants of compensation for identical work (Torpey). 
 
