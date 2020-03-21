@@ -318,12 +318,16 @@ We wanted to test for a linear relationship between education level and salary. 
 ```
 The visualization above graphs the resulting linear relation along with the grouped data. This model's coefficient is `r reg_c`, leading to our conclusion that pay is higher by almost $18,000 for each level of increase in education.
 
+## Discussion
 
+In summary, our analyses produced evidence for differences in pay based on the population density of respodents' location, their official job title, and their education level. No such evidence was produced for differences based on the programming language recommended by respondents. Additionally, we found evidence that pay is higher for each level of increase in education.
+
+Despite these results, there were limitations to both our analyses and the data itself.
 
 **Limits of Analyses:**
 The first limitation we noticed was that due to the lack of entries, large amount of zeros, high outliers, and range of low values, we ended up having to significantly reduce the dataset. Since each question only required a few features, all irrelevant features were removed which resulted in the even more data reduction. One major limitation of the analyses presented here is that we report the results of ANOVA tests despite the fact that the groupings of data for each question did not have exactly equal variances. Though this can be a violation of the assumptions of ANOVA, we decided that the differences between variances are not very large relative to the magnitude of the variances themselves. Since there is not a simple rule for how different variances must be to invalidate ANOVA, we opted to report the results, specifically alongside the results of Welch T Tests, which are valid with the unequal variances.
 
-For the Poisson regression, we saw that some of the assumptions were violated, meaning the results would be questionable and less reliable. The analysis for this part could be addressed by conducting a robust calculation for the SE. Otherwise, the results would be a gross estimate for the data. 
+For the attempted Poisson regression, we have detailed how some of the assumptions were violated, which is why we do not use the results of this to make any claims. The analysis for this part could be addressed by conducting a robust calculation for the SE. 
 
 We aknowledge that the values of 20k and 30k are not perfect splits for the data into commission and salary features but this type of split was not provided to us. We consider this to be the biggest limitation of the data set since it doesn’t make the pay distinction for us.  Going forward these values can be changed and varied to find out more information from the dataset or to find what the best value is to split at. If the distinctions were made in the data, we could come up with more accurate answers to our questions.
 
