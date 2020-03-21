@@ -154,7 +154,7 @@ This is the linear regression plot and the distribution of the total commission 
 unlink("temp")
 ```
 
-## Discussion
+## Exploratory findings
 We first address our original assumptions about Question #1, we did not ultimately receive more data from the high density areas. In fact, we received more data from the low density areas.The data points from the dataset were indeed independent, since this survey was given to individual participants, but we did not have a normal distribution of data for commission or salary, nor equal variances for either of them. Subsequently, the initial metric statistics lead us to conclude that we should not use ANOVA or linear regression, as the variances are not the same. We also understand that unequal variances are a problem no matter how large the sample size may be, thus the Welch method is more appropriate. However, we also realize that there is a malleable window of difference (a certain thershold) that counts as equal variance, so we still performed our other tests.
 
 ## Is there a differnce in pay between workers that live in high density and low density areas?
